@@ -1,0 +1,13 @@
+.env
+**/.env
+.venv/
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+uploads/
+app/data/
+ai_engine/data/
+tests/
+*.sql
+*.xlsx
+*.zip

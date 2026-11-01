@@ -1,16 +1,42 @@
+# L&H Pulse: API + PostgreSQL. Uso:  copiar .env.example como .env, completar y  docker compose up -d --build
+# Las credenciales salen del .env (que no se sube al repositorio). Los datos viven en el volumen lhpulse_datos.
+name: lhpulse
+
 services:
-  postgres:
+  db:
     image: postgres:16
-    container_name: lhscore_postgres
-    restart: always
+    restart: unless-stopped
     environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-    ports:
-      - "127.0.0.1:5432:5432"
+      POSTGRES_DB: ${DB_NAME:?Falta DB_NAME en el .env}
+      POSTGRES_USER: ${DB_USER:?Falta DB_USER en el .env}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Falta DB_PASSWORD en el .env}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - lhpulse_datos:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    # Sin puerto publicado: solo la API llega a la base, por la red interna de Docker
+
+  api:
+    build: ./backend
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DB_HOST: db
+      DB_PORT: "5432"
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${API_PUERTO:-5075}:5000"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/')\""]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
 
 volumes:
-  postgres_data:
+  lhpulse_datos:
