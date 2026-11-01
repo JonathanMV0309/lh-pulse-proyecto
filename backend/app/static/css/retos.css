@@ -1,0 +1,169 @@
+/* ================================================================
+   Retos de la red: batallas de la semana, récords, hora dorada, turnos,
+   batalla de asesoras, «Tu semana», batallas de la red y salón de la fama.
+   ================================================================ */
+:root {
+  --rt-ink: #2D2A26; --rt-muted: #6B6259; --rt-line: rgba(139, 125, 107, .2); --rt-card: #FDFBF7; --rt-cream: #F5F0E8;
+  --rt-gold: #C5A880; --rt-gold-d: #A8865A; --rt-thread: #E8C77E; --rt-ok: #6B7D3F; --rt-mid: #C9952F; --rt-bad: #B55A4E;
+  --rt-ease: cubic-bezier(.23, 1, .32, 1);
+}
+.rt-seccion { margin: 0 0 24px; }
+.rt-cabeza h1 { margin: 0; font: 800 26px Inter, sans-serif; color: var(--rt-ink); display: flex; align-items: center; gap: 10px; }
+.rt-cabeza h1 i { color: var(--rt-gold-d); }
+.rt-cabeza { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 16px; margin-bottom: 12px; }
+.rt-cabeza h2 { margin: 0; font: 800 20px Inter, sans-serif; color: var(--rt-ink); display: flex; align-items: center; gap: 8px; }
+.rt-cabeza h2 i { color: var(--rt-gold-d); }
+.rt-cabeza p { margin: 2px 0 0; color: var(--rt-muted); font-size: 13px; }
+.rt-cabeza .rt-boton { margin-left: auto; }
+.rt-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 14px; }
+.rt-card { grid-column: span 6; padding: 18px 20px; border-radius: 20px; background: var(--rt-card); border: 1px solid var(--rt-line); box-shadow: 0 8px 30px rgba(45, 42, 38, .05); color: var(--rt-ink); }
+.rt-card.ancha { grid-column: span 12; }
+.rt-card.tercio { grid-column: span 4; }
+.rt-card h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; font: 800 15px Inter, sans-serif; }
+.rt-card h3 i { color: var(--rt-gold-d); }
+.rt-card h3 small { margin-left: auto; color: var(--rt-muted); font-weight: 600; font-size: 12px; }
+.rt-nota { margin: 10px 0 0; color: var(--rt-muted); font-size: 12.5px; }
+.rt-boton { display: inline-flex; align-items: center; gap: 8px; min-height: 38px; padding: 7px 14px; border-radius: 12px; border: 0; background: var(--rt-ink); color: var(--rt-cream); font: 700 13.5px Inter, sans-serif; cursor: pointer; text-decoration: none; transition: transform .15s; }
+.rt-boton:hover { color: #fff; } .rt-boton:active { transform: scale(.97); }
+.rt-boton.sec { background: #fff; color: var(--rt-ink); border: 1px solid var(--rt-line); }
+.rt-boton:focus-visible, .rt-tab:focus-visible { outline: 2px solid var(--rt-gold-d); outline-offset: 2px; }
+
+/* ---------- Franja del dashboard ---------- */
+.rt-franja { display: flex; align-items: center; gap: 14px; margin: 0 0 24px; padding: 14px 18px; border-radius: 18px; background: linear-gradient(135deg, #2D2A26, #3d352e); color: #F5F0E8; text-decoration: none; box-shadow: 0 10px 26px rgba(45, 42, 38, .14); transition: transform .2s var(--rt-ease), box-shadow .2s; }
+.rt-franja:hover { color: #F5F0E8; transform: translateY(-2px); box-shadow: 0 14px 30px rgba(45, 42, 38, .2); }
+.rt-franja:focus-visible { outline: 2px solid var(--rt-gold-d); outline-offset: 3px; }
+.rt-f-icono { display: grid; place-items: center; width: 40px; height: 40px; flex: none; border-radius: 50%; background: rgba(232, 199, 126, .15); font-size: 18px; }
+.rt-f-txt { flex: 1; font-size: 14.5px; } .rt-f-num { color: var(--rt-thread); font-variant-numeric: tabular-nums; }
+.rt-f-ir { flex: none; color: var(--rt-thread); font-weight: 700; font-size: 13.5px; white-space: nowrap; }
+@media (max-width: 640px) { .rt-franja { flex-wrap: wrap; } .rt-f-ir { width: 100%; text-align: right; } }
+
+/* ---------- Mis trofeos ---------- */
+.rt-trofeos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 10px; }
+.rt-trofeos div { padding: 10px; border-radius: 14px; background: var(--rt-cream); text-align: center; }
+.rt-trofeos b { display: block; font: 800 22px Inter, sans-serif; color: var(--rt-ink); }
+.rt-trofeos span { color: var(--rt-muted); font-size: 11.5px; }
+.rt-copas { margin: 0 0 8px; font-size: 20px; letter-spacing: 4px; text-align: center; }
+
+/* ---------- Batalla ---------- */
+.rt-batalla { position: relative; overflow: hidden; background: linear-gradient(135deg, #2D2A26, #3d352e); color: #F5F0E8; border-color: transparent; }
+.rt-batalla h3, .rt-batalla h3 small { color: #F5F0E8; } .rt-batalla h3 i { color: var(--rt-thread); }
+.rt-vs { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px; align-items: center; }
+.rt-lado { min-width: 0; }
+.rt-lado.der { text-align: right; }
+.rt-lado small { display: block; color: #D8CABB; font-size: 12px; }
+.rt-lado b { display: block; font: 800 18px Inter, sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rt-lado .rt-pct { font: 800 40px/1.05 Inter, sans-serif; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.rt-lado.lider .rt-pct { color: var(--rt-thread); }
+.rt-lado .rt-corona { font-size: 20px; }
+.rt-x { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; background: rgba(232, 199, 126, .15); color: var(--rt-thread); font: 800 16px Inter, sans-serif; }
+.rt-barras { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 14px 0 0; }
+.rt-barra { height: 10px; border-radius: 99px; background: rgba(255, 255, 255, .12); overflow: hidden; }
+.rt-barra span { display: block; height: 100%; width: 0; border-radius: 99px; background: #9C8F80; transition: width 1s var(--rt-ease); }
+.rt-barra.lider span { background: linear-gradient(90deg, #B98A3E, #E8C77E); }
+.rt-barras .rt-barra:first-child { transform: scaleX(-1); }
+.rt-estado { margin: 14px 0 0; padding: 10px 14px; border-radius: 14px; background: rgba(255, 255, 255, .08); font-size: 14px; }
+.rt-estado b { color: var(--rt-thread); }
+.rt-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.rt-chip { padding: 4px 10px; border-radius: 999px; background: rgba(232, 199, 126, .16); color: #F5E7C9; font: 700 12px Inter, sans-serif; }
+.rt-card:not(.rt-batalla) .rt-chip { background: var(--rt-cream); color: var(--rt-ink); }
+
+/* ---------- Récords ---------- */
+.rt-filas { display: grid; gap: 2px; }
+.rt-fila { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-top: 1px solid #F1EBE0; font-size: 13.5px; }
+.rt-fila:first-child { border-top: 0; }
+.rt-fila > i { display: grid; place-items: center; width: 34px; height: 34px; flex: none; border-radius: 10px; background: var(--rt-cream); color: var(--rt-gold-d); font-size: 16px; }
+.rt-fila > span { flex: 1; min-width: 0; } .rt-fila small { display: block; color: var(--rt-muted); font-size: 12px; }
+.rt-fila > b { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.rt-sello { padding: 3px 9px; border-radius: 999px; font: 800 11px Inter, sans-serif; white-space: nowrap; }
+.rt-sello.roto { background: #2D2A26; color: var(--rt-thread); animation: rtBrillo 2.2s ease-in-out infinite; }
+.rt-sello.cerca { background: #FFF1D6; color: #8A5A12; }
+.rt-sello.camino { background: #EEF3E4; color: #43521F; }
+@keyframes rtBrillo { 50% { box-shadow: 0 0 0 4px rgba(232, 199, 126, .35); } }
+
+/* ---------- Hora dorada ---------- */
+.rt-horas { display: flex; align-items: flex-end; gap: 4px; height: 92px; margin: 4px 0 6px; }
+.rt-horas div { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end; }
+.rt-horas i { width: 100%; border-radius: 6px 6px 2px 2px; background: #E3D6C2; transition: height .8s var(--rt-ease); }
+.rt-horas div.dorada i { background: linear-gradient(180deg, #E8C77E, #B98A3E); }
+.rt-horas div.floja i { background: #E7B9A6; }
+.rt-horas small { color: var(--rt-muted); font-size: 10.5px; font-variant-numeric: tabular-nums; }
+.rt-turnos { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; margin-top: 8px; }
+.rt-dia { padding: 7px 4px; border-radius: 10px; background: var(--rt-cream); text-align: center; font-size: 11.5px; }
+.rt-dia b { display: block; font-size: 12px; text-transform: capitalize; }
+.rt-dia.corto { background: #FBE6DF; color: #8A3B30; }
+.rt-dia span { display: block; color: var(--rt-muted); } .rt-dia.corto span { color: #8A3B30; }
+
+/* ---------- Batalla de asesoras ---------- */
+.rt-asesoras { display: grid; gap: 8px; }
+.rt-asesora { display: grid; grid-template-columns: 22px minmax(0, 1fr) 64px; gap: 10px; align-items: center; font-size: 13px; }
+.rt-asesora em { font-style: normal; font-weight: 800; color: var(--rt-muted); text-align: center; }
+.rt-asesora:first-child em { color: var(--rt-gold-d); }
+.rt-asesora .rt-nom { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rt-asesora .rt-mini { height: 7px; margin-top: 4px; border-radius: 99px; background: #EEE6D8; overflow: hidden; }
+.rt-asesora .rt-mini span { display: block; height: 100%; border-radius: 99px; background: var(--rt-gold); transition: width .9s var(--rt-ease); }
+.rt-asesora:first-child .rt-mini span { background: linear-gradient(90deg, #B98A3E, #E8C77E); }
+.rt-asesora b { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ---------- Pendientes de la visita ---------- */
+.rt-pendientes { margin: 0; padding: 0; list-style: none; }
+.rt-pendientes li { display: flex; gap: 10px; padding: 7px 0; border-top: 1px solid #F1EBE0; font-size: 13px; }
+.rt-pendientes li:first-child { border-top: 0; }
+.rt-pendientes li i { color: var(--rt-bad); } .rt-pendientes small { display: block; color: var(--rt-muted); }
+
+/* ---------- Remontada ---------- */
+.rt-remontada { position: fixed; inset: 0; z-index: 4000; display: grid; place-items: center; padding: 16px; background: rgba(29, 25, 21, .6); animation: rtFondo .3s; }
+@keyframes rtFondo { from { opacity: 0; } }
+.rt-remontada > div { position: relative; overflow: hidden; width: min(460px, 100%); padding: 30px 26px 24px; border-radius: 26px; background: linear-gradient(160deg, #2D2A26, #46392c); color: #F5F0E8; text-align: center; box-shadow: 0 30px 70px rgba(0, 0, 0, .4); animation: rtSube .6s var(--rt-ease); }
+@keyframes rtSube { from { transform: translateY(24px) scale(.96); opacity: 0; } }
+.rt-remontada small { color: var(--rt-thread); font: 800 12px Inter, sans-serif; letter-spacing: .2em; text-transform: uppercase; }
+.rt-remontada h3 { margin: 8px 0; font: 800 34px/1.1 Inter, sans-serif; }
+.rt-remontada p { margin: 0 0 18px; color: #E8E0D4; font-size: 16px; }
+.rt-remontada .rt-salto { display: flex; justify-content: center; align-items: center; gap: 14px; margin-bottom: 20px; font: 800 30px Inter, sans-serif; }
+.rt-remontada .rt-salto span:first-child { color: #C9B8A3; } .rt-remontada .rt-salto span:last-child { color: var(--rt-thread); }
+.rt-confeti { position: absolute; top: -10px; width: 8px; height: 14px; border-radius: 2px; animation: rtCae linear forwards; }
+@keyframes rtCae { to { transform: translateY(560px) rotate(540deg); opacity: .2; } }
+
+/* ---------- Corona de Hilo (ganó la batalla de la semana pasada) ---------- */
+.rt-corona-hilo { position: absolute; z-index: 5; left: 50%; top: -6px; transform: translateX(-50%) rotate(-8deg); font-size: 30px; filter: drop-shadow(0 3px 4px rgba(0, 0, 0, .25)); pointer-events: none; animation: rtCorona 3s ease-in-out infinite; }
+@keyframes rtCorona { 50% { transform: translateX(-50%) rotate(6deg) translateY(-3px); } }
+
+/* ---------- Ventana (Tu semana) ---------- */
+.rt-modal { position: fixed; inset: 0; z-index: 3500; display: grid; place-items: center; padding: 16px; background: rgba(29, 25, 21, .55); }
+.rt-caja { width: min(900px, 100%); max-height: calc(100vh - 32px); overflow: auto; padding: 18px 20px 20px; border-radius: 22px; background: var(--rt-card); color: var(--rt-ink); box-shadow: 0 30px 70px rgba(0, 0, 0, .35); animation: rtSube .35s var(--rt-ease); }
+.rt-caja header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; } .rt-caja header h3 { margin: 0; font: 800 18px Inter, sans-serif; }
+.rt-cerrar { margin-left: auto; display: grid; place-items: center; width: 34px; height: 34px; border: 0; border-radius: 50%; background: var(--rt-cream); color: var(--rt-ink); cursor: pointer; }
+.rt-foto { display: grid; grid-template-columns: minmax(0, 380px) 1fr; gap: 18px; align-items: start; }
+.rt-foto canvas { width: 100%; height: auto; border-radius: 14px; box-shadow: 0 14px 34px rgba(0, 0, 0, .25); }
+.rt-foto p { color: var(--rt-muted); font-size: 14px; }
+
+/* ---------- Ranking: pestañas Batallas y Salón de la fama ---------- */
+.rt-panel { margin-top: 16px; }
+.rt-duelos { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+.rt-duelo { padding: 14px 16px; border-radius: 18px; background: var(--rt-card); border: 1px solid var(--rt-line); }
+.rt-duelo .rt-par { display: grid; grid-template-columns: minmax(0, 1fr) 64px; gap: 4px 10px; align-items: center; font-size: 13.5px; }
+.rt-duelo .rt-par b { font-variant-numeric: tabular-nums; text-align: right; }
+.rt-duelo .rt-par .gana { font-weight: 800; }
+.rt-duelo .rt-par .rt-mini { grid-column: 1 / -1; height: 7px; border-radius: 99px; background: #EEE6D8; overflow: hidden; margin-bottom: 6px; }
+.rt-duelo .rt-par .rt-mini span { display: block; height: 100%; border-radius: 99px; background: #C9BCA9; }
+.rt-duelo .rt-par .rt-mini.gana span { background: linear-gradient(90deg, #B98A3E, #E8C77E); }
+.rt-duelo .rt-pie { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+.rt-podio { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.rt-premio { position: relative; padding: 18px; border-radius: 20px; background: var(--rt-card); border: 1px solid var(--rt-line); text-align: center; }
+.rt-premio .rt-medalla { display: grid; place-items: center; width: 56px; height: 56px; margin: 0 auto 8px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #FFF1C9, #E8C77E 45%, #B98A3E); font-size: 26px; box-shadow: 0 8px 18px rgba(185, 138, 62, .35); }
+.rt-premio small { display: block; color: var(--rt-gold-d); font: 800 11px Inter, sans-serif; letter-spacing: .14em; text-transform: uppercase; }
+.rt-premio b { display: block; margin: 4px 0 2px; font: 800 18px Inter, sans-serif; }
+.rt-premio span { color: var(--rt-muted); font-size: 13px; }
+.rt-premio.oro { background: linear-gradient(160deg, #2D2A26, #46392c); color: #F5F0E8; border-color: transparent; } .rt-premio.oro span { color: #D8CABB; }
+.rt-tab-nuevo { margin-left: 4px; padding: 1px 6px; border-radius: 999px; background: var(--rt-thread); color: var(--rt-ink); font-size: 10px; font-weight: 800; }
+
+@media (max-width: 1100px) { .rt-card, .rt-card.tercio { grid-column: span 12; } }
+@media (max-width: 640px) {
+  .rt-lado .rt-pct { font-size: 30px; } .rt-x { width: 36px; height: 36px; }
+  .rt-turnos { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .rt-foto { grid-template-columns: 1fr; }
+  .rt-cabeza .rt-boton { margin-left: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rt-sello.roto, .rt-corona-hilo, .rt-confeti, .rt-remontada > div, .rt-caja { animation: none; }
+  .rt-barra span, .rt-horas i, .rt-asesora .rt-mini span { transition: none; }
+}

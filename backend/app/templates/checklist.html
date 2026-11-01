@@ -1,0 +1,2919 @@
+{% extends "base.html" %}
+
+{% block contenido %}
+
+<style>
+
+    /* =========================================================
+       CHECKLIST MODERNO
+       ========================================================= */
+
+    .checklist-page {
+        padding: 18px 20px 50px;
+        max-width: 1700px;
+        margin: 0 auto;
+    }
+
+    /* =========================================================
+       HEADER
+       ========================================================= */
+
+    .checklist-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 25px;
+        margin-bottom: 25px;
+    }
+
+    .checklist-title-area {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .checklist-title-icon {
+        width: 54px;
+        height: 54px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #0d5c75, #1686a5);
+        color: white;
+        font-size: 25px;
+        box-shadow: 0 8px 22px rgba(13, 92, 117, .22);
+    }
+
+    .checklist-title-area h2 {
+        margin: 0;
+        font-size: 27px;
+        font-weight: 700;
+        color: #20252b;
+        letter-spacing: -.5px;
+    }
+
+    .checklist-subtitle {
+        margin: 4px 0 0;
+        color: #7a838d;
+        font-size: 14px;
+    }
+
+    .status-general {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 13px;
+        border-radius: 30px;
+        background: #f3f5f7;
+        color: #69737d;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .status-general .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #9aa3ab;
+    }
+
+    .status-general.active {
+        background: #fff7e6;
+        color: #9a6a00;
+    }
+
+    .status-general.active .status-dot {
+        background: #e4a900;
+    }
+
+    .status-general.complete {
+        background: #eaf8f0;
+        color: #16784a;
+    }
+
+    .status-general.complete .status-dot {
+        background: #1e9b61;
+    }
+
+
+    /* =========================================================
+       PANEL DE CONFIGURACIÓN
+       ========================================================= */
+
+    .control-panel {
+        background: #ffffff;
+        border: 1px solid #e4e8ec;
+        border-radius: 18px;
+        padding: 20px;
+        margin-bottom: 25px;
+        box-shadow: 0 5px 20px rgba(30, 45, 55, .05);
+    }
+
+    .control-grid {
+        display: grid;
+        grid-template-columns: 1.2fr .75fr .55fr .55fr;
+        gap: 15px;
+        align-items: end;
+    }
+
+    .field-wrapper label {
+        display: block;
+        font-size: 12px;
+        font-weight: 700;
+        color: #5d6771;
+        margin-bottom: 7px;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+    }
+
+    .field-wrapper label i {
+        margin-right: 5px;
+        color: #0d5c75;
+    }
+
+    .field-wrapper .form-select,
+    .field-wrapper .form-control {
+        height: 45px;
+        border-radius: 10px;
+        border: 1px solid #d9dfe4;
+        font-size: 14px;
+        box-shadow: none;
+        transition: .2s ease;
+    }
+
+    .field-wrapper .form-select:focus,
+    .field-wrapper .form-control:focus {
+        border-color: #0d5c75;
+        box-shadow: 0 0 0 3px rgba(13, 92, 117, .09);
+    }
+
+    .btn-checklist {
+        height: 45px;
+        border-radius: 10px;
+        border: 0;
+        font-weight: 600;
+        font-size: 14px;
+        transition: .2s ease;
+    }
+
+    .btn-checklist:hover {
+        transform: translateY(-1px);
+    }
+
+    #btnCargar {
+        background: #0d5c75;
+        border-color: #0d5c75;
+    }
+
+    #btnCargar:hover {
+        background: #09495e;
+    }
+
+    #btnGuardar {
+        background: #168b5b;
+        border-color: #168b5b;
+    }
+
+    #btnGuardar:hover {
+        background: #117248;
+    }
+
+    #btnGuardar:disabled,
+    #btnCargar:disabled {
+        opacity: .65;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+
+    /* =========================================================
+       RESUMEN SUPERIOR
+       ========================================================= */
+
+    .summary-section {
+        display: none;
+        margin-bottom: 25px;
+    }
+
+    .summary-section.visible {
+        display: block;
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+    }
+
+    .summary-card {
+        background: white;
+        border: 1px solid #e4e8ec;
+        border-radius: 16px;
+        padding: 19px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 5px 18px rgba(30, 45, 55, .045);
+    }
+
+    .summary-card::after {
+        content: "";
+        position: absolute;
+        width: 75px;
+        height: 75px;
+        right: -30px;
+        top: -30px;
+        border-radius: 50%;
+        background: rgba(13, 92, 117, .05);
+    }
+
+    .summary-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: .6px;
+        font-weight: 700;
+        color: #89929b;
+        margin-bottom: 8px;
+    }
+
+    .summary-value {
+        font-size: 23px;
+        font-weight: 750;
+        color: #20252b;
+        line-height: 1.15;
+    }
+
+    .summary-extra {
+        margin-top: 7px;
+        font-size: 12px;
+        color: #7d8790;
+    }
+
+    .summary-extra.positive {
+        color: #168b5b;
+        font-weight: 600;
+    }
+
+    .summary-extra.warning {
+        color: #a16c00;
+        font-weight: 600;
+    }
+
+
+    /* =========================================================
+       CONTENEDOR DE SECCIONES
+       ========================================================= */
+
+    .checklist-section {
+        background: #ffffff;
+        border: 1px solid #e3e7eb;
+        border-radius: 18px;
+        margin-bottom: 20px;
+        overflow: hidden;
+        box-shadow: 0 5px 20px rgba(30, 45, 55, .045);
+    }
+
+    .section-header {
+        padding: 17px 20px;
+        border-bottom: 1px solid #edf0f2;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        background: #fcfcfd;
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        margin: 0;
+        font-size: 17px;
+        font-weight: 700;
+        color: #2a3036;
+    }
+
+    .section-letter {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #eaf3f6;
+        color: #0d5c75;
+        font-weight: 800;
+        font-size: 14px;
+    }
+
+    .section-body {
+        padding: 0;
+    }
+
+    .section-badge {
+        padding: 6px 11px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        background: #f1f4f6;
+        color: #69747e;
+    }
+
+    .section-badge.good {
+        background: #eaf8f0;
+        color: #168b5b;
+    }
+
+
+    /* =========================================================
+       TABLAS
+       ========================================================= */
+
+    .modern-table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .modern-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0;
+    }
+
+    .modern-table th {
+        background: #f7f8f9;
+        color: #69737d;
+        font-size: 11px;
+        font-weight: 750;
+        text-transform: uppercase;
+        letter-spacing: .4px;
+        padding: 12px 15px;
+        border-bottom: 1px solid #e5e8eb;
+        white-space: nowrap;
+    }
+
+    .modern-table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #eef1f3;
+        font-size: 13px;
+        color: #30373d;
+        vertical-align: middle;
+    }
+
+    .modern-table tbody tr:last-child td {
+        border-bottom: 0;
+    }
+
+    .modern-table tbody tr {
+        transition: background .15s ease;
+    }
+
+    .modern-table tbody tr:hover {
+        background: #fafcfd;
+    }
+
+    .metric-name {
+        font-weight: 600;
+        color: #454d55;
+    }
+
+    .metric-value {
+        text-align: right;
+        font-weight: 650;
+        color: #252b31;
+        white-space: nowrap;
+    }
+
+    .positive-value {
+        color: #168b5b !important;
+    }
+
+    .negative-value {
+        color: #c54848 !important;
+    }
+
+    .percentage-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 5px 9px;
+        border-radius: 7px;
+        font-size: 12px;
+        font-weight: 700;
+        background: #f1f4f6;
+        color: #56616b;
+    }
+
+    .percentage-pill.good {
+        background: #eaf8f0;
+        color: #168b5b;
+    }
+
+    .percentage-pill.warning {
+        background: #fff6df;
+        color: #a16c00;
+    }
+
+    .percentage-pill.bad {
+        background: #fff0f0;
+        color: #c54848;
+    }
+
+
+    /* =========================================================
+       PROGRESO
+       ========================================================= */
+
+    .progress-area {
+        padding: 18px 20px;
+        border-top: 1px solid #edf0f2;
+        background: #fbfcfc;
+    }
+
+    .progress-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 9px;
+    }
+
+    .progress-label {
+        font-size: 12px;
+        font-weight: 700;
+        color: #68727b;
+    }
+
+    .progress-number {
+        font-size: 13px;
+        font-weight: 800;
+        color: #168b5b;
+    }
+
+    .modern-progress {
+        height: 9px;
+        background: #e9edef;
+        border-radius: 20px;
+        overflow: hidden;
+    }
+
+    .modern-progress-bar {
+        height: 100%;
+        border-radius: 20px;
+        background: linear-gradient(
+            90deg,
+            #0d5c75,
+            #1b9a68
+        );
+        transition: width .5s ease;
+    }
+
+
+    /* =========================================================
+       RANKING
+       ========================================================= */
+
+    .rank-number {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        background: #f1f3f5;
+        font-size: 12px;
+        font-weight: 800;
+        color: #67717b;
+    }
+
+    .rank-number.top {
+        background: #fff2c7;
+        color: #9b7100;
+    }
+
+    .advisor-name {
+        font-weight: 700;
+        color: #252b31;
+    }
+
+
+    /* =========================================================
+       CHECKLIST F
+       ========================================================= */
+
+    .checklist-table th:first-child {
+        min-width: 430px;
+    }
+
+    .category-row td {
+        background: #f4f7f8 !important;
+        padding: 11px 15px !important;
+        color: #0d5c75 !important;
+        font-size: 12px !important;
+        font-weight: 800 !important;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+    }
+
+    .item-cell {
+        max-width: 600px;
+        line-height: 1.45;
+    }
+
+    .respuesta {
+        min-width: 105px;
+        height: 38px;
+        border-radius: 9px;
+        font-size: 13px;
+        font-weight: 650;
+        border-color: #dce2e6;
+    }
+
+    .respuesta:focus {
+        border-color: #0d5c75;
+        box-shadow: 0 0 0 3px rgba(13, 92, 117, .08);
+    }
+
+    .observacion {
+        min-width: 260px;
+        height: 38px;
+        border-radius: 9px;
+        border-color: #dce2e6;
+        font-size: 13px;
+    }
+
+    .observacion:focus {
+        border-color: #0d5c75;
+        box-shadow: 0 0 0 3px rgba(13, 92, 117, .08);
+    }
+
+    .observacion-general {
+        width: 100%;
+        min-height: 120px;
+        resize: vertical;
+        border-radius: 10px;
+        border: 1px solid #dce2e6;
+        padding: 12px 14px;
+        font-size: 14px;
+    }
+
+    .observacion-general:focus {
+        border-color: #0d5c75;
+        box-shadow: 0 0 0 3px rgba(13, 92, 117, .08);
+        outline: none;
+    }
+
+    .checklist-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        align-items: center;
+        padding: 17px 20px;
+        border-top: 1px solid #edf0f2;
+        background: #fbfcfc;
+    }
+
+    .footer-stat {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 8px 12px;
+        border-radius: 9px;
+        background: white;
+        border: 1px solid #e2e7ea;
+        font-size: 12px;
+        color: #66717a;
+    }
+
+    .footer-stat strong {
+        color: #252b31;
+        font-size: 14px;
+    }
+
+
+    /* =========================================================
+       EMPTY STATE
+       ========================================================= */
+
+    .empty-checklist {
+        min-height: 330px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        color: #89929b;
+        padding: 30px;
+    }
+
+    .empty-checklist i {
+        width: 70px;
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 20px;
+        background: #f1f5f7;
+        color: #0d5c75;
+        font-size: 29px;
+        margin-bottom: 15px;
+    }
+
+    .empty-checklist h4 {
+        margin: 0 0 7px;
+        color: #4c555e;
+        font-size: 17px;
+    }
+
+    .empty-checklist p {
+        margin: 0;
+        font-size: 13px;
+    }
+
+
+    /* =========================================================
+       ALERT
+       ========================================================= */
+
+    .modern-alert {
+        border-radius: 14px;
+        padding: 15px 18px;
+        border: 1px solid #f0caca;
+        background: #fff6f6;
+        color: #a43d3d;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+
+    /* =========================================================
+       TOAST
+       ========================================================= */
+
+    .checklist-toast {
+        position: fixed;
+        right: 25px;
+        bottom: 25px;
+        z-index: 99999;
+        min-width: 300px;
+        max-width: 420px;
+        padding: 14px 17px;
+        border-radius: 13px;
+        background: #20282e;
+        color: white;
+        box-shadow: 0 15px 40px rgba(0,0,0,.20);
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        animation: toastIn .3s ease;
+        font-size: 13px;
+    }
+
+    .checklist-toast.success {
+        background: #168b5b;
+    }
+
+    .checklist-toast.error {
+        background: #b94a48;
+    }
+
+    .checklist-toast i {
+        font-size: 18px;
+    }
+
+    @keyframes toastIn {
+        from {
+            opacity: 0;
+            transform: translateY(15px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+
+    /* =========================================================
+       RESPONSIVE
+       ========================================================= */
+
+    @media (max-width: 1200px) {
+
+        .control-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .summary-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+
+        .checklist-page {
+            padding: 10px;
+        }
+
+        .checklist-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .control-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .summary-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .section-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .checklist-footer {
+            justify-content: flex-start;
+            flex-wrap: wrap;
+        }
+    }
+
+</style>
+
+
+<div class="checklist-page">
+
+    <!-- =====================================================
+         HEADER
+         ===================================================== -->
+
+    <div class="checklist-header">
+
+        <div class="checklist-title-area">
+
+            <div class="checklist-title-icon">
+                <i class="bi bi-clipboard2-check"></i>
+            </div>
+
+            <div>
+
+                <h2>
+                    Checklist de Visita a Tienda
+                </h2>
+
+                <p class="checklist-subtitle">
+                    Seguimiento comercial, operativo y visual de la tienda
+                </p>
+
+            </div>
+
+        </div>
+
+        <div id="estadoGeneral" class="status-general">
+
+            <span class="status-dot"></span>
+
+            <span id="estadoGeneralTexto">
+                Selecciona una tienda
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         CONTROLES
+         ===================================================== -->
+
+    <div class="control-panel">
+
+        <div class="control-grid">
+
+            <div class="field-wrapper">
+
+                <label>
+                    <i class="bi bi-shop"></i>
+                    Tienda
+                </label>
+
+                <select id="selectTienda" class="form-select">
+
+                    <option value="">
+                        Seleccionar tienda...
+                    </option>
+
+                    {% for t in tiendas %}
+
+                    <option value="{{ t.id }}">
+                        {{ t.codigo }} - {{ t.nombre }}
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <div class="field-wrapper">
+
+                <label>
+                    <i class="bi bi-calendar3"></i>
+                    Fecha de visita
+                </label>
+
+                <input
+                    type="date"
+                    id="fechaVisita"
+                    class="form-control"
+                    value="{{ hoy }}"
+                >
+
+            </div>
+
+
+            <div class="field-wrapper">
+
+                <label>
+                    &nbsp;
+                </label>
+
+                <button
+                    id="btnCargar"
+                    class="btn btn-primary btn-checklist w-100"
+                >
+
+                    <i class="bi bi-arrow-repeat me-2"></i>
+
+                    Cargar datos
+
+                </button>
+
+            </div>
+
+
+            <div class="field-wrapper">
+
+                <label>
+                    &nbsp;
+                </label>
+
+                <button
+                    id="btnGuardar"
+                    class="btn btn-success btn-checklist w-100"
+                >
+
+                    <i class="bi bi-check2-circle me-2"></i>
+
+                    Guardar checklist
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         RESUMEN
+         ===================================================== -->
+
+    <div id="summarySection" class="summary-section">
+
+        <div class="summary-grid">
+
+            <div class="summary-card">
+
+                <div class="summary-label">
+                    Venta 2026
+                </div>
+
+                <div
+                    id="summaryVenta"
+                    class="summary-value"
+                >
+                    —
+                </div>
+
+                <div
+                    id="summaryVentaExtra"
+                    class="summary-extra"
+                >
+                    Comparativo anual
+                </div>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <div class="summary-label">
+                    Variación
+                </div>
+
+                <div
+                    id="summaryVariacion"
+                    class="summary-value"
+                >
+                    —
+                </div>
+
+                <div class="summary-extra">
+                    Frente al mismo período 2025
+                </div>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <div class="summary-label">
+                    Cumplimiento cuota
+                </div>
+
+                <div
+                    id="summaryCumplimiento"
+                    class="summary-value"
+                >
+                    —
+                </div>
+
+                <div
+                    id="summaryCumplimientoExtra"
+                    class="summary-extra"
+                >
+                    Cuota proporcional
+                </div>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <div class="summary-label">
+                    Tráfico
+                </div>
+
+                <div
+                    id="summaryTrafico"
+                    class="summary-value"
+                >
+                    —
+                </div>
+
+                <div
+                    id="summaryTraficoExtra"
+                    class="summary-extra"
+                >
+                    Visitantes
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         CONTENIDO
+         ===================================================== -->
+
+    <div id="contenidoChecklist">
+
+        <div class="empty-checklist">
+
+            <i class="bi bi-clipboard2-data"></i>
+
+            <h4>
+                Comienza una visita
+            </h4>
+
+            <p>
+                Selecciona una tienda y una fecha para cargar la información.
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const selectTienda =
+        document.getElementById("selectTienda");
+
+    const fechaVisita =
+        document.getElementById("fechaVisita");
+
+    const btnCargar =
+        document.getElementById("btnCargar");
+
+    const btnGuardar =
+        document.getElementById("btnGuardar");
+
+    const contenido =
+        document.getElementById("contenidoChecklist");
+
+    const summarySection =
+        document.getElementById("summarySection");
+
+    const estadoGeneral =
+        document.getElementById("estadoGeneral");
+
+    const estadoGeneralTexto =
+        document.getElementById("estadoGeneralTexto");
+
+
+    /* =========================================================
+       UTILIDADES
+       ========================================================= */
+
+    function numero(valor) {
+
+        const n = Number(valor);
+
+        return Number.isFinite(n) ? n : 0;
+    }
+
+
+    function dinero(valor) {
+
+        return new Intl.NumberFormat(
+            "es-CO",
+            {
+                style: "currency",
+                currency: "COP",
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }
+        ).format(numero(valor));
+
+    }
+
+
+    function numeroNormal(valor) {
+
+        return new Intl.NumberFormat(
+            "es-CO"
+        ).format(numero(valor));
+
+    }
+
+
+    function porcentaje(valor) {
+
+        return `${numero(valor).toFixed(1)}%`;
+
+    }
+
+
+    function escaparHTML(valor) {
+
+        return String(valor ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+
+    }
+
+
+    function clasePorcentaje(valor) {
+
+        const n = numero(valor);
+
+        if (n >= 100) {
+            return "good";
+        }
+
+        if (n >= 80) {
+            return "warning";
+        }
+
+        return "bad";
+
+    }
+
+
+    function mostrarToast(
+        mensaje,
+        tipo = "success"
+    ) {
+
+        const anterior =
+            document.querySelector(
+                ".checklist-toast"
+            );
+
+        if (anterior) {
+            anterior.remove();
+        }
+
+
+        const toast =
+            document.createElement("div");
+
+        toast.className =
+            `checklist-toast ${tipo}`;
+
+
+        const icono =
+            tipo === "success"
+                ? "bi-check-circle-fill"
+                : "bi-exclamation-circle-fill";
+
+
+        toast.innerHTML = `
+
+            <i class="bi ${icono}"></i>
+
+            <span>
+                ${escaparHTML(mensaje)}
+            </span>
+
+        `;
+
+
+        document.body.appendChild(
+            toast
+        );
+
+
+        setTimeout(() => {
+
+            toast.style.opacity = "0";
+
+            toast.style.transform =
+                "translateY(10px)";
+
+            toast.style.transition =
+                "all .25s ease";
+
+            setTimeout(
+                () => toast.remove(),
+                250
+            );
+
+        }, 3000);
+
+    }
+
+
+    function actualizarEstado(
+        texto,
+        tipo = ""
+    ) {
+
+        estadoGeneral.className =
+            "status-general";
+
+
+        if (tipo) {
+            estadoGeneral.classList.add(tipo);
+        }
+
+
+        estadoGeneralTexto.textContent =
+            texto;
+
+    }
+
+
+    /* =========================================================
+       CARGAR
+       ========================================================= */
+
+    btnCargar.addEventListener(
+        "click",
+        cargarDatos
+    );
+
+
+    function cargarDatos() {
+
+        const storeId =
+            selectTienda.value;
+
+        const fecha =
+            fechaVisita.value;
+
+
+        if (!storeId || !fecha) {
+
+            mostrarToast(
+                "Seleccione una tienda y una fecha.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        btnCargar.disabled = true;
+
+        btnCargar.innerHTML = `
+            <span
+                class="spinner-border spinner-border-sm me-2"
+            ></span>
+            Cargando...
+        `;
+
+
+        actualizarEstado(
+            "Cargando información...",
+            "active"
+        );
+
+
+        fetch(
+            `/checklist/api/datos?store_id=${encodeURIComponent(storeId)}&fecha=${encodeURIComponent(fecha)}`
+        )
+
+        .then(res => {
+
+            if (!res.ok) {
+                throw new Error(
+                    "Error del servidor"
+                );
+            }
+
+            return res.json();
+
+        })
+
+        .then(data => {
+
+            if (data.error) {
+
+                contenido.innerHTML = `
+
+                    <div class="modern-alert">
+
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+
+                        <span>
+                            ${escaparHTML(data.error)}
+                        </span>
+
+                    </div>
+
+                `;
+
+                summarySection.classList.remove(
+                    "visible"
+                );
+
+                actualizarEstado(
+                    "No se pudo cargar",
+                    "active"
+                );
+
+                return;
+            }
+
+
+            renderChecklist(data);
+
+            actualizarResumen(data);
+
+            actualizarEstado(
+                "Visita en progreso",
+                "active"
+            );
+
+        })
+
+        .catch(err => {
+
+            console.error(err);
+
+
+            contenido.innerHTML = `
+
+                <div class="modern-alert">
+
+                    <i class="bi bi-wifi-off"></i>
+
+                    <span>
+                        No fue posible cargar los datos.
+                    </span>
+
+                </div>
+
+            `;
+
+            actualizarEstado(
+                "Error de conexión",
+                "active"
+            );
+
+        })
+
+        .finally(() => {
+
+            btnCargar.disabled = false;
+
+            btnCargar.innerHTML = `
+                <i class="bi bi-arrow-repeat me-2"></i>
+                Cargar datos
+            `;
+
+        });
+
+    }
+
+
+    /* =========================================================
+       RESUMEN
+       ========================================================= */
+
+    function actualizarResumen(data) {
+
+        const a =
+            data.seccion_a || {};
+
+        const b =
+            data.seccion_b || {};
+
+
+        document.getElementById(
+            "summaryVenta"
+        ).textContent =
+            dinero(a.venta_2026);
+
+
+        const variacion =
+            numero(a.variacion);
+
+
+        const ventaExtra =
+            document.getElementById(
+                "summaryVentaExtra"
+            );
+
+
+        ventaExtra.textContent =
+            `${dinero(a.venta_2025)} en 2025`;
+
+
+        const variacionElement =
+            document.getElementById(
+                "summaryVariacion"
+            );
+
+
+        variacionElement.textContent =
+            `${variacion >= 0 ? "+" : ""}${variacion.toFixed(1)}%`;
+
+
+        variacionElement.className =
+            "summary-value";
+
+
+        if (variacion > 0) {
+
+            variacionElement.classList.add(
+                "positive-value"
+            );
+
+        } else if (variacion < 0) {
+
+            variacionElement.classList.add(
+                "negative-value"
+            );
+
+        }
+
+
+        const cumplimiento =
+            numero(
+                a.cumplimiento_proporcional
+            );
+
+
+        document.getElementById(
+            "summaryCumplimiento"
+        ).textContent =
+            porcentaje(cumplimiento);
+
+
+        const cumplimientoExtra =
+            document.getElementById(
+                "summaryCumplimientoExtra"
+            );
+
+
+        cumplimientoExtra.textContent =
+            cumplimiento >= 100
+                ? "✓ Meta alcanzada"
+                : `${dinero(a.cuota_proporcional)} de cuota`;
+
+
+        cumplimientoExtra.className =
+            "summary-extra " +
+            (
+                cumplimiento >= 100
+                    ? "positive"
+                    : "warning"
+            );
+
+
+        document.getElementById(
+            "summaryTrafico"
+        ).textContent =
+            numeroNormal(
+                b.trafico_2026
+            );
+
+
+        const trafico2025 =
+            numero(b.trafico_2025);
+
+
+        const trafico2026 =
+            numero(b.trafico_2026);
+
+
+        let diferenciaTrafico = 0;
+
+
+        if (trafico2025 > 0) {
+
+            diferenciaTrafico =
+                (
+                    (
+                        trafico2026 -
+                        trafico2025
+                    )
+                    /
+                    trafico2025
+                ) * 100;
+
+        }
+
+
+        const traficoExtra =
+            document.getElementById(
+                "summaryTraficoExtra"
+            );
+
+
+        if (trafico2025 > 0) {
+
+            traficoExtra.textContent =
+                `${diferenciaTrafico >= 0 ? "+" : ""}${diferenciaTrafico.toFixed(1)}% vs 2025`;
+
+            traficoExtra.className =
+                "summary-extra " +
+                (
+                    diferenciaTrafico >= 0
+                        ? "positive"
+                        : "warning"
+                );
+
+        } else {
+
+            traficoExtra.textContent =
+                "Visitantes 2026";
+
+        }
+
+
+        summarySection.classList.add(
+            "visible"
+        );
+
+    }
+
+
+    /* =========================================================
+       GUARDAR
+       ========================================================= */
+
+    btnGuardar.addEventListener(
+        "click",
+        guardarChecklist
+    );
+
+
+    function guardarChecklist() {
+
+        const storeId =
+            selectTienda.value;
+
+        const fecha =
+            fechaVisita.value;
+
+
+        if (!storeId || !fecha) {
+
+            mostrarToast(
+                "Seleccione tienda y fecha.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        const respuestas = {};
+
+        let cumplimientoPct = 0;
+
+        let itemsNo = 0;
+
+
+        const selects =
+            document.querySelectorAll(
+                ".respuesta"
+            );
+
+
+        if (selects.length === 0) {
+
+            mostrarToast(
+                "Primero cargue los datos de la visita.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        selects.forEach(select => {
+
+            const categoria =
+                select.dataset.categoria;
+
+            const item =
+                select.dataset.item;
+
+
+            const valor =
+                select.value;
+
+
+            const fila =
+                select.closest("tr");
+
+
+            const observacion =
+                fila?.querySelector(
+                    ".observacion"
+                );
+
+
+            const obs =
+                observacion
+                    ? observacion.value
+                    : "";
+
+
+            if (!respuestas[categoria]) {
+
+                respuestas[categoria] = {};
+
+            }
+
+
+            respuestas[categoria][item] = {
+
+                cumple: valor,
+
+                obs: obs
+
+            };
+
+        });
+
+
+        respuestas.__observacion_general =
+            document.getElementById("observacionGeneral")?.value.trim() || "";
+
+
+        const total =
+            selects.length;
+
+
+        const siCount =
+            Array.from(selects)
+                .filter(
+                    s => s.value === "si"
+                )
+                .length;
+
+
+        if (total > 0) {
+
+            cumplimientoPct =
+                (siCount / total) * 100;
+
+        }
+
+
+        itemsNo =
+            total - siCount;
+
+
+        btnGuardar.disabled = true;
+
+
+        btnGuardar.innerHTML = `
+
+            <span
+                class="spinner-border spinner-border-sm me-2"
+            ></span>
+
+            Guardando...
+
+        `;
+
+
+        fetch(
+            "/checklist/api/guardar",
+            {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body: JSON.stringify({
+
+                    store_id:
+                        storeId,
+
+                    fecha:
+                        fecha,
+
+                    respuestas:
+                        respuestas,
+
+                    cumplimiento_pct:
+                        cumplimientoPct,
+
+                    items_no:
+                        itemsNo
+
+                })
+
+            }
+        )
+
+        .then(res => {
+
+            if (!res.ok) {
+
+                throw new Error(
+                    "Error guardando"
+                );
+
+            }
+
+            return res.json();
+
+        })
+
+        .then(data => {
+
+            mostrarToast(
+                data.message ||
+                "Checklist guardado correctamente.",
+                "success"
+            );
+
+
+            actualizarEstado(
+                "Checklist guardado",
+                "complete"
+            );
+
+
+            actualizarIndicadoresChecklist();
+
+        })
+
+        .catch(err => {
+
+            console.error(err);
+
+
+            mostrarToast(
+                "No fue posible guardar el checklist.",
+                "error"
+            );
+
+        })
+
+        .finally(() => {
+
+            btnGuardar.disabled = false;
+
+            btnGuardar.innerHTML = `
+
+                <i class="bi bi-check2-circle me-2"></i>
+
+                Guardar checklist
+
+            `;
+
+        });
+
+    }
+
+
+    /* =========================================================
+       ACTUALIZAR INDICADORES CHECKLIST
+       ========================================================= */
+
+    function actualizarIndicadoresChecklist() {
+
+        const selects =
+            document.querySelectorAll(
+                ".respuesta"
+            );
+
+
+        if (!selects.length) {
+            return;
+        }
+
+
+        const si =
+            Array.from(selects)
+                .filter(
+                    s => s.value === "si"
+                ).length;
+
+
+        const porcentajeActual =
+            (si / selects.length) * 100;
+
+
+        const badge =
+            document.getElementById(
+                "badgeChecklist"
+            );
+
+
+        if (badge) {
+
+            badge.textContent =
+                `${porcentajeActual.toFixed(1)}%`;
+
+            badge.className =
+                "section-badge " +
+                (
+                    porcentajeActual >= 80
+                        ? "good"
+                        : ""
+                );
+
+        }
+
+
+        const progreso =
+            document.getElementById(
+                "progressChecklist"
+            );
+
+
+        if (progreso) {
+
+            progreso.style.width =
+                `${Math.min(
+                    porcentajeActual,
+                    100
+                )}%`;
+
+        }
+
+
+        const progresoTexto =
+            document.getElementById(
+                "progressChecklistText"
+            );
+
+
+        if (progresoTexto) {
+
+            progresoTexto.textContent =
+                `${porcentajeActual.toFixed(1)}%`;
+
+        }
+
+
+        const noElement =
+            document.getElementById(
+                "itemsNoChecklist"
+            );
+
+
+        if (noElement) {
+
+            noElement.textContent =
+                selects.length - si;
+
+        }
+
+
+        selects.forEach(select => {
+
+            select.classList.remove(
+                "is-valid",
+                "is-invalid"
+            );
+
+
+            if (select.value === "si") {
+
+                select.classList.add(
+                    "is-valid"
+                );
+
+            } else {
+
+                select.classList.add(
+                    "is-invalid"
+                );
+
+            }
+
+        });
+
+    }
+
+
+    /* =========================================================
+       RENDER
+       ========================================================= */
+
+    function renderChecklist(data) {
+
+        let html = "";
+
+
+        /* =====================================================
+           A
+           ===================================================== */
+
+        const a =
+            data.seccion_a || {};
+
+
+        const cumplimientoA =
+            numero(
+                a.cumplimiento_proporcional
+            );
+
+
+        html += `
+
+            <div class="checklist-section">
+
+                <div class="section-header">
+
+                    <h4 class="section-title">
+
+                        <span class="section-letter">
+                            A
+                        </span>
+
+                        Venta total y cumplimiento de cuota
+
+                    </h4>
+
+                    <span
+                        class="section-badge ${clasePorcentaje(cumplimientoA)}"
+                    >
+                        ${porcentaje(cumplimientoA)}
+                    </span>
+
+                </div>
+
+                <div class="section-body">
+
+                    <div class="modern-table-wrapper">
+
+                        <table class="modern-table">
+
+                            <tbody>
+
+                                ${filaMetrica(
+                                    "Venta 2025",
+                                    dinero(a.venta_2025)
+                                )}
+
+                                ${filaMetrica(
+                                    "Venta 2026",
+                                    dinero(a.venta_2026)
+                                )}
+
+                                ${filaMetrica(
+                                    "Diferencia",
+                                    dinero(a.diferencia),
+                                    numero(a.diferencia) >= 0
+                                        ? "positive-value"
+                                        : "negative-value"
+                                )}
+
+                                <tr>
+                                    <td class="metric-name">
+                                        Variación %
+                                    </td>
+                                    <td class="metric-value">
+                                        <span class="percentage-pill ${
+                                            numero(a.variacion) >= 0
+                                                ? "good"
+                                                : "bad"
+                                        }">
+                                            ${porcentaje(a.variacion)}
+                                        </span>
+                                    </td>
+                                </tr>
+
+                                ${filaMetrica(
+                                    "Cuota mensual",
+                                    dinero(a.cuota_total)
+                                )}
+
+                                ${filaMetrica(
+                                    "Cuota proporcional",
+                                    dinero(a.cuota_proporcional)
+                                )}
+
+                                <tr>
+                                    <td class="metric-name">
+                                        Cumplimiento proporcional
+                                    </td>
+                                    <td class="metric-value">
+                                        <span class="percentage-pill ${clasePorcentaje(cumplimientoA)}">
+                                            ${porcentaje(cumplimientoA)}
+                                        </span>
+                                    </td>
+                                </tr>
+
+                                ${filaMetrica(
+                                    "Falta para cuota total",
+                                    dinero(a.falta_cuota_total)
+                                )}
+
+                                ${filaMetrica(
+                                    "Meta promedio día restante",
+                                    dinero(a.meta_promedio_dia)
+                                )}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        `;
+
+
+        /* =====================================================
+           B
+           ===================================================== */
+
+        const b =
+            data.seccion_b || {};
+
+
+        html += `
+
+            <div class="checklist-section">
+
+                <div class="section-header">
+
+                    <h4 class="section-title">
+
+                        <span class="section-letter">
+                            B
+                        </span>
+
+                        Tráfico, facturación y conversión
+
+                    </h4>
+
+                    <span class="section-badge">
+                        ${porcentaje(b.conversion)}
+                        conversión
+                    </span>
+
+                </div>
+
+                <div class="section-body">
+
+                    <div class="modern-table-wrapper">
+
+                        <table class="modern-table">
+
+                            <tbody>
+
+                                ${filaMetrica(
+                                    "Tráfico 2025",
+                                    numeroNormal(b.trafico_2025)
+                                )}
+
+                                ${filaMetrica(
+                                    "Tráfico 2026",
+                                    numeroNormal(b.trafico_2026)
+                                )}
+
+                                ${filaMetrica(
+                                    "Facturas 2025",
+                                    numeroNormal(b.facturas_2025)
+                                )}
+
+                                ${filaMetrica(
+                                    "Facturas 2026",
+                                    numeroNormal(b.facturas_2026)
+                                )}
+
+                                <tr>
+
+                                    <td class="metric-name">
+                                        Conversión
+                                    </td>
+
+                                    <td class="metric-value">
+
+                                        <span class="percentage-pill good">
+
+                                            ${porcentaje(b.conversion)}
+
+                                        </span>
+
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        `;
+
+
+        /* =====================================================
+           C
+           ===================================================== */
+
+        const c =
+            data.seccion_c || {};
+
+
+        html += `
+
+            <div class="checklist-section">
+
+                <div class="section-header">
+
+                    <h4 class="section-title">
+
+                        <span class="section-letter">
+                            C
+                        </span>
+
+                        Ticket promedio
+
+                    </h4>
+
+                </div>
+
+                <div class="section-body">
+
+                    <div class="modern-table-wrapper">
+
+                        <table class="modern-table">
+
+                            <tbody>
+
+                                ${filaMetrica(
+                                    `Unidades ${c.anio_anterior || 2025}`,
+                                    numeroNormal(c.unidades_2025)
+                                )}
+
+                                ${filaMetrica(
+                                    `Unidades ${c.anio_actual || 2026}`,
+                                    numeroNormal(c.unidades_2026)
+                                )}
+
+                                ${filaMetrica(
+                                    "Ticket promedio",
+                                    dinero(c.ticket_promedio)
+                                )}
+
+                                ${filaMetrica(
+                                    "Ticket unidades",
+                                    numero(c.ticket_unidades).toFixed(2)
+                                )}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        `;
+
+
+        /* =====================================================
+           D
+           ===================================================== */
+
+        html += `
+
+            <div class="checklist-section">
+
+                <div class="section-header">
+
+                    <h4 class="section-title">
+
+                        <span class="section-letter">
+                            D
+                        </span>
+
+                        Ventas por categoría
+
+                    </h4>
+
+                    <span class="section-badge">
+                        ${Array.isArray(data.seccion_d)
+                            ? data.seccion_d.length
+                            : 0}
+                        categorías
+                    </span>
+
+                </div>
+
+                <div class="section-body">
+
+                    <div class="modern-table-wrapper">
+
+                        <table class="modern-table">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>Categoría</th>
+                                    <th>Venta 2025</th>
+                                    <th>Venta 2026</th>
+                                    <th>Diferencia</th>
+                                    <th>Variación</th>
+                                    <th>Meta</th>
+                                    <th>Cumplimiento</th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+        `;
+
+
+        if (
+            Array.isArray(data.seccion_d)
+        ) {
+
+            data.seccion_d.forEach(cat => {
+
+                html += `
+
+                    <tr>
+
+                        <td class="metric-name">
+                            ${escaparHTML(cat.nombre)}
+                        </td>
+
+                        <td class="metric-value">
+                            ${dinero(cat.venta_2025)}
+                        </td>
+
+                        <td class="metric-value">
+                            ${dinero(cat.venta_2026)}
+                        </td>
+
+                        <td class="metric-value ${
+                            numero(cat.diferencia) >= 0
+                                ? "positive-value"
+                                : "negative-value"
+                        }">
+                            ${dinero(cat.diferencia)}
+                        </td>
+
+                        <td class="metric-value">
+
+                            <span class="percentage-pill ${
+                                numero(cat.variacion) >= 0
+                                    ? "good"
+                                    : "bad"
+                            }">
+
+                                ${porcentaje(cat.variacion)}
+
+                            </span>
+
+                        </td>
+
+                        <td class="metric-value">
+                            ${dinero(cat.meta)}
+                        </td>
+
+                        <td class="metric-value">
+
+                            <span class="percentage-pill ${clasePorcentaje(cat.cumplimiento)}">
+
+                                ${porcentaje(cat.cumplimiento)}
+
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+            });
+
+        }
+
+
+        html += `
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        `;
+
+
+        /* =====================================================
+           E
+           ===================================================== */
+
+        html += `
+
+            <div class="checklist-section">
+
+                <div class="section-header">
+
+                    <h4 class="section-title">
+
+                        <span class="section-letter">
+                            E
+                        </span>
+
+                        Ranking de asesoras
+
+                    </h4>
+
+                    <span class="section-badge">
+
+                        ${
+                            Array.isArray(data.seccion_e)
+                                ? data.seccion_e.length
+                                : 0
+                        }
+                        asesoras
+
+                    </span>
+
+                </div>
+
+                <div class="section-body">
+
+                    <div class="modern-table-wrapper">
+
+                        <table class="modern-table">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>#</th>
+                                    <th>Asesora</th>
+                                    <th>Venta 2026</th>
+                                    <th>Unidades</th>
+                                    <th>Facturas</th>
+                                    <th>Ticket</th>
+                                    <th>Participación</th>
+                                    <th>Cumplimiento</th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+        `;
+
+
+        if (
+            Array.isArray(data.seccion_e)
+        ) {
+
+            data.seccion_e.forEach(
+                (asesor, index) => {
+
+                    html += `
+
+                        <tr>
+
+                            <td>
+
+                                <span class="rank-number ${
+                                    index < 3
+                                        ? "top"
+                                        : ""
+                                }">
+
+                                    ${index + 1}
+
+                                </span>
+
+                            </td>
+
+                            <td class="advisor-name">
+
+                                ${escaparHTML(
+                                    asesor.nombre
+                                )}
+
+                            </td>
+
+                            <td class="metric-value">
+
+                                ${dinero(
+                                    asesor.venta
+                                )}
+
+                            </td>
+
+                            <td class="metric-value">
+
+                                ${numeroNormal(
+                                    asesor.unidades
+                                )}
+
+                            </td>
+
+                            <td class="metric-value">
+
+                                ${numeroNormal(
+                                    asesor.facturas
+                                )}
+
+                            </td>
+
+                            <td class="metric-value">
+
+                                ${dinero(
+                                    asesor.ticket
+                                )}
+
+                            </td>
+
+                            <td class="metric-value">
+
+                                ${porcentaje(
+                                    asesor.participacion
+                                )}
+
+                            </td>
+
+                            <td class="metric-value">
+
+                                <span class="percentage-pill ${
+                                    clasePorcentaje(
+                                        asesor.cumplimiento
+                                    )
+                                }">
+
+                                    ${porcentaje(
+                                        asesor.cumplimiento
+                                    )}
+
+                                </span>
+
+                            </td>
+
+                        </tr>
+
+                    `;
+
+                }
+            );
+
+        }
+
+
+        html += `
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        `;
+
+
+        /* =====================================================
+           F
+           ===================================================== */
+
+        const categoriasF = {
+
+            "Gestión Operativa": [
+                "Tablero actualizado",
+                "Metas socializadas al equipo",
+                "Revisar cuaderno de conteo, verificar faltante y que lo suban al Drive",
+                "Cambio de precios"
+            ],
+
+            "Aseo y orden": [
+                "Piso, mostradores y probadores limpios",
+                "Mercancía doblada / colgada correctamente por talla y color",
+                "Bodega y zona de cajas organizadas"
+            ],
+
+            "Visual": [
+                "Exhibiciones: Revisar la correcta implementación de las exhibiciones.",
+                "Producto de promoción exhibido en zona de alto tráfico"
+            ],
+
+            "Servicio al cliente": [
+                "Personal completo según turno programado",
+                "Asesoras aplican protocolo de venta y venta cruzada",
+                "Tiempo de atención en caja dentro del estándar"
+            ],
+
+            "Presentación": [
+                "Presentación Personal: Uniforme, cabello, manos y zapatos."
+            ]
+
+        };
+
+
+        html += `
+
+            <div class="checklist-section">
+
+                <div class="section-header">
+
+                    <h4 class="section-title">
+
+                        <span class="section-letter">
+                            F
+                        </span>
+
+                        Checklist cualitativo de visita
+
+                    </h4>
+
+                    <span
+                        id="badgeChecklist"
+                        class="section-badge"
+                    >
+                        ${porcentaje(
+                            data.cumplimiento_checklist
+                        )}
+
+                    </span>
+
+                </div>
+
+                <div class="section-body">
+
+                    <div class="modern-table-wrapper">
+
+                        <table class="modern-table checklist-table">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>
+                                        Ítem de revisión
+                                    </th>
+
+                                    <th>
+                                        Cumplimiento
+                                    </th>
+
+                                    <th>
+                                        Observaciones
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+        `;
+
+
+        for (
+            const categoria in categoriasF
+        ) {
+
+            html += `
+
+                <tr class="category-row">
+
+                    <td colspan="3">
+
+                        <i class="bi bi-folder2-open me-2"></i>
+
+                        ${escaparHTML(categoria)}
+
+                    </td>
+
+                </tr>
+
+            `;
+
+
+            categoriasF[categoria]
+                .forEach(item => {
+
+                    const respuesta =
+                        data.checklist_respuestas?.[
+                            categoria
+                        ]?.[item];
+
+
+                    const cumple =
+                        respuesta?.cumple || "no";
+
+
+                    const obs =
+                        respuesta?.obs || "";
+
+
+                    html += `
+
+                        <tr>
+
+                            <td class="item-cell">
+
+                                ${escaparHTML(item)}
+
+                            </td>
+
+                            <td>
+
+                                <select
+
+                                    class="respuesta form-select"
+
+                                    data-categoria="${escaparHTML(categoria)}"
+
+                                    data-item="${escaparHTML(item)}"
+
+                                >
+
+                                    <option
+                                        value="si"
+                                        ${
+                                            cumple === "si"
+                                                ? "selected"
+                                                : ""
+                                        }
+                                    >
+                                        Sí
+                                    </option>
+
+                                    <option
+                                        value="no"
+                                        ${
+                                            cumple === "no"
+                                                ? "selected"
+                                                : ""
+                                        }
+                                    >
+                                        No
+                                    </option>
+
+                                </select>
+
+                            </td>
+
+                            <td>
+
+                                <input
+
+                                    class="observacion form-control"
+
+                                    type="text"
+
+                                    value="${escaparHTML(obs)}"
+
+                                    placeholder="Agregar observación..."
+
+                                >
+
+                            </td>
+
+                        </tr>
+
+                    `;
+
+                });
+
+        }
+
+
+        html += `
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+
+                <div class="progress-area">
+
+                    <div class="progress-top">
+
+                        <span class="progress-label">
+
+                            Progreso de la visita
+
+                        </span>
+
+                        <span
+                            id="progressChecklistText"
+                            class="progress-number"
+                        >
+
+                            ${porcentaje(
+                                data.cumplimiento_checklist
+                            )}
+
+                        </span>
+
+                    </div>
+
+
+                    <div class="modern-progress">
+
+                        <div
+
+                            id="progressChecklist"
+
+                            class="modern-progress-bar"
+
+                            style="
+                                width:${Math.min(
+                                    numero(
+                                        data.cumplimiento_checklist
+                                    ),
+                                    100
+                                )}%;
+                            "
+
+                        ></div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="checklist-footer">
+
+                    <div class="footer-stat">
+
+                        <i class="bi bi-check-circle"></i>
+
+                        Cumplidos:
+
+                        <strong id="itemsSiChecklist">
+
+                            ${Math.round(
+                                (
+                                    numero(
+                                        data.cumplimiento_checklist
+                                    ) / 100
+                                ) *
+                                document.querySelectorAll?.(".respuesta")?.length || 0
+                            )}
+
+                        </strong>
+
+                    </div>
+
+
+                    <div class="footer-stat">
+
+                        <i class="bi bi-x-circle"></i>
+
+                        Ítems "No":
+
+                        <strong id="itemsNoChecklist">
+
+                            ${numero(
+                                data.items_no
+                            )}
+
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        `;
+
+
+        const observacionGeneral =
+            data.checklist_respuestas?.__observacion_general || "";
+
+
+        html += `
+
+            <div class="checklist-section">
+
+                <div class="section-header">
+
+                    <h4 class="section-title">
+
+                        <span class="section-letter">G</span>
+
+                        Observación general
+
+                    </h4>
+
+                </div>
+
+                <div class="section-body p-3">
+
+                    <textarea
+                        id="observacionGeneral"
+                        class="observacion-general form-control"
+                        maxlength="2000"
+                        placeholder="Escribe las observaciones generales de la visita..."
+                    >${escaparHTML(observacionGeneral)}</textarea>
+
+                </div>
+
+            </div>
+
+        `;
+
+
+        contenido.innerHTML =
+            html;
+
+
+        /* =====================================================
+           EVENTOS DE RESPUESTAS
+           ===================================================== */
+
+        document
+            .querySelectorAll(".respuesta")
+            .forEach(select => {
+
+                select.addEventListener(
+                    "change",
+                    function () {
+
+                        actualizarIndicadoresChecklist();
+
+                        actualizarEstado(
+                            "Cambios pendientes",
+                            "active"
+                        );
+
+                    }
+                );
+
+            });
+
+
+        document
+            .getElementById("observacionGeneral")
+            ?.addEventListener("input", function () {
+
+                actualizarEstado(
+                    "Cambios pendientes",
+                    "active"
+                );
+
+            });
+
+
+        actualizarIndicadoresChecklist();
+
+    }
+
+
+    /* =========================================================
+       FILA MÉTRICA
+       ========================================================= */
+
+    function filaMetrica(
+        nombre,
+        valor,
+        clase = ""
+    ) {
+
+        return `
+
+            <tr>
+
+                <td class="metric-name">
+
+                    ${escaparHTML(nombre)}
+
+                </td>
+
+                <td class="metric-value ${clase}">
+
+                    ${escaparHTML(valor)}
+
+                </td>
+
+            </tr>
+
+        `;
+
+    }
+
+
+    /* =========================================================
+       FECHA / TIENDA
+       ========================================================= */
+
+    selectTienda.addEventListener(
+        "change",
+        function () {
+
+            if (this.value) {
+
+                actualizarEstado(
+                    "Tienda seleccionada",
+                    "active"
+                );
+
+            } else {
+
+                actualizarEstado(
+                    "Selecciona una tienda"
+                );
+
+            }
+
+        }
+    );
+
+
+});
+</script>
+
+{% endblock %}

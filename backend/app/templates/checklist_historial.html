@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block contenido %}
+<div class="container-fluid">
+    <h2 class="mb-4"><i class="bi bi-clock-history me-2"></i>Historial de Checklists</h2>
+
+    {% if historial %}
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>FECHA</th>
+                    <th>TIENDA</th>
+                    <th>SUPERVISOR</th>
+                    <th>CUMPLIMIENTO</th>
+                    <th>ÍTEMS "NO"</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in historial %}
+                <tr>
+                    <td>{{ item.fecha.strftime('%d/%m/%Y') }}</td>
+                    <td>{{ item.tienda_codigo }} - {{ item.tienda_nombre }}</td>
+                    <td>{{ item.supervisor }}</td>
+                    <td>{{ "%.1f"|format(item.cumplimiento) }}%</td>
+                    <td>{{ item.items_no }}</td>
+                    <td>
+                        <a href="{{ url_for('checklist.detalle_historial', id=item.id) }}"
+                           class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-eye"></i> Ver detalle
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info">No hay checklists guardados todavía.</div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block contenido %}
+<style>
+.ai-v3{--ai-ink:#2d2a26;--ai-muted:#6b6259;--ai-gold:#c5a880;--ai-taupe:#8b7d6b;--ai-teal:#0d5c75;--ai-red:#b95748;--ai-green:#2d6a4f;--ai-paper:#fdfbf7;color:var(--ai-ink)}
+.ai-hero{position:relative;overflow:hidden;padding:clamp(22px,4vw,38px);border-radius:26px;background:radial-gradient(circle at 85% 15%,rgba(197,168,128,.32),transparent 32%),linear-gradient(135deg,#302d29,#62594f);color:#fff;box-shadow:0 24px 55px rgba(45,42,38,.18)}
+.ai-hero:after{content:"";position:absolute;right:-80px;bottom:-130px;width:330px;height:330px;border:1px solid rgba(255,255,255,.13);border-radius:50%;box-shadow:0 0 0 42px rgba(255,255,255,.035),0 0 0 86px rgba(255,255,255,.025)}
+.ai-eyebrow{font-size:.72rem;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:#ead8b9}.ai-hero h1{font-size:clamp(1.7rem,4vw,3rem);font-weight:800;letter-spacing:-.04em}.ai-hero-copy{max-width:680px;color:rgba(255,255,255,.72)}
+.ai-status{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border:1px solid rgba(255,255,255,.18);border-radius:999px;background:rgba(255,255,255,.08);font-size:.78rem}.ai-status-dot{width:7px;height:7px;border-radius:50%;background:#82d6a2;box-shadow:0 0 12px #82d6a2}
+.ai-panel{background:var(--ai-paper);border:1px solid rgba(139,125,107,.17);border-radius:20px;box-shadow:0 9px 28px rgba(45,42,38,.055)}
+.ai-scenarios{display:flex;gap:7px;padding:6px;border-radius:16px;background:#eee6da}.ai-scenario{border:0;border-radius:11px;padding:9px 15px;background:transparent;color:var(--ai-muted);font-size:.82rem;font-weight:800;transition:.2s}.ai-scenario.active{background:#fff;color:var(--ai-ink);box-shadow:0 5px 15px rgba(45,42,38,.1)}
+.ai-main-number{font-size:clamp(2rem,5vw,4.2rem);font-weight:850;line-height:1;letter-spacing:-.055em}.ai-soft{color:var(--ai-muted)}
+.ai-nowcast-strip{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.ai-nowcast-pill{padding:8px 11px;border-radius:12px;background:#f4eee5;border:1px solid rgba(139,125,107,.14);font-size:.75rem;color:var(--ai-muted)}.ai-nowcast-pill strong{display:block;color:var(--ai-ink);font-size:.9rem}
+.ai-metric{height:100%;padding:20px;position:relative;overflow:hidden}.ai-metric-icon{width:42px;height:42px;display:grid;place-items:center;border-radius:13px;background:#eee6da;color:var(--ai-taupe);font-size:1.15rem}.ai-metric-value{font-size:clamp(1.25rem,2.4vw,1.8rem);font-weight:800}.ai-metric-label{font-size:.72rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--ai-muted)}
+.ai-explainer{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.ai-explain{padding:14px;border-radius:15px;background:rgba(245,240,232,.7);border:1px solid rgba(139,125,107,.12)}.ai-explain strong{display:block;font-size:.86rem}.ai-explain span{font-size:.76rem;color:var(--ai-muted)}
+.ai-section-title{font-weight:800;letter-spacing:-.025em}.ai-section-kicker{font-size:.74rem;font-weight:800;color:var(--ai-taupe);letter-spacing:.08em;text-transform:uppercase}
+.ai-chart{height:350px}.ai-store-compare{padding:18px;border-radius:17px;background:linear-gradient(145deg,#fff,#f6f0e7);border:1px solid rgba(139,125,107,.15);transition:transform .2s,box-shadow .2s}.ai-store-compare:hover{transform:translateY(-3px);box-shadow:0 13px 28px rgba(45,42,38,.09)}
+.ai-store-code{font-size:.72rem;font-weight:850;letter-spacing:.08em;color:var(--ai-taupe)}.ai-store-value{font-size:1.45rem;font-weight:850}.ai-mini-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.ai-mini{padding:10px;border-radius:11px;background:rgba(232,223,208,.45)}.ai-mini span{display:block;font-size:.67rem;text-transform:uppercase;color:var(--ai-muted);font-weight:750}.ai-mini strong{font-size:.9rem}
+.ai-store-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.ai-store-card{padding:17px;border-radius:17px;background:#fff;border:1px solid rgba(139,125,107,.14);transition:.2s}.ai-store-card:hover{border-color:rgba(139,125,107,.38);box-shadow:0 10px 25px rgba(45,42,38,.07)}.ai-store-card[hidden]{display:none}.ai-trend{display:inline-flex;align-items:center;padding:5px 8px;border-radius:999px;font-size:.72rem;font-weight:800}.ai-up{background:#dcefe3;color:var(--ai-green)}.ai-down{background:#f6dfdb;color:var(--ai-red)}
+.ai-progress{height:7px;border-radius:99px;background:#e9e0d4;overflow:hidden}.ai-progress span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--ai-gold),var(--ai-teal))}
+.ai-detail{margin-top:12px;padding-top:11px;border-top:1px solid rgba(139,125,107,.13)}.ai-detail summary{cursor:pointer;color:var(--ai-taupe);font-size:.77rem;font-weight:800}.ai-detail-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px;font-size:.78rem}.ai-detail-grid div{padding:8px;border-radius:9px;background:#f7f2ea}.ai-detail-grid span{display:block;color:var(--ai-muted);font-size:.67rem;text-transform:uppercase}
+.ai-alert{display:flex;gap:11px;padding:13px 0;border-bottom:1px solid rgba(139,125,107,.12)}.ai-alert:last-child{border:0}.ai-alert-icon{width:34px;height:34px;display:grid;place-items:center;flex:0 0 auto;border-radius:10px;background:#f6dfdb;color:var(--ai-red)}
+.ai-tech summary{cursor:pointer;list-style:none;font-weight:800}.ai-tech summary::-webkit-details-marker{display:none}.ai-tech summary:after{content:"+";float:right;font-size:1.2rem}.ai-tech[open] summary:after{content:"−"}.ai-table th{white-space:nowrap;font-size:.7rem;text-transform:uppercase;color:var(--ai-muted)}.ai-table td{white-space:nowrap;vertical-align:middle}
+.ai-empty{padding:60px 25px;text-align:center;border:1px dashed rgba(139,125,107,.35);border-radius:20px}
+@media(max-width:1199px){.ai-store-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:767px){.ai-store-grid,.ai-explainer{grid-template-columns:1fr}.ai-chart{height:290px}.ai-scenarios{width:100%}.ai-scenario{flex:1;padding:9px 7px}.ai-main-number{font-size:2.4rem}.ai-hero-actions{width:100%}.ai-hero-actions form,.ai-hero-actions button{width:100%}}
+@media(prefers-reduced-motion:reduce){.ai-store-card,.ai-store-compare,.ai-scenario{transition:none}}
+</style>
+
+{% set nowcast = diagnostico.get('nowcast', {}) if diagnostico is defined and diagnostico else {} %}
+<div class="ai-v3 pb-5">
+  <section class="ai-hero mb-4">
+    <div class="position-relative" style="z-index:1">
+      <div class="d-flex flex-wrap justify-content-between gap-4 align-items-start">
+        <div>
+          <div class="ai-eyebrow mb-2">L&H Intelligence · V3</div>
+          <h1 class="mb-2">{% if nowcast.get('active') %}El cierre del mes, al día.{% else %}El próximo mes, explicado.{% endif %}</h1>
+          <p class="ai-hero-copy mb-3">{% if nowcast.get('active') %}Conserva las ventas reales acumuladas y estima únicamente los días que faltan. Los escenarios muestran un rango posible; no son tres metas diferentes.{% else %}Una lectura visual de ventas, visitantes y capacidad comercial. Los escenarios muestran un rango posible; no son tres metas diferentes.{% endif %}</p>
+          {% if run %}<span class="ai-status"><span class="ai-status-dot"></span>Pronóstico {{ anio }}-{{ "%02d"|format(mes) }} · {% if nowcast.get('active') %}ventas reales hasta día {{ nowcast.get('cutoff_day') }}{% else %}datos hasta {{ run.cutoff_anio }}-{{ "%02d"|format(run.cutoff_mes) }}{% endif %}</span>{% endif %}
+        </div>
+        <div class="d-flex flex-column gap-2 ai-hero-actions">
+          {% if periodos %}<form method="get" class="d-flex gap-2">
+            <select class="form-select form-select-sm" name="anio" aria-label="Año">{% for p in periodos %}<option value="{{ p.anio }}" {% if p.anio == anio %}selected{% endif %}>{{ p.anio }}</option>{% endfor %}</select>
+            <select class="form-select form-select-sm" name="mes" aria-label="Mes">{% for p in periodos %}<option value="{{ p.mes }}" {% if p.anio == anio and p.mes == mes %}selected{% endif %}>Mes {{ p.mes }}</option>{% endfor %}</select>
+            <button class="btn btn-light btn-sm">Ver</button>
+          </form>{% endif %}
+          <form method="post" action="{{ url_for('ai_dashboard.reentrenar_modelos') }}"><button class="btn btn-outline-light btn-sm"><i class="bi bi-stars me-1"></i>Actualizar pronóstico</button></form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {% if error %}<div class="ai-empty"><i class="bi bi-cloud-slash fs-1"></i><h4 class="mt-3">Pronóstico aún no disponible</h4><p class="ai-soft mb-0">{{ error }}</p></div>{% else %}
+
+  <section class="ai-panel p-3 p-md-4 mb-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+      <div><div class="ai-section-kicker">Escenario de ventas</div><h2 class="ai-section-title mb-0">¿Qué panorama quieres explorar?</h2></div>
+      <div class="ai-scenarios" role="group" aria-label="Escenario">
+        <button class="ai-scenario" data-scenario="p10" type="button">Prudente</button>
+        <button class="ai-scenario active" data-scenario="p50" type="button">Central</button>
+        <button class="ai-scenario" data-scenario="p90" type="button">Alto</button>
+      </div>
+    </div>
+    <div class="row g-4 align-items-center">
+      <div class="col-lg-5">
+        <div class="ai-section-kicker" id="scenarioLabel">Escenario central · P50</div>
+        <div class="ai-main-number my-2" id="networkForecast">${{ "{:,.0f}".format(totales.venta_p50) }}</div>
+        <p class="ai-soft mb-0" id="scenarioDescription">{% if nowcast.get('active') %}Incluye lo vendido hasta el corte y una estimación prudente para los días restantes.{% else %}Es el resultado más representativo según el histórico disponible.{% endif %}</p>
+        {% if nowcast.get('active') %}<div class="ai-nowcast-strip"><div class="ai-nowcast-pill">Venta real al corte<strong>${{ "{:,.0f}".format(nowcast.get('actual_sales_total', 0)) }}</strong></div><div class="ai-nowcast-pill">Venta adicional estimada · P50<strong>${{ "{:,.0f}".format(nowcast.get('remaining_sales_forecast', 0)) }}</strong></div></div>{% endif %}
+      </div>
+      <div class="col-lg-7">
+        <div class="ai-explainer">
+          <div class="ai-explain"><strong>P10 · Prudente</strong><span>Solo 1 de cada 10 resultados debería quedar por debajo.</span></div>
+          <div class="ai-explain"><strong>P50 · Central</strong><span>La mitad de los resultados estaría por encima y la mitad por debajo.</span></div>
+          <div class="ai-explain"><strong>P90 · Alto</strong><span>Un escenario favorable; no equivale a una garantía.</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="row g-3 mb-4">
+    <div class="col-6 col-xl-3"><div class="ai-panel ai-metric"><div class="d-flex justify-content-between"><div class="ai-metric-label">Visitantes esperados</div><div class="ai-metric-icon"><i class="bi bi-person-walking"></i></div></div><div class="ai-metric-value">{{ "{:,.0f}".format(totales.trafico) }}</div><div class="ai-soft small">Entradas estimadas a la red</div></div></div>
+    <div class="col-6 col-xl-3"><div class="ai-panel ai-metric"><div class="d-flex justify-content-between"><div class="ai-metric-label">Compras esperadas</div><div class="ai-metric-icon"><i class="bi bi-bag-check"></i></div></div><div class="ai-metric-value">{{ "{:,.0f}".format(totales.facturas) }}</div><div class="ai-soft small">Transacciones coherentes con el tráfico</div></div></div>
+    <div class="col-6 col-xl-3"><div class="ai-panel ai-metric"><div class="d-flex justify-content-between"><div class="ai-metric-label">Conversión prevista</div><div class="ai-metric-icon"><i class="bi bi-arrow-repeat"></i></div></div><div class="ai-metric-value">{{ "{:.1f}%".format(totales.conversion) }}</div><div class="ai-soft small">De cada 100 visitantes, cuántos compran</div></div></div>
+    <div class="col-6 col-xl-3"><div class="ai-panel ai-metric"><div class="d-flex justify-content-between"><div class="ai-metric-label">Compra promedio</div><div class="ai-metric-icon"><i class="bi bi-receipt"></i></div></div><div class="ai-metric-value">${{ "{:,.0f}".format(totales.ticket) }}</div><div class="ai-soft small">Valor estimado por transacción</div></div></div>
+  </section>
+
+  <section class="ai-panel p-3 p-md-4 mb-4">
+    <div class="d-flex flex-wrap justify-content-between gap-3 mb-4">
+      <div><div class="ai-section-kicker">Radar comparativo</div><h3 class="ai-section-title mb-1">Tiendas frente a frente</h3><p class="ai-soft small mb-0">Compara hasta cuatro tiendas sin perderte entre columnas.</p></div>
+      <form method="get" class="d-flex flex-wrap gap-2">
+        <input type="hidden" name="anio" value="{{ anio }}"><input type="hidden" name="mes" value="{{ mes }}">
+        <select class="form-select form-select-sm" name="comparar" multiple size="3" style="min-width:260px" aria-label="Tiendas para comparar">{% for t in tiendas %}<option value="{{ t.store_id }}" {% if t.store_id in seleccionadas %}selected{% endif %}>{{ t.codigo }} · {{ t.tienda }}</option>{% endfor %}</select>
+        <button class="btn btn-dark btn-sm align-self-end">Actualizar comparación</button>
+      </form>
+    </div>
+    <div class="ai-chart mb-3"><canvas id="forecastComparisonChart"></canvas></div>
+    <div class="row g-3">
+      {% for t in comparacion %}<div class="col-md-6 col-xl-3"><article class="ai-store-compare" data-store-scenario data-p10="{{ t.venta_p10 or 0 }}" data-p50="{{ t.venta_p50 or 0 }}" data-p90="{{ t.venta_p90 or 0 }}">
+        <div class="ai-store-code">{{ t.codigo }}</div><h5 class="fw-bold text-truncate" title="{{ t.tienda }}">{{ t.tienda }}</h5><div class="ai-store-value js-store-value">${{ "{:,.0f}".format(t.venta_p50 or 0) }}</div>
+        <div class="ai-mini-grid mt-3"><div class="ai-mini"><span>Visitantes</span><strong>{{ "{:,.0f}".format(t.trafico or 0) }}</strong></div><div class="ai-mini"><span>Compras</span><strong>{{ "{:,.0f}".format(t.facturas or 0) }}</strong></div><div class="ai-mini"><span>Conversión</span><strong>{{ "{:.1f}%".format(t.conversion or 0) }}</strong></div><div class="ai-mini"><span>Ticket</span><strong>${{ "{:,.0f}".format(t.ticket or 0) }}</strong></div></div>
+      </article></div>{% endfor %}
+    </div>
+  </section>
+
+  <section class="ai-panel p-3 p-md-4 mb-4">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4"><div><div class="ai-section-kicker">Explorador comercial</div><h3 class="ai-section-title mb-1">Lectura rápida por tienda</h3><p class="ai-soft small mb-0">Lo esencial primero; abre cada tarjeta para ver el detalle.</p></div><div class="input-group" style="max-width:320px"><span class="input-group-text bg-white"><i class="bi bi-search"></i></span><input id="storeSearch" class="form-control" type="search" placeholder="Buscar tienda o ciudad"></div></div>
+    <div class="ai-store-grid" id="storeGrid">
+      {% for t in tiendas %}<article class="ai-store-card" data-search="{{ (t.codigo ~ ' ' ~ t.tienda ~ ' ' ~ t.ciudad)|lower }}">
+        <div class="d-flex justify-content-between gap-2"><div><div class="ai-store-code">{{ t.codigo }} · {{ t.ciudad }}</div><h6 class="fw-bold mb-1">{{ t.tienda }}</h6></div><span class="ai-trend {% if (t.crecimiento or 0) >= 0 %}ai-up{% else %}ai-down{% endif %}">{% if (t.crecimiento or 0) >= 0 %}<i class="bi bi-arrow-up-short"></i>{% else %}<i class="bi bi-arrow-down-short"></i>{% endif %}{{ "{:+.1f}%".format(t.crecimiento or 0) }}</span></div>
+        <div class="d-flex justify-content-between align-items-end mt-3"><div><div class="ai-soft small">Venta central</div><div class="fw-bold fs-5">${{ "{:,.0f}".format(t.venta_p50 or 0) }}</div></div><div class="text-end"><div class="ai-soft small">Conversión</div><strong>{{ "{:.1f}%".format(t.conversion or 0) }}</strong></div></div>
+        <div class="ai-progress mt-2" title="Conversión prevista"><span style="width:{{ [t.conversion or 0, 100]|min }}%"></span></div>
+        <details class="ai-detail"><summary>Ver cómo se compone</summary><div class="ai-detail-grid"><div><span>Rango de venta</span>${{ "{:,.0f}".format(t.venta_p10 or 0) }} – ${{ "{:,.0f}".format(t.venta_p90 or 0) }}</div><div><span>Visitantes</span>{{ "{:,.0f}".format(t.trafico or 0) }}</div><div><span>Compras</span>{{ "{:,.0f}".format(t.facturas or 0) }}</div><div><span>Compra promedio</span>${{ "{:,.0f}".format(t.ticket or 0) }}</div><div><span>Meta sugerida</span>${{ "{:,.0f}".format(t.meta_recomendada or 0) }}</div><div><span>Opción de cumplir</span>{% if t.probabilidad is not none %}{{ "{:.0f}%".format(t.probabilidad*100) }}{% else %}Sin dato{% endif %}</div></div></details>
+      </article>{% endfor %}
+    </div>
+    <div id="noStores" class="text-center ai-soft py-4 d-none">No encontramos una tienda con ese nombre.</div>
+  </section>
+
+  <div class="row g-3 mb-4">
+    <div class="col-lg-7"><section class="ai-panel p-3 p-md-4 h-100"><div class="ai-section-kicker">Atención recomendada</div><h3 class="ai-section-title">Señales para actuar</h3>{% if alertas %}{% for a in alertas %}<div class="ai-alert"><div class="ai-alert-icon"><i class="bi bi-exclamation-diamond"></i></div><div><strong>{{ a.tipo }} · {{ a.tienda or 'Red' }}</strong><div class="ai-soft small">{{ a.mensaje }}</div></div></div>{% endfor %}{% else %}<div class="ai-soft py-4"><i class="bi bi-check-circle me-2 text-success"></i>No aparecen alertas críticas en este escenario.</div>{% endif %}</section></div>
+    <div class="col-lg-5"><section class="ai-panel p-3 p-md-4 h-100"><div class="ai-section-kicker">Calidad del análisis</div><h3 class="ai-section-title">Qué tan sólida es la lectura</h3><div class="ai-mini-grid mt-3"><div class="ai-mini"><span>Cobertura</span><strong>{{ "{:.1f}%".format((run.coverage or 0)*100) }}</strong></div><div class="ai-mini"><span>Error WAPE</span><strong>{{ "{:.1f}%".format((run.wape or 0)*100) }}</strong></div><div class="ai-mini"><span>Versión</span><strong>{{ run.model_version }}</strong></div><div class="ai-mini"><span>Ejecución</span><strong>#{{ run.id }}</strong></div></div><p class="ai-soft small mt-3 mb-0">Menor WAPE significa mejor ajuste histórico. El rango P10–P90 comunica la incertidumbre que todavía existe.</p></section></div>
+  </div>
+
+  <details class="ai-panel ai-tech p-3 p-md-4"><summary>Ver detalle técnico por línea</summary><div class="table-responsive mt-3" style="max-height:480px"><table class="table ai-table table-hover"><thead class="sticky-top bg-white"><tr><th>Tienda</th><th>Línea</th><th class="text-end">P10</th><th class="text-end">P50</th><th class="text-end">P90</th><th class="text-end">Meta sugerida</th><th class="text-end">Probabilidad</th></tr></thead><tbody>{% for l in lineas %}<tr><td>{{ l.tienda }}</td><td>{{ l.linea }}</td><td class="text-end">${{ "{:,.0f}".format(l.venta_p10 or 0) }}</td><td class="text-end fw-bold">${{ "{:,.0f}".format(l.venta_p50 or 0) }}</td><td class="text-end">${{ "{:,.0f}".format(l.venta_p90 or 0) }}</td><td class="text-end">${{ "{:,.0f}".format(l.meta_recomendada or 0) }}</td><td class="text-end">{% if l.probabilidad_cumplimiento is not none %}{{ "{:.0f}%".format(l.probabilidad_cumplimiento*100) }}{% else %}—{% endif %}</td></tr>{% endfor %}</tbody></table></div></details>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ super() }}
+{% set nowcast = diagnostico.get('nowcast', {}) if diagnostico is defined and diagnostico else {} %}
+{% if not error %}<script>
+document.addEventListener("DOMContentLoaded", function(){
+  const money=new Intl.NumberFormat("es-CO",{style:"currency",currency:"COP",maximumFractionDigits:0});
+  const scenarioData={p10:{{ totales.venta_p10|tojson }},p50:{{ totales.venta_p50|tojson }},p90:{{ totales.venta_p90|tojson }}};
+  const scenarioText={p10:["Escenario prudente · P10","Un panorama conservador para preparar decisiones con margen."],p50:["Escenario central · P50",{% if nowcast.get('active') %}"Incluye lo vendido hasta el corte y una estimación prudente para los días restantes."{% else %}"Es el resultado más representativo según el histórico disponible."{% endif %}],p90:["Escenario alto · P90","Un panorama favorable que exige buena ejecución comercial."]};
+  const rows={{ comparacion|tojson }};
+  const canvas=document.getElementById("forecastComparisonChart");
+  let chart=null;
+  if(canvas&&typeof Chart!=="undefined") chart=new Chart(canvas,{type:"bar",data:{labels:rows.map(r=>r.codigo),datasets:[{label:"Venta central",data:rows.map(r=>r.venta_p50),backgroundColor:"rgba(139,125,107,.82)",borderRadius:9,yAxisID:"money"},{label:"Conversión",data:rows.map(r=>r.conversion),type:"line",borderColor:"#0d5c75",backgroundColor:"#0d5c75",pointRadius:5,tension:.32,yAxisID:"percent"}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},plugins:{legend:{labels:{usePointStyle:true}}},scales:{money:{position:"left",beginAtZero:true,ticks:{callback:v=>"$"+Intl.NumberFormat("es-CO",{notation:"compact"}).format(v)}},percent:{position:"right",beginAtZero:true,max:100,grid:{drawOnChartArea:false},ticks:{callback:v=>v+"%"}}}}});
+  function setScenario(key){document.querySelectorAll(".ai-scenario").forEach(b=>b.classList.toggle("active",b.dataset.scenario===key));document.getElementById("networkForecast").textContent=money.format(scenarioData[key]||0);document.getElementById("scenarioLabel").textContent=scenarioText[key][0];document.getElementById("scenarioDescription").textContent=scenarioText[key][1];document.querySelectorAll("[data-store-scenario]").forEach(card=>{card.querySelector(".js-store-value").textContent=money.format(Number(card.dataset[key]||0));});if(chart){chart.data.datasets[0].label=scenarioText[key][0];chart.data.datasets[0].data=rows.map(r=>Number(r["venta_"+key]||0));chart.update();}}
+  document.querySelectorAll(".ai-scenario").forEach(button=>button.addEventListener("click",()=>setScenario(button.dataset.scenario)));
+  const search=document.getElementById("storeSearch"),cards=[...document.querySelectorAll(".ai-store-card")],empty=document.getElementById("noStores");if(search)search.addEventListener("input",()=>{const query=search.value.toLocaleLowerCase("es").trim();let visible=0;cards.forEach(card=>{const show=card.dataset.search.includes(query);card.hidden=!show;if(show)visible++;});empty.classList.toggle("d-none",visible!==0);});
+});
+</script>{% endif %}
+{% endblock %}

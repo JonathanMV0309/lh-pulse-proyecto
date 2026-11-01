@@ -1,0 +1,178 @@
+/* =========================================================
+   L&H PULSE - Temporada de Halloween (octubre)
+   Decoración solo en los bordes de la pantalla. Se activa con la
+   clase html.tema-halloween (la pone temporada_halloween.js en
+   octubre). Nada de esto recibe clics salvo las arañas y el
+   botón para apagarla.
+   ========================================================= */
+
+html.tema-halloween {
+    --hw-pumpkin: #e8772e;
+    --hw-pumpkin-d: #b8531a;
+    --hw-purple: #5b3a8c;
+    --hw-night: #2a2238;
+    --hw-bone: #f4ece0;
+    --hw-web: rgba(90, 80, 70, .32);
+    --hw-ease: cubic-bezier(.22, 1, .36, 1);
+}
+
+/* Capa contenedora: encima del contenido pero debajo de menús y modales */
+.hw-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 1025;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+/* ---------- Guirnalda bajo la barra superior ---------- */
+.hw-garland {
+    position: fixed;
+    top: var(--hw-top, 64px);
+    left: var(--hw-left, 0px);
+    right: 0;
+    z-index: 1026;
+    height: 34px;
+    pointer-events: none;
+    animation: hwGarlandIn 1.2s var(--hw-ease) both;
+}
+
+.hw-garland svg { width: 100%; height: 100%; display: block; overflow: visible; }
+
+@keyframes hwGarlandIn {
+    from { transform: translateY(-40px); opacity: 0; }
+    to { transform: none; opacity: 1; }
+}
+
+.hw-flag { transform-origin: 50% 0; animation: hwSway 5s ease-in-out infinite alternate; }
+
+@keyframes hwSway {
+    from { transform: rotate(-3deg); }
+    to { transform: rotate(3deg); }
+}
+
+/* ---------- Telarañas ---------- */
+.hw-web {
+    position: fixed;
+    width: 150px;
+    height: 150px;
+    opacity: .9;
+    pointer-events: none;
+}
+
+.hw-web.hw-tl { top: calc(var(--hw-top, 64px) + 26px); left: var(--hw-left, 0px); }
+.hw-web.hw-br { right: 0; bottom: 0; transform: rotate(180deg); }
+
+.hw-web path,
+.hw-web line { fill: none; stroke: var(--hw-web); stroke-width: 1.2; }
+
+/* ---------- Arañas ---------- */
+.hw-spider {
+    position: fixed;
+    top: calc(var(--hw-top, 64px) + 18px);
+    z-index: 1027;
+    width: 40px;
+    pointer-events: auto;
+    cursor: pointer;
+    transform-origin: 50% 0;
+    animation: hwBob 6s ease-in-out infinite;
+}
+
+.hw-spider .hw-thread {
+    display: block;
+    width: 1px;
+    height: var(--hw-drop, 120px);
+    margin: 0 auto;
+    background: linear-gradient(rgba(90, 80, 70, .15), rgba(90, 80, 70, .55));
+    transition: height .9s var(--hw-ease);
+}
+
+.hw-spider svg { display: block; width: 40px; height: 34px; margin-top: -2px; }
+.hw-spider.hw-up .hw-thread { height: 8px; }
+
+@keyframes hwBob {
+    0%, 100% { transform: translateY(0) rotate(-2deg); }
+    50% { transform: translateY(10px) rotate(2deg); }
+}
+
+.hw-spider .hw-legs { transform-origin: 20px 18px; animation: hwLegs .5s ease-in-out infinite alternate; }
+
+@keyframes hwLegs {
+    from { transform: scaleX(1); }
+    to { transform: scaleX(.92); }
+}
+
+/* ---------- Murciélagos ---------- */
+.hw-bat {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 46px;
+    height: 24px;
+    pointer-events: none;
+    will-change: transform;
+}
+
+.hw-bat svg { width: 100%; height: 100%; overflow: visible; }
+.hw-bat .hw-wing { transform-origin: 23px 12px; animation: hwFlap .18s ease-in-out infinite alternate; }
+.hw-bat .hw-wing.hw-r { animation-delay: .09s; }
+
+@keyframes hwFlap {
+    from { transform: scaleY(1); }
+    to { transform: scaleY(.35); }
+}
+
+/* ---------- Neblina al pie ---------- */
+.hw-fog {
+    position: fixed;
+    left: var(--hw-left, 0px);
+    right: 0;
+    bottom: 0;
+    height: 70px;
+    pointer-events: none;
+    background: linear-gradient(to top, rgba(91, 58, 140, .10), rgba(91, 58, 140, 0));
+}
+
+/* ---------- Botón para apagar/prender ---------- */
+.hw-toggle {
+    display: inline-grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: 1px solid rgba(232, 119, 46, .4);
+    border-radius: 50%;
+    background: rgba(232, 119, 46, .08);
+    font-size: 17px;
+    line-height: 1;
+    cursor: pointer;
+    transition: transform .15s cubic-bezier(.22, 1, .36, 1), background .2s;
+}
+
+.hw-toggle:active { transform: scale(.94); }
+
+.hw-toggle:hover { background: rgba(232, 119, 46, .16); }
+.hw-toggle:focus-visible { outline: 2px solid #e8772e; outline-offset: 2px; }
+html:not(.tema-halloween) .hw-toggle { filter: grayscale(1); opacity: .7; }
+
+/* ---------- Toques en la marca (muy sutiles) ---------- */
+html.tema-halloween .lh-topbar { box-shadow: inset 0 -2px 0 rgba(232, 119, 46, .55); }
+
+/* ---------- Celular: solo lo esencial ---------- */
+@media (max-width: 767.98px) {
+    .hw-web.hw-br,
+    .hw-spider.hw-s2 { display: none; }
+    .hw-web { width: 96px; height: 96px; }
+    .hw-garland { height: 26px; }
+}
+
+/* ---------- Sin movimiento si el equipo lo pide ---------- */
+/* Desactivado: las animaciones se muestran siempre. */
+@media (prefers-reduced-motion: reduce) and (max-width: 0px) {
+    .hw-garland,
+    .hw-flag,
+    .hw-spider,
+    .hw-spider .hw-legs,
+    .hw-bat .hw-wing { animation: none !important; }
+    .hw-bat { display: none; }
+}

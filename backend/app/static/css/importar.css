@@ -1,0 +1,111 @@
+/* ===================== TARJETA PREMIUM ===================== */
+.premium-card {
+    transition: box-shadow 0.3s ease;
+    background: #FDFBF7;
+    border: 1px solid rgba(139, 125, 107, 0.2);
+    box-shadow: 0 8px 30px rgba(45, 42, 38, 0.06);
+}
+
+.premium-card:hover {
+    box-shadow: 0 12px 28px rgba(45, 42, 38, 0.1);
+}
+
+/* ===================== DROP ZONE ===================== */
+.drop-zone {
+    border: 2px dashed #C5A880;
+    border-radius: 16px;
+    padding: 3rem 2rem;
+    background: rgba(197, 168, 128, 0.05);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.drop-zone:hover,
+.drop-zone.drag-over {
+    background: rgba(197, 168, 128, 0.15);
+    border-color: #B8946E;
+    transform: translateY(-2px);
+}
+
+.drop-zone i {
+    transition: transform 0.3s ease;
+}
+
+.drop-zone:hover i,
+.drop-zone.drag-over i {
+    transform: scale(1.1);
+}
+
+/* ===================== INFORMACIÓN DEL ARCHIVO ===================== */
+.file-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+}
+
+/* ===================== BOTÓN IMPORTAR ===================== */
+.btn-import {
+    background-color: #8B7D6B;
+    color: white;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    padding: 0.75rem 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-import:hover:not(:disabled) {
+    background-color: #6B5D4F;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(45, 42, 38, 0.1);
+}
+
+.btn-import:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* ===================== ALERTAS FLASH ===================== */
+.alert {
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+}
+
+.alert-success {
+    background-color: #E8F5E9;
+    border-color: #C8E6C9;
+    color: #2E7D32;
+}
+
+.alert-danger {
+    background-color: #FFEBEE;
+    border-color: #FFCDD2;
+    color: #C62828;
+}
+
+.alert-warning {
+    background-color: #FFF8E1;
+    border-color: #FFECB3;
+    color: #F57F17;
+}
+
+.alert-info {
+    background-color: #E3F2FD;
+    border-color: #BBDEFB;
+    color: #0D47A1;
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 576px) {
+    .drop-zone { padding: 2rem 1rem; }
+    .card-body { padding: 1.5rem !important; }
+}

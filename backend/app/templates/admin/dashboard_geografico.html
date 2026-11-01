@@ -1,0 +1,1741 @@
+{% extends "base.html" %}
+
+
+{% block extra_css %}
+
+<style>
+
+/* =========================================================
+   PÁGINA
+========================================================= */
+
+.geografico-page {
+    padding: 10px 0 50px;
+}
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.geo-hero {
+    background:
+        linear-gradient(
+            135deg,
+            #FDFBF7,
+            #F5F0E8
+        );
+    border: 1px solid rgba(139, 125, 107, 0.2);
+    border-radius: 22px;
+    padding: 28px 30px;
+    color: #2D2A26;
+    margin-bottom: 24px;
+    box-shadow:
+        0 12px 30px rgba(45, 42, 38, 0.06);
+}
+
+.geo-hero-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.geo-hero-title {
+    font-size: 27px;
+    font-weight: 700;
+    margin: 0 0 7px;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.geo-hero-subtitle {
+    margin: 0;
+    color: #6B6259;
+    font-size: 14px;
+}
+
+.geo-period {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(139, 125, 107, 0.12);
+    border: 1px solid rgba(139, 125, 107, 0.2);
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 13px;
+    white-space: nowrap;
+    color: #2D2A26;
+}
+
+/* =========================================================
+   FILTROS
+========================================================= */
+
+.geo-filter-card {
+    background: #FDFBF7;
+    border: 1px solid rgba(139, 125, 107, 0.15);
+    border-radius: 18px;
+    padding: 20px;
+    margin-bottom: 24px;
+    box-shadow:
+        0 5px 18px rgba(45, 42, 38, 0.05);
+}
+
+.geo-filter-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #2D2A26;
+    margin-bottom: 16px;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.geo-filter-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #6B6259;
+    margin-bottom: 7px;
+}
+
+.geo-filter-card .form-select {
+    height: 43px;
+    border-radius: 10px;
+    border-color: rgba(139, 125, 107, 0.25);
+    font-size: 13px;
+    background-color: #FDFBF7;
+    color: #2D2A26;
+}
+
+.geo-filter-card .form-select:focus {
+    border-color: #C5A880;
+    box-shadow:
+        0 0 0 .2rem rgba(197, 168, 128, 0.15);
+}
+
+.geo-filter-actions {
+    display: flex;
+    align-items: end;
+    gap: 8px;
+}
+
+.geo-filter-btn {
+    height: 43px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 0 18px;
+    background-color: #8B7D6B;
+    border-color: #8B7D6B;
+    color: white;
+}
+
+.geo-filter-btn:hover {
+    background-color: #6B5D4F;
+    border-color: #6B5D4F;
+}
+
+.geo-clear-btn {
+    height: 43px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    padding: 0 15px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    background: #F5F0E8;
+    border: 1px solid rgba(139, 125, 107, 0.25);
+    color: #6B6259;
+}
+
+.geo-clear-btn:hover {
+    background: #E8DFD0;
+    color: #2D2A26;
+}
+
+/* =========================================================
+   FILTROS ACTIVOS
+========================================================= */
+
+.geo-active-filters {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 15px;
+}
+
+.geo-filter-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 20px;
+    background: rgba(139, 125, 107, 0.1);
+    color: #8B7D6B;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+/* =========================================================
+   KPI CARDS
+========================================================= */
+
+.geo-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.geo-kpi {
+    background: #FDFBF7;
+    border: 1px solid rgba(139, 125, 107, 0.15);
+    border-radius: 18px;
+    padding: 20px;
+    min-height: 145px;
+    box-shadow: 0 5px 18px rgba(45, 42, 38, 0.05);
+}
+
+.geo-kpi-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 13px;
+}
+
+.geo-kpi-label {
+    font-size: 12px;
+    color: #6B6259;
+    font-weight: 600;
+}
+
+.geo-kpi-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(139, 125, 107, 0.1);
+    color: #8B7D6B;
+    font-size: 17px;
+}
+
+.geo-kpi-value {
+    font-size: 25px;
+    font-weight: 700;
+    color: #2D2A26;
+    line-height: 1.2;
+    margin-bottom: 7px;
+}
+
+.geo-kpi-detail {
+    font-size: 11px;
+    color: #93897C;
+}
+
+/* =========================================================
+   GRID GENERAL
+========================================================= */
+
+.geo-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+/* =========================================================
+   CARD
+========================================================= */
+
+.geo-card {
+    background: #FDFBF7;
+    border: 1px solid rgba(139, 125, 107, 0.15);
+    border-radius: 18px;
+    padding: 20px;
+    box-shadow: 0 5px 18px rgba(45, 42, 38, 0.05);
+}
+
+.geo-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 18px;
+}
+
+.geo-card-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #2D2A26;
+    margin: 0;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.geo-card-subtitle {
+    color: #93897C;
+    font-size: 11px;
+    margin-top: 4px;
+}
+
+.geo-card-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: rgba(197, 168, 128, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #8B7D6B;
+}
+
+/* =========================================================
+   CHART
+========================================================= */
+
+.geo-chart-container {
+    position: relative;
+    height: 310px;
+}
+
+/* =========================================================
+   TABLAS
+========================================================= */
+
+.geo-table-wrapper {
+    overflow-x: auto;
+}
+
+.geo-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 12px;
+}
+
+.geo-table thead th {
+    background: #F5F0E8;
+    color: #6B6259;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+    padding: 11px 10px;
+    border-bottom: 1px solid rgba(139, 125, 107, 0.15);
+    white-space: nowrap;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.geo-table tbody td {
+    padding: 12px 10px;
+    border-bottom: 1px solid rgba(139, 125, 107, 0.08);
+    color: #6B6259;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.geo-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.geo-table tbody tr:hover {
+    background: rgba(197, 168, 128, 0.06);
+}
+
+.geo-rank {
+    width: 35px;
+    font-weight: 700;
+    color: #93897C;
+}
+
+.geo-store-name {
+    font-weight: 700;
+    color: #2D2A26;
+}
+
+.geo-store-code {
+    font-size: 10px;
+    color: #93897C;
+    margin-top: 2px;
+}
+
+.geo-city {
+    color: #6B6259;
+}
+
+.geo-number {
+    text-align: right;
+}
+
+.geo-percent {
+    text-align: right;
+    font-weight: 700;
+}
+
+/* =========================================================
+   BADGES (ACENTOS CÁLIDOS)
+========================================================= */
+
+.geo-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 8px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.geo-badge-cold {
+    background: rgba(44, 95, 110, 0.12);
+    color: #2C5F6E;
+}
+
+.geo-badge-warm {
+    background: rgba(201, 111, 74, 0.12);
+    color: #C96F4A;
+}
+
+.geo-badge-temperate {
+    background: rgba(107, 125, 63, 0.12);
+    color: #6B7D3F;
+}
+
+.geo-badge-global {
+    background: rgba(126, 107, 143, 0.12);
+    color: #7E6B8F;
+}
+
+.geo-badge-default {
+    background: rgba(139, 125, 107, 0.1);
+    color: #8B7D6B;
+}
+
+/* =========================================================
+   CUMPLIMIENTO
+========================================================= */
+
+.geo-progress {
+    width: 100%;
+    height: 7px;
+    background: #E8DFD0;
+    border-radius: 20px;
+    overflow: hidden;
+    min-width: 80px;
+}
+
+.geo-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #C5A880, #8B7D6B);
+    border-radius: 20px;
+}
+
+/* =========================================================
+   ESTADO VACÍO
+========================================================= */
+
+.geo-empty {
+    padding: 45px 20px;
+    text-align: center;
+    color: #93897C;
+}
+
+.geo-empty i {
+    font-size: 35px;
+    display: block;
+    margin-bottom: 10px;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1100px) {
+    .geo-kpi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 850px) {
+    .geo-grid {
+        grid-template-columns: 1fr;
+    }
+    .geo-hero-content {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 575px) {
+    .geo-kpi-grid {
+        grid-template-columns: 1fr;
+    }
+    .geo-hero {
+        padding: 22px;
+    }
+    .geo-hero-title {
+        font-size: 22px;
+    }
+    .geo-filter-actions {
+        width: 100%;
+    }
+    .geo-filter-btn,
+    .geo-clear-btn {
+        flex: 1;
+    }
+}
+
+</style>
+
+{% endblock %}
+
+
+
+{% block contenido %}
+
+<div class="geografico-page">
+
+
+    <!-- =====================================================
+         HERO
+    ====================================================== -->
+
+    <section class="geo-hero">
+
+        <div class="geo-hero-content">
+
+            <div>
+
+                <h1 class="geo-hero-title">
+                    <i class="bi bi-geo-alt-fill"></i>
+                    Dashboard Geográfico
+                </h1>
+
+                <p class="geo-hero-subtitle">
+                    Análisis de desempeño de las tiendas por ciudad y clima.
+                </p>
+
+            </div>
+
+
+            <div class="geo-period">
+
+                <i class="bi bi-calendar3"></i>
+
+                {% if periodo_anio and periodo_mes %}
+
+                    Período:
+                    <strong>
+                        {{ "%02d"|format(periodo_mes) }}/{{ periodo_anio }}
+                    </strong>
+
+                {% else %}
+
+                    Sin período
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         FILTROS
+    ====================================================== -->
+
+    <section class="geo-filter-card">
+
+        <div class="geo-filter-title">
+
+            <i class="bi bi-funnel"></i>
+
+            Filtros
+
+        </div>
+
+
+        <form
+            method="GET"
+            action="{{ url_for('dashboard_geografico.dashboard_geografico') }}"
+        >
+
+            <div class="row g-3">
+
+
+                <!-- =========================================
+                     CIUDAD
+                ========================================== -->
+
+                <div class="col-lg-5 col-md-6">
+
+                    <label
+                        for="filtroCiudad"
+                        class="geo-filter-label"
+                    >
+                        Ciudad
+                    </label>
+
+                    <select
+                        id="filtroCiudad"
+                        name="ciudad"
+                        class="form-select"
+                    >
+
+                        <option
+                            value=""
+                            {% if not ciudad_seleccionada %}
+                                selected
+                            {% endif %}
+                        >
+                            Todas
+                        </option>
+
+
+                        {% for ciudad_item in ciudades_disponibles %}
+
+                            <option
+                                value="{{ ciudad_item }}"
+                                {% if ciudad_seleccionada == ciudad_item %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ ciudad_item }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+
+                <!-- =========================================
+                     CLIMA
+                ========================================== -->
+
+                <div class="col-lg-5 col-md-6">
+
+                    <label
+                        for="filtroClima"
+                        class="geo-filter-label"
+                    >
+                        Clima
+                    </label>
+
+                    <select
+                        id="filtroClima"
+                        name="clima"
+                        class="form-select"
+                    >
+
+                        <option
+                            value=""
+                            {% if not clima_seleccionado %}
+                                selected
+                            {% endif %}
+                        >
+                            Todos
+                        </option>
+
+
+                        {% for clima_item in climas_disponibles %}
+
+                            <option
+                                value="{{ clima_item }}"
+                                {% if clima_seleccionado == clima_item %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ clima_item }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+
+                <!-- =========================================
+                     BOTONES
+                ========================================== -->
+
+                <div class="col-lg-2 col-md-12">
+
+                    <div class="geo-filter-actions">
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary geo-filter-btn"
+                        >
+
+                            <i class="bi bi-funnel-fill"></i>
+
+                            Filtrar
+
+                        </button>
+
+
+                        <a
+                            href="{{ url_for('dashboard_geografico.dashboard_geografico') }}"
+                            class="btn btn-light border geo-clear-btn"
+                            title="Limpiar filtros"
+                        >
+
+                            <i class="bi bi-x-lg"></i>
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </form>
+
+
+
+        <!-- =================================================
+             FILTROS ACTIVOS
+        ================================================== -->
+
+        {% if ciudad_seleccionada or clima_seleccionado %}
+
+            <div class="geo-active-filters">
+
+                <span
+                    style="
+                        font-size:11px;
+                        color:#6b7280;
+                        font-weight:600;
+                    "
+                >
+                    Filtros activos:
+                </span>
+
+
+                {% if ciudad_seleccionada %}
+
+                    <span class="geo-filter-badge">
+
+                        <i class="bi bi-geo-alt"></i>
+
+                        {{ ciudad_seleccionada }}
+
+                    </span>
+
+                {% endif %}
+
+
+                {% if clima_seleccionado %}
+
+                    <span class="geo-filter-badge">
+
+                        <i class="bi bi-cloud-sun"></i>
+
+                        {{ clima_seleccionado }}
+
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+
+
+    <!-- =====================================================
+         KPIs
+    ====================================================== -->
+
+    <section class="geo-kpi-grid">
+
+
+        <!-- TIENDAS -->
+
+        <div class="geo-kpi">
+
+            <div class="geo-kpi-top">
+
+                <span class="geo-kpi-label">
+                    Tiendas
+                </span>
+
+                <div class="geo-kpi-icon">
+
+                    <i class="bi bi-shop"></i>
+
+                </div>
+
+            </div>
+
+            <div class="geo-kpi-value">
+                {{ tiendas|default(0) }}
+            </div>
+
+            <div class="geo-kpi-detail">
+                Tiendas incluidas en el análisis
+            </div>
+
+        </div>
+
+
+
+        <!-- VENTAS -->
+
+        <div class="geo-kpi">
+
+            <div class="geo-kpi-top">
+
+                <span class="geo-kpi-label">
+                    Ventas
+                </span>
+
+                <div class="geo-kpi-icon">
+
+                    <i class="bi bi-cash-stack"></i>
+
+                </div>
+
+            </div>
+
+            <div class="geo-kpi-value">
+
+                ${{ "{:,.0f}".format(ventas|default(0)) }}
+
+            </div>
+
+            <div class="geo-kpi-detail">
+
+                {% if variacion is defined %}
+
+                    {% if variacion >= 0 %}
+
+                        <span style="color:#6B7D3F;font-weight:700;">
+                            ↑ {{ "%.1f"|format(variacion) }}%
+                        </span>
+
+                    {% else %}
+
+                        <span style="color:#8C3B3B;font-weight:700;">
+                            ↓ {{ "%.1f"|format(variacion|abs) }}%
+                        </span>
+
+                    {% endif %}
+
+                    vs. período anterior
+
+                {% else %}
+
+                    Venta actual acumulada
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+
+        <!-- CUMPLIMIENTO -->
+
+        <div class="geo-kpi">
+
+            <div class="geo-kpi-top">
+
+                <span class="geo-kpi-label">
+                    Cumplimiento
+                </span>
+
+                <div class="geo-kpi-icon">
+
+                    <i class="bi bi-bullseye"></i>
+
+                </div>
+
+            </div>
+
+            <div class="geo-kpi-value">
+
+                {{ "%.1f"|format((cumplimiento|default(0)) * 100) }}%
+
+            </div>
+
+            <div class="geo-kpi-detail">
+                Promedio de cumplimiento
+            </div>
+
+        </div>
+
+
+
+        <!-- CONVERSIÓN -->
+
+        <div class="geo-kpi">
+
+            <div class="geo-kpi-top">
+
+                <span class="geo-kpi-label">
+                    Conversión
+                </span>
+
+                <div class="geo-kpi-icon">
+
+                    <i class="bi bi-arrow-repeat"></i>
+
+                </div>
+
+            </div>
+
+            <div class="geo-kpi-value">
+
+                {{ "%.1f"|format(conversion|default(0)) }}%
+
+            </div>
+
+            <div class="geo-kpi-detail">
+
+                {{ "{:,.0f}".format(trafico|default(0)) }}
+                visitantes ·
+                {{ "{:,.0f}".format(facturas|default(0)) }}
+                facturas
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         SEGUNDA FILA DE KPIs
+    ====================================================== -->
+
+    <section class="geo-kpi-grid">
+
+
+        <!-- TRÁFICO -->
+
+        <div class="geo-kpi">
+
+            <div class="geo-kpi-top">
+
+                <span class="geo-kpi-label">
+                    Tráfico
+                </span>
+
+                <div class="geo-kpi-icon">
+
+                    <i class="bi bi-people"></i>
+
+                </div>
+
+            </div>
+
+            <div class="geo-kpi-value">
+
+                {{ "{:,.0f}".format(trafico|default(0)) }}
+
+            </div>
+
+            <div class="geo-kpi-detail">
+                Tráfico acumulado
+            </div>
+
+        </div>
+
+
+
+        <!-- FACTURAS -->
+
+        <div class="geo-kpi">
+
+            <div class="geo-kpi-top">
+
+                <span class="geo-kpi-label">
+                    Facturas
+                </span>
+
+                <div class="geo-kpi-icon">
+
+                    <i class="bi bi-receipt"></i>
+
+                </div>
+
+            </div>
+
+            <div class="geo-kpi-value">
+
+                {{ "{:,.0f}".format(facturas|default(0)) }}
+
+            </div>
+
+            <div class="geo-kpi-detail">
+                Facturas registradas
+            </div>
+
+        </div>
+
+
+
+        <!-- TICKET -->
+
+        <div class="geo-kpi">
+
+            <div class="geo-kpi-top">
+
+                <span class="geo-kpi-label">
+                    Ticket promedio
+                </span>
+
+                <div class="geo-kpi-icon">
+
+                    <i class="bi bi-cart-check"></i>
+
+                </div>
+
+            </div>
+
+            <div class="geo-kpi-value">
+
+                ${{ "{:,.0f}".format(ticket_promedio|default(0)) }}
+
+            </div>
+
+            <div class="geo-kpi-detail">
+                Venta promedio por factura
+            </div>
+
+        </div>
+
+
+
+        <!-- VENTA ANTERIOR -->
+
+        <div class="geo-kpi">
+
+            <div class="geo-kpi-top">
+
+                <span class="geo-kpi-label">
+                    Venta anterior
+                </span>
+
+                <div class="geo-kpi-icon">
+
+                    <i class="bi bi-clock-history"></i>
+
+                </div>
+
+            </div>
+
+            <div class="geo-kpi-value">
+
+                ${{ "{:,.0f}".format(venta_anterior|default(0)) }}
+
+            </div>
+
+            <div class="geo-kpi-detail">
+                Base para comparación
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         GRÁFICOS
+    ====================================================== -->
+
+    <section class="geo-grid">
+
+
+        <!-- =================================================
+             CIUDADES
+        ================================================== -->
+
+        <div class="geo-card">
+
+            <div class="geo-card-header">
+
+                <div>
+
+                    <h3 class="geo-card-title">
+                        Desempeño por ciudad
+                    </h3>
+
+                    <div class="geo-card-subtitle">
+                        Cumplimiento de las ciudades
+                    </div>
+
+                </div>
+
+                <div class="geo-card-icon">
+
+                    <i class="bi bi-bar-chart-fill"></i>
+
+                </div>
+
+            </div>
+
+
+            <div class="geo-chart-container">
+
+                <canvas id="ciudadesChart"></canvas>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             CLIMA
+        ================================================== -->
+
+        <div class="geo-card">
+
+            <div class="geo-card-header">
+
+                <div>
+
+                    <h3 class="geo-card-title">
+                        Ventas por clima
+                    </h3>
+
+                    <div class="geo-card-subtitle">
+                        Distribución de ventas según clima
+                    </div>
+
+                </div>
+
+                <div class="geo-card-icon">
+
+                    <i class="bi bi-cloud-sun"></i>
+
+                </div>
+
+            </div>
+
+
+            <div class="geo-chart-container">
+
+                <canvas id="climaChart"></canvas>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         RANKING CIUDADES
+    ====================================================== -->
+
+    <section class="geo-card mb-4">
+
+        <div class="geo-card-header">
+
+            <div>
+
+                <h3 class="geo-card-title">
+                    Ranking por ciudad
+                </h3>
+
+                <div class="geo-card-subtitle">
+                    Comparación de desempeño entre ciudades
+                </div>
+
+            </div>
+
+            <div class="geo-card-icon">
+
+                <i class="bi bi-geo-alt"></i>
+
+            </div>
+
+        </div>
+
+
+        {% if ranking_ciudades %}
+
+            <div class="geo-table-wrapper">
+
+                <table class="geo-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>#</th>
+                            <th>Ciudad</th>
+                            <th>Tiendas</th>
+                            <th style="text-align:right;">Ventas</th>
+                            <th style="text-align:right;">Variación</th>
+                            <th style="text-align:right;">Cumplimiento</th>
+                            <th style="text-align:right;">Tráfico</th>
+                            <th style="text-align:right;">Facturas</th>
+                            <th style="text-align:right;">Conversión</th>
+                            <th style="text-align:right;">Ticket</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for item in ranking_ciudades %}
+
+                            <tr>
+
+                                <td class="geo-rank">{{ item.posicion }}</td>
+
+                                <td><div class="geo-store-name">{{ item.ciudad }}</div></td>
+
+                                <td>{{ item.tiendas }}</td>
+
+                                <td class="geo-number">${{ "{:,.0f}".format(item.ventas) }}</td>
+
+                                <td class="geo-percent">
+                                    {% if item.variacion >= 0 %}
+                                        <span style="color:#6B7D3F;">+{{ "%.1f"|format(item.variacion) }}%</span>
+                                    {% else %}
+                                        <span style="color:#8C3B3B;">{{ "%.1f"|format(item.variacion) }}%</span>
+                                    {% endif %}
+                                </td>
+
+                                <td class="geo-percent">{{ "%.1f"|format(item.cumplimiento * 100) }}%</td>
+
+                                <td class="geo-number">{{ "{:,.0f}".format(item.trafico) }}</td>
+
+                                <td class="geo-number">{{ "{:,.0f}".format(item.facturas) }}</td>
+
+                                <td class="geo-percent">{{ "%.1f"|format(item.conversion) }}%</td>
+
+                                <td class="geo-number">${{ "{:,.0f}".format(item.ticket_promedio) }}</td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <div class="geo-empty">
+                <i class="bi bi-geo-alt"></i>
+                No hay datos de ciudades para los filtros seleccionados.
+            </div>
+
+        {% endif %}
+
+    </section>
+
+
+
+    <!-- =====================================================
+         RANKING TIENDAS
+    ====================================================== -->
+
+    <section class="geo-card mb-4">
+
+        <div class="geo-card-header">
+
+            <div>
+
+                <h3 class="geo-card-title">
+                    Ranking de tiendas
+                </h3>
+
+                <div class="geo-card-subtitle">
+                    Ordenado por cumplimiento y ventas
+                </div>
+
+            </div>
+
+            <div class="geo-card-icon">
+
+                <i class="bi bi-trophy"></i>
+
+            </div>
+
+        </div>
+
+
+        {% if ranking_tiendas %}
+
+            <div class="geo-table-wrapper">
+
+                <table class="geo-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>#</th>
+                            <th>Tienda</th>
+                            <th>Ciudad</th>
+                            <th>Clima</th>
+                            <th style="text-align:right;">Ventas</th>
+                            <th style="text-align:right;">Cumplimiento</th>
+                            <th style="text-align:right;">Tráfico</th>
+                            <th style="text-align:right;">Facturas</th>
+                            <th style="text-align:right;">Conversión</th>
+                            <th style="text-align:right;">Ticket</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for item in ranking_tiendas %}
+
+                            <tr>
+
+                                <td class="geo-rank">
+                                    {% if item.posicion == 1 %}
+                                        <span style="color:#B8946E;font-size:16px;"><i class="bi bi-trophy-fill"></i></span>
+                                    {% elif item.posicion == 2 %}
+                                        <span style="color:#8B8075;font-size:16px;"><i class="bi bi-award-fill"></i></span>
+                                    {% elif item.posicion == 3 %}
+                                        <span style="color:#C96F4A;font-size:16px;"><i class="bi bi-award-fill"></i></span>
+                                    {% else %}
+                                        {{ item.posicion }}
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    <div class="geo-store-name">{{ item.nombre }}</div>
+                                    <div class="geo-store-code">{{ item.codigo }}</div>
+                                </td>
+
+                                <td class="geo-city">{{ item.ciudad or "Sin ciudad" }}</td>
+
+                                <td>
+                                    {% set clima_lower = (item.clima or '')|lower %}
+                                    {% if 'frío' in clima_lower or 'frio' in clima_lower %}
+                                        <span class="geo-badge geo-badge-cold"><i class="bi bi-snow"></i> {{ item.clima }}</span>
+                                    {% elif 'cálido' in clima_lower or 'calido' in clima_lower %}
+                                        <span class="geo-badge geo-badge-warm"><i class="bi bi-sun"></i> {{ item.clima }}</span>
+                                    {% elif 'templado' in clima_lower %}
+                                        <span class="geo-badge geo-badge-temperate"><i class="bi bi-cloud-sun"></i> {{ item.clima }}</span>
+                                    {% elif 'global' in clima_lower %}
+                                        <span class="geo-badge geo-badge-global"><i class="bi bi-globe2"></i> {{ item.clima }}</span>
+                                    {% else %}
+                                        <span class="geo-badge geo-badge-default">{{ item.clima or "Sin clima" }}</span>
+                                    {% endif %}
+                                </td>
+
+                                <td class="geo-number">${{ "{:,.0f}".format(item.venta_actual) }}</td>
+
+                                <td class="geo-percent">{{ "%.1f"|format(item.cumplimiento_pct * 100) }}%</td>
+
+                                <td class="geo-number">{{ "{:,.0f}".format(item.trafico) }}</td>
+
+                                <td class="geo-number">{{ "{:,.0f}".format(item.facturas) }}</td>
+
+                                <td class="geo-percent">{{ "%.1f"|format(item.conversion) }}%</td>
+
+                                <td class="geo-number">${{ "{:,.0f}".format(item.ticket_promedio) }}</td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <div class="geo-empty">
+                <i class="bi bi-shop"></i>
+                No hay tiendas para los filtros seleccionados.
+            </div>
+
+        {% endif %}
+
+    </section>
+
+
+
+    <!-- =====================================================
+         RESUMEN POR CLIMA
+    ====================================================== -->
+
+    <section class="geo-card mb-4">
+
+        <div class="geo-card-header">
+
+            <div>
+
+                <h3 class="geo-card-title">
+                    Resumen por clima
+                </h3>
+
+                <div class="geo-card-subtitle">
+                    Comparación del desempeño según zona climática
+                </div>
+
+            </div>
+
+            <div class="geo-card-icon">
+
+                <i class="bi bi-cloud-sun-fill"></i>
+
+            </div>
+
+        </div>
+
+
+        {% if resumen_climas %}
+
+            <div class="geo-table-wrapper">
+
+                <table class="geo-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Clima</th>
+                            <th>Tiendas</th>
+                            <th style="text-align:right;">Ventas</th>
+                            <th style="text-align:right;">Tráfico</th>
+                            <th style="text-align:right;">Facturas</th>
+                            <th style="text-align:right;">Conversión</th>
+                            <th style="text-align:right;">Cumplimiento</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for item in resumen_climas %}
+
+                            <tr>
+
+                                <td>
+                                    {% set clima_lower = (item.clima or '')|lower %}
+                                    {% if 'frío' in clima_lower or 'frio' in clima_lower %}
+                                        <span class="geo-badge geo-badge-cold"><i class="bi bi-snow"></i> {{ item.clima }}</span>
+                                    {% elif 'cálido' in clima_lower or 'calido' in clima_lower %}
+                                        <span class="geo-badge geo-badge-warm"><i class="bi bi-sun"></i> {{ item.clima }}</span>
+                                    {% elif 'templado' in clima_lower %}
+                                        <span class="geo-badge geo-badge-temperate"><i class="bi bi-cloud-sun"></i> {{ item.clima }}</span>
+                                    {% elif 'global' in clima_lower %}
+                                        <span class="geo-badge geo-badge-global"><i class="bi bi-globe2"></i> {{ item.clima }}</span>
+                                    {% else %}
+                                        <span class="geo-badge geo-badge-default">{{ item.clima }}</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>{{ item.tiendas }}</td>
+
+                                <td class="geo-number">${{ "{:,.0f}".format(item.ventas) }}</td>
+
+                                <td class="geo-number">{{ "{:,.0f}".format(item.trafico) }}</td>
+
+                                <td class="geo-number">{{ "{:,.0f}".format(item.facturas) }}</td>
+
+                                <td class="geo-percent">{{ "%.1f"|format(item.conversion) }}%</td>
+
+                                <td class="geo-percent">{{ "%.1f"|format(item.cumplimiento * 100) }}%</td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <div class="geo-empty">
+                <i class="bi bi-cloud"></i>
+                No hay información climática disponible.
+            </div>
+
+        {% endif %}
+
+    </section>
+
+        <!-- =====================================================
+         EVOLUCIÓN DE VENTAS POR LÍNEA
+    ====================================================== -->
+
+    <section class="geo-card mb-4">
+
+        <div class="geo-card-header">
+
+            <div>
+
+                <h3 class="geo-card-title">
+                    Evolución de ventas por línea
+                </h3>
+
+                <div class="geo-card-subtitle">
+                    Comparación de ventas por línea frente al mismo período del año anterior
+                </div>
+
+            </div>
+
+            <div class="geo-card-icon">
+
+                <i class="bi bi-graph-up-arrow"></i>
+
+            </div>
+
+        </div>
+
+
+        {% if evolucion_lineas %}
+
+            <div class="geo-table-wrapper">
+
+                <table class="geo-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Línea</th>
+                            <th style="text-align:right;">Venta 2025</th>
+                            <th style="text-align:right;">Venta 2026</th>
+                            <th style="text-align:right;">Diferencia</th>
+                            <th style="text-align:right;">Crecimiento</th>
+                            <th style="text-align:center;">Estado</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for linea in evolucion_lineas %}
+
+                            <tr>
+
+                                <td><div class="geo-store-name">{{ linea.linea }}</div></td>
+
+                                <td class="geo-number">${{ "{:,.0f}".format(linea.venta_2025) }}</td>
+
+                                <td class="geo-number">${{ "{:,.0f}".format(linea.venta_2026) }}</td>
+
+                                <td class="geo-percent">
+                                    {% if linea.diferencia > 0 %}
+                                        <span style="color:#6B7D3F;">+${{ "{:,.0f}".format(linea.diferencia) }}</span>
+                                    {% elif linea.diferencia < 0 %}
+                                        <span style="color:#8C3B3B;">-${{ "{:,.0f}".format(linea.diferencia|abs) }}</span>
+                                    {% else %}
+                                        <span style="color:#93897C;">$0</span>
+                                    {% endif %}
+                                </td>
+
+                                <td class="geo-percent">
+                                    {% if linea.crecimiento > 0 %}
+                                        <span style="color:#6B7D3F;font-weight:700;">+{{ "%.1f"|format(linea.crecimiento) }}%</span>
+                                    {% elif linea.crecimiento < 0 %}
+                                        <span style="color:#8C3B3B;font-weight:700;">{{ "%.1f"|format(linea.crecimiento) }}%</span>
+                                    {% else %}
+                                        <span style="color:#93897C;font-weight:700;">0.0%</span>
+                                    {% endif %}
+                                </td>
+
+                                <td style="text-align:center;">
+                                    {% if linea.estado == "CRECIMIENTO" %}
+                                        <span class="geo-badge geo-badge-temperate">CRECE</span>
+                                    {% elif linea.estado == "DISMINUCIÓN" %}
+                                        <span class="geo-badge geo-badge-warm">BAJA</span>
+                                    {% else %}
+                                        <span class="geo-badge geo-badge-default">SIN VARIACIÓN</span>
+                                    {% endif %}
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <div class="geo-empty">
+                <i class="bi bi-graph-up"></i>
+                No hay histórico de ventas por línea para los filtros seleccionados.
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</div>
+
+
+{% endblock %}
+
+
+
+{% block extra_js %}
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        /* =====================================================
+           DATOS CIUDADES
+        ====================================================== */
+
+        const ciudadesData = {{ ranking_ciudades|default([])|tojson }};
+
+        const ciudadesCanvas = document.getElementById("ciudadesChart");
+
+        if (ciudadesCanvas && ciudadesData.length > 0) {
+            const ciudadesLabels = ciudadesData.map(item => item.ciudad);
+            const ciudadesValores = ciudadesData.map(item => Number(item.cumplimiento || 0) * 100);
+
+            new Chart(ciudadesCanvas, {
+                type: "bar",
+                data: {
+                    labels: ciudadesLabels,
+                    datasets: [{
+                        label: "Cumplimiento (%)",
+                        data: ciudadesValores,
+                        backgroundColor: "rgba(44, 95, 110, 0.7)",   /* azul petróleo */
+                        borderColor: "rgba(44, 95, 110, 1)",
+                        borderWidth: 1,
+                        borderRadius: 7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return "Cumplimiento: " + Number(context.raw).toFixed(1) + "%";
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + "%";
+                                }
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                autoSkip: false,
+                                maxRotation: 45,
+                                minRotation: 0
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        /* =====================================================
+           DATOS CLIMA
+        ====================================================== */
+
+        const climaData = {{ resumen_climas|default([])|tojson }};
+
+        const climaCanvas = document.getElementById("climaChart");
+
+        if (climaCanvas && climaData.length > 0) {
+            const climaLabels = climaData.map(item => item.clima);
+            const climaValores = climaData.map(item => Number(item.ventas || 0));
+
+            new Chart(climaCanvas, {
+                type: "doughnut",
+                data: {
+                    labels: climaLabels,
+                    datasets: [{
+                        label: "Ventas",
+                        data: climaValores,
+                        backgroundColor: [
+                            "rgba(44, 95, 110, 0.8)",    /* azul petróleo */
+                            "rgba(217, 164, 65, 0.8)",   /* mostaza */
+                            "rgba(201, 111, 74, 0.8)",   /* terracota */
+                            "rgba(126, 107, 143, 0.8)",  /* ciruela */
+                            "rgba(140, 59, 59, 0.8)",    /* granate */
+                            "rgba(107, 125, 63, 0.8)"    /* oliva */
+                        ],
+                        borderWidth: 2,
+                        borderColor: "#FDFBF7"
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: "65%",
+                    plugins: {
+                        legend: {
+                            position: "bottom",
+                            labels: {
+                                padding: 18,
+                                usePointStyle: true
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const value = Number(context.raw || 0);
+                                    return context.label + ": $" + value.toLocaleString("es-CO");
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+);
+
+</script>
+
+{% endblock %}

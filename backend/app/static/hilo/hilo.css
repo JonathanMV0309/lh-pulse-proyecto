@@ -1,0 +1,87 @@
+/* ================================================================
+   Hilo · mascota del inicio de sesión de L&H Pulse (cuerpo entero)
+   - Vive dentro de la página: parado sobre la onda, a la izquierda del formulario.
+   - El fondo blanco del video desaparece con mix-blend-mode: multiply.
+   - Decorativo: no recibe clics y nunca tapa el formulario.
+   - Estados: reposo · paseo · mira · timido · error · feliz
+   ================================================================ */
+.hilo {
+  --hilo-tam: 200px;
+  position: absolute;
+  z-index: 1;
+  width: var(--hilo-tam);
+  height: var(--hilo-tam);
+  pointer-events: none;
+  mix-blend-mode: multiply; /* en el contenedor externo: dentro, las animaciones la aislarían */
+  opacity: 0;
+  transform: translateX(var(--hilo-x, 0px));
+  transition: opacity .8s cubic-bezier(.23, 1, .32, 1), transform 2.6s cubic-bezier(.45, .05, .25, 1);
+}
+.hilo.hilo--visible { opacity: 1; }
+.hilo[hidden] { display: none; }
+
+.hilo__giro {
+  width: 100%;
+  height: 100%;
+  transform: scaleX(var(--hilo-dir, 1));
+  transition: transform .5s cubic-bezier(.23, 1, .32, 1);
+}
+.hilo__cuerpo {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 88%;
+  transition: transform .55s cubic-bezier(.23, 1, .32, 1);
+}
+.hilo__cuerpo img,
+.hilo__cuerpo video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  user-select: none;
+}
+.hilo__cuerpo video { opacity: 0; transition: opacity .3s ease-out; }
+.hilo__cuerpo video.activo { opacity: 1; }
+
+/* Paseo: balanceo al caminar */
+.hilo--paseo .hilo__cuerpo { animation: hilo-camina .5s ease-in-out infinite; }
+/* Usuario: se inclina con curiosidad hacia el formulario */
+.hilo--mira .hilo__cuerpo { transform: rotate(7deg) translateY(-6px); }
+/* Contraseña: se voltea y se encoge, tímido */
+.hilo--timido .hilo__cuerpo { transform: rotate(-4deg) translateY(10px) scale(.92); }
+/* Error: se sacude */
+.hilo--error .hilo__cuerpo { animation: hilo-error .75s cubic-bezier(.36, .07, .19, .97) both; }
+/* Entró: salta de alegría */
+.hilo--feliz .hilo__cuerpo { animation: hilo-feliz .85s cubic-bezier(.23, 1, .32, 1) 2; }
+
+/* Burbuja de diálogo (fuera de Hilo para conservar su fondo blanco) */
+.hilo-burbuja {
+  position: absolute;
+  z-index: 2;
+  padding: 10px 14px;
+  border-radius: 16px 16px 16px 4px;
+  background: rgba(255, 255, 255, .97);
+  border: 1px solid rgba(197, 168, 128, .45);
+  box-shadow: 0 12px 28px rgba(45, 42, 38, .12);
+  color: #2D2A26;
+  font: 600 13px/1.35 Inter, "Segoe UI", Arial, sans-serif;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(6px) scale(.96);
+  transform-origin: 0 100%;
+  transition: opacity .25s ease-out, transform .35s cubic-bezier(.23, 1, .32, 1);
+}
+.hilo-burbuja.visible { opacity: 1; transform: none; }
+.hilo-burbuja[hidden] { display: none; }
+
+@keyframes hilo-camina { 0%, 100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-8px) rotate(4deg); } }
+@keyframes hilo-error {
+  10%, 90% { transform: translateX(-3px) rotate(-2deg); }
+  20%, 80% { transform: translateX(6px) rotate(3deg); }
+  30%, 50%, 70% { transform: translateX(-9px) rotate(-5deg); }
+  40%, 60% { transform: translateX(9px) rotate(5deg); }
+}
+@keyframes hilo-feliz { 0%, 100% { transform: translateY(0) scale(1); } 35% { transform: translateY(-38px) scale(1.04, .97); } 55% { transform: translateY(0) scale(1.06, .92); } 72% { transform: translateY(-9px) scale(1); } }

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block contenido %}
+<div class="container-fluid mt-4 px-4">
+    <form method="GET" class="d-flex flex-wrap align-items-end gap-2 mb-3" style="max-width:640px">
+        <div class="flex-grow-1">
+            <label for="planillaTienda" class="form-label small fw-bold text-uppercase text-muted mb-1">Tienda</label>
+            <select id="planillaTienda" name="store_id" class="form-select" onchange="this.form.submit()">
+                <option value="">Elige una tienda…</option>
+                {% for t in tiendas %}<option value="{{ t.id }}" {% if t.id == store_id %}selected{% endif %}>{{ t.codigo }} · {{ t.nombre }}</option>{% endfor %}
+            </select>
+        </div>
+        <noscript><button class="btn btn-dark">Ver</button></noscript>
+    </form>
+    {% if store_id %}
+    <div id="planillaRaiz" data-store="{{ store_id }}"><p class="text-muted">Cargando la planilla…</p></div>
+    {% else %}
+    <div class="alert alert-light border">Elige una tienda para ver su planilla de horas y descargar el Excel del mes en el formato de Talento Humano.</div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/cuadrante_planilla.js') }}?v=4"></script>
+{% endblock %}

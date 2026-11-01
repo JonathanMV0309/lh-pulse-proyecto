@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+    <title>L&H PULSE</title>
+
+    <link rel="icon"
+          href="{{ url_for('static', filename='img/logo/logo.jpg') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
+          rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    {% block extra_css %}{% endblock %}
+
+    <style>
+        :root {
+            --lh-cream: #F5F0E8;
+            --lh-beige: #E8DFD0;
+            --lh-taupe: #8B7D6B;
+            --lh-taupe-light: #A89A87;
+            --lh-gold: #C5A880;
+            --lh-gold-dark: #B8946E;
+            --lh-text: #2D2A26;
+            --lh-muted: #6B6259;
+            --lh-border: rgba(139, 125, 107, .2);
+            --lh-sidebar-width: 250px;
+            --lh-topbar-height: 70px;
+            --lh-shadow: 0 8px 30px rgba(45, 42, 38, .06);
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Inter", sans-serif;
+            background: var(--lh-cream);
+            color: var(--lh-text);
+        }
+
+        .lh-sidebar,
+        .lh-sidebar *,
+        .lh-topbar,
+        .lh-topbar *,
+        .site-footer {
+            box-sizing: border-box;
+        }
+
+        .lh-skip-link {
+            position: fixed;
+            top: 8px;
+            left: 8px;
+            z-index: 1100;
+            padding: 12px 16px;
+            border-radius: 10px;
+            background: var(--lh-text);
+            color: #fff;
+            transform: translateY(-160%);
+        }
+
+        .lh-skip-link:focus {
+            transform: translateY(0);
+        }
+
+        /* SIDEBAR */
+
+        .lh-sidebar {
+            position: fixed;
+            inset: 0 auto 0 0;
+            width: var(--lh-sidebar-width);
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(
+                180deg,
+                #FDFBF7 0%,
+                #F5F0E8 50%,
+                #E8DFD0 100%
+            );
+            color: var(--lh-text);
+            box-shadow: 8px 0 30px rgba(45, 42, 38, .08);
+            z-index: 1035;
+            transition: transform .28s cubic-bezier(.2, .8, .2, 1);
+        }
+
+        .lh-sidebar-logo {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 20px 18px;
+            padding-top: max(20px, env(safe-area-inset-top));
+            border-bottom: 1px solid var(--lh-border);
+        }
+
+        .lh-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+            color: var(--lh-text);
+            text-decoration: none;
+        }
+
+        .lh-logo-icon {
+            width: 52px;
+            height: 52px;
+            flex-shrink: 0;
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
+        .lh-logo-img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: contain;
+            border-radius: 14px;
+        }
+
+        .lh-logo-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.15;
+        }
+
+        .lh-logo-title {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: .5px;
+        }
+
+        .lh-logo-subtitle {
+            margin-top: 5px;
+            color: var(--lh-muted);
+            font-size: 10px;
+            letter-spacing: .7px;
+        }
+
+        .lh-sidebar-menu {
+            flex: 1;
+            min-height: 0;
+            padding: 18px 12px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            overscroll-behavior-y: contain;
+        }
+
+        .lh-menu-title {
+            padding: 8px 12px 12px;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--lh-muted);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .lh-menu-list {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            padding: 0;
+            margin: 0;
+            list-style: none;
+        }
+
+        .lh-menu-item {
+            width: 100%;
+        }
+
+        .lh-menu-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            min-height: 46px;
+            padding: 11px 12px;
+            border: 0;
+            border-radius: 10px;
+            background: transparent;
+            color: var(--lh-muted);
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 500;
+            line-height: 1.4;
+            text-align: left;
+            text-decoration: none;
+            cursor: pointer;
+            touch-action: manipulation;
+            transition: background .18s ease, color .18s ease;
+        }
+
+        .lh-menu-link.active {
+            background: linear-gradient(
+                135deg,
+                rgba(139, 125, 107, .95),
+                rgba(197, 168, 128, .95)
+            );
+            color: #fff;
+            box-shadow: 0 6px 18px rgba(139, 125, 107, .18);
+        }
+
+        .lh-menu-icon {
+            display: flex;
+            justify-content: center;
+            width: 22px;
+            min-width: 22px;
+            font-size: 18px;
+        }
+
+        .lh-menu-text {
+            flex: 1;
+            min-width: 0;
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
+
+        .lh-menu-arrow {
+            flex-shrink: 0;
+            font-size: 11px;
+            opacity: .7;
+            transition: transform .2s ease;
+        }
+
+        .lh-menu-link[aria-expanded="true"] .lh-menu-arrow {
+            transform: rotate(180deg);
+        }
+
+        .lh-submenu {
+            display: none;
+            padding: 5px 0 7px 24px;
+            margin: 0;
+            list-style: none;
+        }
+
+        .lh-submenu.show {
+            display: block;
+        }
+
+        .lh-submenu a {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            min-height: 44px;
+            padding: 9px 10px;
+            border-radius: 8px;
+            color: var(--lh-muted);
+            text-decoration: none;
+            font-size: 12px;
+            line-height: 1.4;
+            touch-action: manipulation;
+        }
+
+        .lh-submenu a i {
+            flex-shrink: 0;
+        }
+
+        .lh-submenu a.active {
+            color: var(--lh-text);
+            background: rgba(139, 125, 107, .18);
+            font-weight: 600;
+        }
+
+        .lh-menu-grupo { list-style: none; margin: 14px 0 4px; padding: 0 14px; }
+        .lh-menu-grupo:first-child { margin-top: 0; }
+        .lh-user-card .lh-user-atajo { width: 30px; font-size: 15px; color: var(--lh-muted); }
+        .lh-user-card .lh-user-atajo:hover { color: var(--lh-text); }
+        .lh-user-card:has(.lh-user-atajo) { gap: 4px; }
+
+        .lh-sidebar-footer {
+            flex-shrink: 0;
+            padding: 12px;
+            padding-bottom: max(12px, env(safe-area-inset-bottom));
+            border-top: 1px solid var(--lh-border);
+        }
+
+        .lh-user-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            border-radius: 12px;
+            background: rgba(197, 168, 128, .08);
+        }
+
+        .lh-user-avatar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            min-width: 36px;
+            overflow: hidden;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #8B7D6B, #C5A880);
+            color: #fff;
+        }
+
+        .lh-user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .lh-user-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .lh-user-name {
+            overflow: hidden;
+            color: var(--lh-text);
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .lh-user-role {
+            margin-top: 2px;
+            font-size: 10px;
+            color: var(--lh-muted);
+        }
+
+        .lh-logout,
+        .lh-mobile-menu,
+        .lh-sidebar-close {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            flex-shrink: 0;
+            padding: 0;
+            border: 0;
+            border-radius: 12px;
+            background: transparent;
+            color: var(--lh-text);
+            text-decoration: none;
+            touch-action: manipulation;
+        }
+
+        .lh-logout {
+            width: 38px;
+            font-size: 18px;
+        }
+
+        .lh-mobile-menu,
+        .lh-sidebar-close {
+            display: none;
+            font-size: 25px;
+        }
+
+        /* TOPBAR */
+
+        .lh-topbar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: var(--lh-sidebar-width);
+            height: var(--lh-topbar-height);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 28px;
+            background: rgba(253, 251, 247, .96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--lh-border);
+            z-index: 1000;
+        }
+
+        .lh-topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .lh-heading {
+            min-width: 0;
+        }
+
+        .lh-page-title {
+            color: var(--lh-text);
+            font-size: 16px;
+            font-weight: 600;
+            line-height: 1.3;
+            overflow-wrap: anywhere;
+        }
+
+        .lh-page-subtitle {
+            margin-top: 3px;
+            font-size: 12px;
+            color: var(--lh-muted);
+        }
+
+        .lh-topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-shrink: 0;
+            margin-left: auto;
+        }
+
+        .lh-topbar-date {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 12px;
+            color: var(--lh-muted);
+        }
+
+        #notificationsDropdown {
+            width: 44px;
+            height: 44px;
+            padding: 0;
+            color: var(--lh-text);
+            border-radius: 12px;
+        }
+
+        #notificationBadge {
+            top: 2px;
+            right: 0;
+            font-size: 9px;
+        }
+
+        .lh-notification-menu {
+            width: 320px;
+            max-width: calc(100vw - 24px);
+            padding: 8px;
+            border: 1px solid var(--lh-border);
+            border-radius: 16px;
+        }
+
+        #notificationList {
+            max-height: 300px;
+            max-height: min(300px, 60dvh);
+            padding: 0;
+            margin: 0;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            list-style: none;
+        }
+
+        #notificationList .dropdown-item {
+            padding: 12px;
+            border-radius: 10px;
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
+
+        #notificationList small {
+            display: block;
+            margin-top: 4px;
+        }
+
+        /* ESTRUCTURA GENERAL */
+
+        .main-content {
+            min-width: 0;
+            min-height: 100vh;
+            margin-left: var(--lh-sidebar-width);
+            padding-top: 90px;
+        }
+
+        .main-content > .container {
+            max-width: 1500px;
+            min-width: 0;
+        }
+
+        .lh-sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1030;
+            background: rgba(45, 42, 38, .42);
+        }
+
+        .site-footer {
+            margin-left: var(--lh-sidebar-width);
+            padding: 18px 30px;
+            padding-bottom: max(18px, env(safe-area-inset-bottom));
+            border-top: 1px solid var(--lh-border);
+            background: #FDFBF7;
+            color: var(--lh-muted);
+            font-size: 12px;
+            line-height: 1.7;
+            text-align: center;
+        }
+
+        .site-footer strong {
+            color: var(--lh-text);
+            font-weight: 600;
+        }
+
+        .lh-sidebar-menu::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .lh-sidebar-menu::-webkit-scrollbar-thumb {
+            background: rgba(139, 125, 107, .3);
+            border-radius: 10px;
+        }
+
+        .lh-sidebar a:focus-visible,
+        .lh-sidebar button:focus-visible,
+        .lh-topbar button:focus-visible {
+            outline: 3px solid var(--lh-gold-dark);
+            outline-offset: 3px;
+        }
+
+        @media (hover: hover) and (pointer: fine) {
+            .lh-menu-link:hover,
+            .lh-submenu a:hover,
+            .lh-mobile-menu:hover,
+            .lh-sidebar-close:hover {
+                background: rgba(197, 168, 128, .15);
+                color: var(--lh-text);
+            }
+
+            .lh-menu-link.active:hover {
+                color: #fff;
+                background: linear-gradient(135deg, #8B7D6B, #B8946E);
+            }
+
+            .lh-logout:hover {
+                color: #B55A4E;
+            }
+        }
+
+        /* TABLET Y MÓVIL */
+
+        @media (max-width: 991.98px) {
+            .lh-sidebar {
+                width: min(310px, calc(100vw - 48px));
+                transform: translateX(-105%);
+                visibility: hidden;
+                pointer-events: none;
+            }
+
+            .lh-sidebar.open {
+                transform: translateX(0);
+                visibility: visible;
+                pointer-events: auto;
+            }
+
+            .lh-sidebar-overlay.show {
+                display: block;
+            }
+
+            .lh-mobile-menu,
+            .lh-sidebar-close {
+                display: inline-flex;
+            }
+
+            .lh-topbar {
+                left: 0;
+                height: calc(
+                    var(--lh-topbar-height) + env(safe-area-inset-top)
+                );
+                padding-top: env(safe-area-inset-top);
+                padding-left: max(12px, env(safe-area-inset-left));
+                padding-right: max(12px, env(safe-area-inset-right));
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding-top: calc(
+                    var(--lh-topbar-height) + env(safe-area-inset-top) + 8px
+                );
+            }
+
+            .main-content > .container {
+                width: 100%;
+                padding-left: max(14px, env(safe-area-inset-left));
+                padding-right: max(14px, env(safe-area-inset-right));
+            }
+
+            .main-content > .container.mt-4 {
+                margin-top: 12px !important;
+            }
+
+            .site-footer {
+                margin-left: 0;
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .lh-menu-link {
+                min-height: 48px;
+                font-size: 14px;
+            }
+
+            .lh-submenu a {
+                min-height: 46px;
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            :root {
+                --lh-topbar-height: 64px;
+            }
+
+            .lh-topbar,
+            .lh-topbar-left {
+                gap: 8px;
+            }
+
+            .lh-page-title {
+                font-size: 13px;
+                line-height: 1.35;
+            }
+
+            .lh-page-subtitle,
+            .lh-topbar-date {
+                display: none;
+            }
+
+            .lh-topbar-right {
+                gap: 0;
+            }
+
+            /* Solo se ajustan contenedores que ya son responsive. */
+            .main-content .table-responsive {
+                max-width: 100%;
+                overscroll-behavior-x: contain;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .main-content .form-control,
+            .main-content .form-select {
+                min-height: 44px;
+                font-size: 16px;
+            }
+
+            .site-footer {
+                font-size: 11px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .lh-sidebar,
+            .lh-menu-link,
+            .lh-menu-arrow {
+                transition: none;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/temporada_halloween.css') }}">
+</head>
+
+{% set rol_actual = usuario.role.nombre|trim|upper if usuario and usuario.role and usuario.role.nombre else '' %}
+{% set es_tienda = rol_actual == 'TIENDA' %}
+{% set es_admin = rol_actual in ['ADMIN', 'ADMINISTRADOR'] %}
+{% set endpoint_actual = request.endpoint or '' %}
+
+{% set titulos = {
+    'trafico.index': 'Tráfico, tickets y conversión',
+    'dashboard.dashboard': 'Resultados de mi tienda' if es_tienda else 'Resumen general de ventas',
+    'dashboard_geografico_v2.dashboard_geografico_v2': 'Mapa y resultados por ubicación',
+    'app_pages.ventas_por_dia': 'Ventas diarias y comparativo',
+    'app_pages.ranking_tiendas': 'Ranking de tiendas',
+    'app_pages.ranking_asesoras': 'Ranking de asesoras',
+    'ranking_desempeno.index': 'Ranking de desempeño',
+    'app_pages.tiendas': 'Directorio de tiendas',
+    'admin.tiendas': 'Directorio de tiendas',
+    'app_pages.cuota_tienda': 'Metas y cumplimiento por tienda',
+    'app_pages.vendedor_unico': 'Resultados por vendedor',
+    'admin_goals.admin_metas': 'Metas y vendedores',
+    'admin_goals.distribucion_metas': 'Distribución de metas',
+    'notifications.admin_notifications': 'Gestión de notificaciones',
+    'notifications.store_notifications': 'Mis notificaciones',
+    'app_pages.historial_importaciones': 'Historial de cargas',
+    'import_excel.pagina_importar': 'Cargar datos desde Excel',
+    'app_pages.configuracion': 'Configuración',
+    'accesos.registro_accesos': 'Registro de accesos',
+    'mensajes_hilo.mensajes': 'Mensajes con Hilo',
+    'ai_dashboard.dashboard_ia': 'Pronóstico de ventas V3',
+    'checklist.index': 'Evaluación de visitas',
+    'checklist.historial': 'Historial de visitas',
+    'cuadrante.cuadrante': 'Horarios del equipo',
+    'retos.pagina': 'Retos de la semana',
+    'planilla.pagina': 'Planilla de horas de las tiendas',
+    'novedades.pagina': 'Novedades del personal' if not es_tienda else 'Novedades de mi equipo',
+    'historico.pagina': 'Histórico de cumplimientos'
+} %}
+
+{# Estos helpers solo generan enlaces: no cambian rutas ni permisos. #}
+{% macro enlace(endpoint, texto, icono) %}
+    <li class="lh-menu-item">
+        <a href="{{ url_for(endpoint) }}"
+           class="lh-menu-link {% if endpoint_actual == endpoint %}active{% endif %}"
+           {% if endpoint_actual == endpoint %}aria-current="page"{% endif %}>
+            <span class="lh-menu-icon">
+                <i class="bi {{ icono }}" aria-hidden="true"></i>
+            </span>
+            <span class="lh-menu-text">{{ texto }}</span>
+        </a>
+    </li>
+{% endmacro %}
+
+{% macro subenlace(endpoint, texto, icono) %}
+    <li>
+        <a href="{{ url_for(endpoint) }}"
+           class="{% if endpoint_actual == endpoint %}active{% endif %}"
+           {% if endpoint_actual == endpoint %}aria-current="page"{% endif %}>
+            <i class="bi {{ icono }}" aria-hidden="true"></i>
+            <span>{{ texto }}</span>
+        </a>
+    </li>
+{% endmacro %}
+
+{% macro grupo(id, texto, icono) %}
+    <button type="button"
+            class="lh-menu-link"
+            id="{{ id }}MenuToggle"
+            aria-controls="{{ id }}Submenu"
+            aria-expanded="false">
+        <span class="lh-menu-icon">
+            <i class="bi {{ icono }}" aria-hidden="true"></i>
+        </span>
+        <span class="lh-menu-text">{{ texto }}</span>
+        <span class="lh-menu-arrow">
+            <i class="bi bi-chevron-down" aria-hidden="true"></i>
+        </span>
+    </button>
+{% endmacro %}
+
+<body class="{% if es_tienda %}store-user{% endif %}">
+
+    <a class="lh-skip-link" href="#lhMainContent">Ir al contenido</a>
+
+    <aside class="lh-sidebar" id="lhSidebar" aria-label="Menú principal">
+        <div class="lh-sidebar-logo">
+            <a href="{{ url_for('dashboard.dashboard') }}" class="lh-logo">
+                <div class="lh-logo-icon">
+                    <img src="{{ url_for('static', filename='img/logo/logo.jpg') }}"
+                         alt="L&H PULSE"
+                         class="lh-logo-img">
+                </div>
+                <div class="lh-logo-text">
+                    <span class="lh-logo-title">L&H PULSE</span>
+                    <span class="lh-logo-subtitle">Resultados y gestión</span>
+                </div>
+            </a>
+
+            <button type="button"
+                    class="lh-sidebar-close"
+                    id="lhSidebarClose"
+                    aria-label="Cerrar menú">
+                <i class="bi bi-x-lg" aria-hidden="true"></i>
+            </button>
+        </div>
+
+        <nav class="lh-sidebar-menu" aria-label="Secciones de L&H PULSE">
+            {% if not es_tienda %}<div class="lh-menu-title">Menú principal</div>{% endif %}
+
+            <ul class="lh-menu-list">
+                {% if es_tienda %}
+
+                    {# Tiendas: menú agrupado. Directorio y Configuración quedan en la tarjeta del usuario (abajo). #}
+                    <li class="lh-menu-title lh-menu-grupo" role="presentation">Mi tienda</li>
+                    {{ enlace('dashboard.dashboard', 'Resultados de mi tienda', 'bi-speedometer2') }}
+                    {{ enlace('app_pages.ventas_por_dia', 'Ventas diarias', 'bi-calendar-day') }}
+                    {{ enlace('trafico.index', 'Tráfico y conversión', 'bi-grid-3x3-gap') }}
+
+                    <li class="lh-menu-title lh-menu-grupo" role="presentation">Mi equipo</li>
+                    {{ enlace('admin_goals.admin_metas', 'Metas y vendedores', 'bi-bullseye') }}
+                    {% if usuario and usuario.store_id %}
+                        {{ enlace('cuadrante.cuadrante', 'Horarios del equipo', 'bi-calendar-week') }}
+                        {{ enlace('novedades.pagina', 'Novedades del equipo', 'bi-person-lines-fill') }}
+                    {% endif %}
+
+                    <li class="lh-menu-title lh-menu-grupo" role="presentation">Competencia sana</li>
+                    {{ enlace('retos.pagina', 'Retos de la semana', 'bi-lightning-charge') }}
+                    {{ enlace('ranking_desempeno.index', 'Ranking de desempeño', 'bi-trophy') }}
+
+                {% else %}
+
+                    {{ enlace('dashboard.dashboard', 'Resumen general de ventas', 'bi-speedometer2') }}
+                    {{ enlace('app_pages.ventas_por_dia', 'Ventas diarias', 'bi-calendar-day') }}
+                    {{ enlace('dashboard_geografico_v2.dashboard_geografico_v2', 'Mapa y resultados', 'bi-globe-americas') }}
+                    {{ enlace('historico.pagina', 'Histórico de cumplimientos', 'bi-table') }}
+
+                    {% if es_admin %}
+                        {{ enlace('ai_dashboard.dashboard_ia', 'Pronóstico de ventas V3', 'bi-stars') }}
+                    {% endif %}
+
+                    {{ enlace('ranking_desempeno.index', 'Ranking de desempeño', 'bi-trophy') }}
+
+                    {% if usuario and usuario.activo and usuario.role and usuario.role.nombre|trim|upper in ['ADMIN', 'ADMINISTRADOR', 'SUPERVISOR', 'SUPERVISORA'] %}
+                        {{ enlace('trafico.index', 'Tráfico y conversión', 'bi-grid-3x3-gap') }}
+                    {% endif %}
+
+                    {{ enlace('app_pages.tiendas', 'Directorio de tiendas', 'bi-shop') }}
+
+                    {% if es_admin and not sin_administracion %}
+                        {{ enlace('admin_goals.admin_metas', 'Metas y vendedores', 'bi-bullseye') }}
+                    {% endif %}
+                    {% if ve_planillas %}
+                        {{ enlace('planilla.pagina', 'Horarios de las tiendas', 'bi-clock-history') }}
+                    {% endif %}
+                    {% if rol_novedades in ['editor', 'lector'] %}
+                        {{ enlace('novedades.pagina', 'Novedades del personal', 'bi-person-lines-fill') }}
+                    {% endif %}
+
+                    {% if not sin_administracion %}
+                    <li class="lh-menu-item">
+                        {{ grupo('import', 'Cargas de datos', 'bi-file-earmark-excel') }}
+                        <ul class="lh-submenu" id="importSubmenu">
+                            {{ subenlace('import_excel.pagina_importar', 'Cargar archivo Excel', 'bi-upload') }}
+                            {{ subenlace('app_pages.historial_importaciones', 'Historial de cargas', 'bi-clock-history') }}
+                        </ul>
+                    </li>
+                    {% endif %}
+
+                    {{ enlace('notifications.admin_notifications', 'Gestión de notificaciones', 'bi-bell') }}
+                    {{ enlace('app_pages.configuracion', 'Configuración', 'bi-gear') }}
+
+                    {% if es_admin %}
+                        {{ enlace('mensajes_hilo.mensajes', 'Mensajes con Hilo', 'bi-chat-heart') }}
+                        {% if not sin_administracion %}
+                        {{ enlace('accesos.registro_accesos', 'Registro de accesos', 'bi-shield-lock') }}
+                        {% endif %}
+                    {% endif %}
+
+                    {% if usuario and usuario.correo and usuario.correo.lower() in config.CORREOS_SUPERVISORAS %}
+                        {{ enlace('checklist.index', 'Evaluación de visitas', 'bi-clipboard-check') }}
+                        {{ enlace('checklist.historial', 'Historial de visitas', 'bi-clock-history') }}
+                    {% endif %}
+
+                {% endif %}
+            </ul>
+        </nav>
+
+        <div class="lh-sidebar-footer">
+            <div class="lh-user-card">
+                <div class="lh-user-avatar">
+                    {% if usuario and usuario.store and usuario.store.codigo %}
+                        <img src="{{ url_for('static', filename='img/tiendas/' ~ usuario.store.codigo|replace(' ', '-')|upper ~ '.jpeg') }}"
+                             alt="{{ usuario.store.nombre }}">
+                    {% else %}
+                        <i class="bi bi-person-fill" aria-hidden="true"></i>
+                    {% endif %}
+                </div>
+
+                <div class="lh-user-info">
+                    <div class="lh-user-name">
+                        {% if usuario %}{{ usuario.nombre }}{% else %}Usuario{% endif %}
+                    </div>
+                    <div class="lh-user-role">
+                        {% if usuario and usuario.role %}
+                            {{ usuario.role.nombre }}
+                        {% else %}
+                            Usuario
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if es_tienda %}
+                <a href="{{ url_for('app_pages.tiendas') }}" class="lh-logout lh-user-atajo" title="Directorio de tiendas" aria-label="Directorio de tiendas">
+                    <i class="bi bi-shop" aria-hidden="true"></i>
+                </a>
+                <a href="{{ url_for('app_pages.configuracion') }}" class="lh-logout lh-user-atajo" title="Configuración" aria-label="Configuración">
+                    <i class="bi bi-gear" aria-hidden="true"></i>
+                </a>
+                {% endif %}
+                <a href="{{ url_for('auth.logout') }}"
+                   class="lh-logout"
+                   title="Cerrar sesión"
+                   aria-label="Cerrar sesión">
+                    <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <div class="lh-sidebar-overlay"
+         id="lhSidebarOverlay"
+         aria-hidden="true"></div>
+
+    <header class="lh-topbar">
+        <div class="lh-topbar-left">
+            <button type="button"
+                    class="lh-mobile-menu"
+                    id="lhMobileMenu"
+                    aria-label="Abrir menú"
+                    aria-controls="lhSidebar"
+                    aria-expanded="false">
+                <i class="bi bi-list" aria-hidden="true"></i>
+            </button>
+
+            <div class="lh-heading">
+                <div class="lh-page-title">
+                    {{ titulos.get(endpoint_actual, 'L&H PULSE') }}
+                </div>
+                <div class="lh-page-subtitle">
+                    Sistema de desempeño y competitividad
+                </div>
+            </div>
+        </div>
+
+        <div class="lh-topbar-right">
+            <div class="lh-topbar-date">
+                <i class="bi bi-calendar3" aria-hidden="true"></i>
+                <span>
+                    {% if fecha_actual %}{{ fecha_actual }}{% else %}L&H PULSE{% endif %}
+                </span>
+            </div>
+
+            <div class="dropdown">
+                <button class="btn btn-link text-decoration-none position-relative"
+                        type="button"
+                        id="notificationsDropdown"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                        aria-label="Ver notificaciones">
+                    <i class="bi bi-bell fs-5" aria-hidden="true"></i>
+                    <span id="notificationBadge"
+                          class="position-absolute badge rounded-pill bg-danger"
+                          style="display: none;"
+                          aria-live="polite">0</span>
+                </button>
+
+                <ul class="dropdown-menu dropdown-menu-end shadow lh-notification-menu"
+                    aria-labelledby="notificationsDropdown">
+                    <li>
+                        <h6 class="dropdown-header">Notificaciones</h6>
+                    </li>
+                    <li>
+                        <ul id="notificationList" aria-live="polite">
+                            <li>
+                                <span class="dropdown-item-text">
+                                    Abre para consultar tus notificaciones.
+                                </span>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item text-center" href="/notificaciones">
+                            Ver todas
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content" id="lhMainContent" tabindex="-1">
+        <div class="container mt-4">
+            {% block contenido %}{% endblock %}
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div>
+            <strong>© 2026 Jonathan Monroy y Andrés Pira</strong>
+        </div>
+        <div>
+            Concepto e idea original: <strong>Andrés Pira</strong> ·
+            Desarrollo de software: <strong>Jonathan Monroy</strong>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+
+    <!-- MENÚ RESPONSIVE -->
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const sidebar = document.getElementById("lhSidebar");
+        const mobileButton = document.getElementById("lhMobileMenu");
+        const closeButton = document.getElementById("lhSidebarClose");
+        const overlay = document.getElementById("lhSidebarOverlay");
+        const mobileMedia = window.matchMedia("(max-width: 991.98px)");
+
+        const backgroundElements = [
+            document.querySelector(".lh-topbar"),
+            document.getElementById("lhMainContent"),
+            document.querySelector(".site-footer")
+        ].filter(Boolean);
+
+        let savedScroll = 0;
+        let previousBodyStyles = null;
+        let previousInertStates = [];
+        let previousFocus = null;
+
+        function isOpen() {
+            return sidebar.classList.contains("open");
+        }
+
+        function lockPage() {
+            savedScroll = window.scrollY;
+
+            previousBodyStyles = {
+                position: document.body.style.position,
+                top: document.body.style.top,
+                left: document.body.style.left,
+                right: document.body.style.right,
+                width: document.body.style.width
+            };
+
+            Object.assign(document.body.style, {
+                position: "fixed",
+                top: "-" + savedScroll + "px",
+                left: "0",
+                right: "0",
+                width: "100%"
+            });
+
+            previousInertStates = backgroundElements.map(function (element) {
+                const wasInert = element.hasAttribute("inert");
+                element.setAttribute("inert", "");
+                return { element: element, wasInert: wasInert };
+            });
+        }
+
+        function unlockPage() {
+            if (previousBodyStyles) {
+                Object.assign(document.body.style, previousBodyStyles);
+                previousBodyStyles = null;
+                window.scrollTo(0, savedScroll);
+            }
+
+            previousInertStates.forEach(function (item) {
+                if (!item.wasInert) {
+                    item.element.removeAttribute("inert");
+                }
+            });
+
+            previousInertStates = [];
+        }
+
+        function openSidebar() {
+            if (!mobileMedia.matches || isOpen()) return;
+
+            previousFocus = document.activeElement;
+            sidebar.removeAttribute("inert");
+            sidebar.removeAttribute("aria-hidden");
+            sidebar.classList.add("open");
+            overlay.classList.add("show");
+            mobileButton.setAttribute("aria-expanded", "true");
+            mobileButton.setAttribute("aria-label", "Cerrar menú");
+
+            closeButton.focus({ preventScroll: true });
+            lockPage();
+        }
+
+        function closeSidebar(restoreFocus = true) {
+            const wasOpen = isOpen();
+
+            sidebar.classList.remove("open");
+            overlay.classList.remove("show");
+            mobileButton.setAttribute("aria-expanded", "false");
+            mobileButton.setAttribute("aria-label", "Abrir menú");
+
+            if (wasOpen) unlockPage();
+
+            if (wasOpen && restoreFocus && mobileMedia.matches) {
+                const target = previousFocus && previousFocus.isConnected
+                    ? previousFocus
+                    : mobileButton;
+                target.focus({ preventScroll: true });
+            }
+
+            if (mobileMedia.matches) {
+                sidebar.setAttribute("inert", "");
+                sidebar.setAttribute("aria-hidden", "true");
+            } else {
+                sidebar.removeAttribute("inert");
+                sidebar.removeAttribute("aria-hidden");
+            }
+        }
+
+        mobileButton.addEventListener("click", function () {
+            if (isOpen()) closeSidebar();
+            else openSidebar();
+        });
+
+        closeButton.addEventListener("click", function () {
+            closeSidebar();
+        });
+
+        overlay.addEventListener("click", function () {
+            closeSidebar();
+        });
+
+        document.addEventListener("keydown", function (event) {
+            if (!mobileMedia.matches || !isOpen()) return;
+
+            if (event.key === "Escape") {
+                event.preventDefault();
+                closeSidebar();
+                return;
+            }
+
+            if (event.key !== "Tab") return;
+
+            const focusable = Array.from(
+                sidebar.querySelectorAll(
+                    'a[href], button:not([disabled]), [tabindex="0"]'
+                )
+            ).filter(function (element) {
+                return element.getClientRects().length > 0;
+            });
+
+            if (!focusable.length) return;
+
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            const outside = !sidebar.contains(document.activeElement);
+
+            if (event.shiftKey && (document.activeElement === first || outside)) {
+                event.preventDefault();
+                last.focus();
+            } else if (
+                !event.shiftKey &&
+                (document.activeElement === last || outside)
+            ) {
+                event.preventDefault();
+                first.focus();
+            }
+        });
+
+        function configureSubmenu(name) {
+            const toggle = document.getElementById(name + "MenuToggle");
+            const submenu = document.getElementById(name + "Submenu");
+
+            if (!toggle || !submenu) return;
+
+            function setExpanded(expanded) {
+                submenu.classList.toggle("show", expanded);
+                toggle.setAttribute("aria-expanded", String(expanded));
+            }
+
+            setExpanded(Boolean(submenu.querySelector("a.active")));
+
+            toggle.addEventListener("click", function (event) {
+                event.preventDefault();
+                setExpanded(!submenu.classList.contains("show"));
+            });
+        }
+
+        ["ranking", "metas", "import"].forEach(configureSubmenu);
+
+        /* Abrir un submenú no cierra el panel móvil. */
+        sidebar.querySelectorAll("a[href]").forEach(function (link) {
+            link.addEventListener("click", function (event) {
+                if (
+                    mobileMedia.matches &&
+                    !event.defaultPrevented &&
+                    link.getAttribute("href") !== "#"
+                ) {
+                    closeSidebar();
+                }
+            });
+        });
+
+        function syncViewport() {
+            closeSidebar();
+        }
+
+        if (mobileMedia.addEventListener) {
+            mobileMedia.addEventListener("change", syncViewport);
+        } else {
+            mobileMedia.addListener(syncViewport);
+        }
+
+        syncViewport();
+    });
+    </script>
+
+    <!-- NOTIFICACIONES: MISMAS RUTAS EXISTENTES -->
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const isStoreUser = document.body.classList.contains("store-user");
+        const badge = document.getElementById("notificationBadge");
+        const listContainer = document.getElementById("notificationList");
+        const dropdown = document.getElementById("notificationsDropdown");
+
+        if (!badge || !listContainer || !dropdown) return;
+
+        function showMessage(message) {
+            const li = document.createElement("li");
+            const span = document.createElement("span");
+            span.className = "dropdown-item-text text-muted";
+            span.textContent = message;
+            li.appendChild(span);
+            listContainer.replaceChildren(li);
+        }
+
+        if (!isStoreUser) {
+            showMessage("Consulta las notificaciones desde «Ver todas».");
+            return;
+        }
+
+        async function readJSON(url, options) {
+            const response = await fetch(
+                url,
+                Object.assign({ credentials: "same-origin" }, options || {})
+            );
+
+            if (!response.ok) {
+                throw new Error("No se pudo completar la solicitud.");
+            }
+
+            return response.json();
+        }
+
+        async function fetchCount() {
+            try {
+                const data = await readJSON("/notificaciones/api/contador");
+                const count = Number(data.count);
+
+                if (Number.isFinite(count) && count > 0) {
+                    badge.textContent = count > 99 ? "99+" : String(count);
+                    badge.style.display = "inline-block";
+                    badge.setAttribute(
+                        "aria-label",
+                        count + " notificaciones sin leer"
+                    );
+                } else {
+                    badge.style.display = "none";
+                }
+            } catch (error) {
+                badge.style.display = "none";
+            }
+        }
+
+        window.markRead = async function (id, element) {
+            if (!/^\d+$/.test(String(id))) return;
+
+            try {
+                const data = await readJSON(
+                    "/notificaciones/api/leer/" + encodeURIComponent(id),
+                    { method: "POST" }
+                );
+
+                if (data.success) {
+                    element.classList.remove("fw-bold");
+                    await fetchCount();
+                }
+            } catch (error) {
+                element.setAttribute(
+                    "title",
+                    "No se pudo marcar como leída. Intenta nuevamente."
+                );
+            }
+        };
+
+        let loading = false;
+
+        async function fetchList() {
+            if (loading) return;
+            loading = true;
+            showMessage("Cargando notificaciones...");
+
+            try {
+                const notifications = await readJSON(
+                    "/notificaciones/api/lista"
+                );
+
+                if (!Array.isArray(notifications)) {
+                    throw new Error("Respuesta inesperada.");
+                }
+
+                if (!notifications.length) {
+                    showMessage("No hay notificaciones.");
+                    return;
+                }
+
+                const fragment = document.createDocumentFragment();
+
+                notifications.forEach(function (notification) {
+                    const li = document.createElement("li");
+                    const link = document.createElement("a");
+                    const title = document.createElement("div");
+                    const message = document.createElement("small");
+                    const date = document.createElement("small");
+
+                    link.href = "#";
+                    link.className = "dropdown-item";
+                    if (!notification.leida) link.classList.add("fw-bold");
+
+                    title.textContent = notification.titulo || "";
+                    message.textContent = notification.mensaje || "";
+                    date.textContent = notification.fecha || "";
+
+                    message.className = "text-muted";
+                    date.className = "text-muted";
+
+                    link.append(title, message, date);
+
+                    link.addEventListener("click", function (event) {
+                        event.preventDefault();
+                        window.markRead(notification.id, link);
+                    });
+
+                    li.appendChild(link);
+                    fragment.appendChild(li);
+                });
+
+                listContainer.replaceChildren(fragment);
+            } catch (error) {
+                showMessage(
+                    "No fue posible cargar las notificaciones. Vuelve a abrir el menú."
+                );
+            } finally {
+                loading = false;
+            }
+        }
+
+        fetchCount();
+        dropdown.addEventListener("show.bs.dropdown", fetchList);
+    });
+    </script>
+
+    {% block extra_js %}{% endblock %}
+    {# Decoración de temporada: solo se activa en octubre #}
+    <script src="{{ url_for('static', filename='js/temporada_halloween.js') }}" defer></script>
+    {# Hilo: mascota en el dashboard de tienda, el del administrador y el ranking (en las demás páginas no hace nada) #}
+    <script type="module" src="{{ url_for('static', filename='hilo3d/hilo_app.js') }}"></script>
+    {# Presentación de Hilo sobre Horarios y Novedades: una sola vez por usuario (tiendas y administración), en su dashboard; en «Mensajes con Hilo», quién ya la vio #}
+    <script type="module" src="{{ url_for('static', filename='hilo3d/hilo_presentacion.js') }}?v=2"></script>
+    {# Dashboard de tienda sin información repetida (tarjetas, etiquetas, pulso y gráfica de conversión) #}
+    <script src="{{ url_for('static', filename='js/tienda_limpieza.js') }}?v=3" defer></script>
+    {# Configuración › Cierres de tienda (solo el administrador principal; en las demás páginas no hace nada) #}
+    <script src="{{ url_for('static', filename='js/cierres_tienda.js') }}?v=1" defer></script>
+</body>
+</html>

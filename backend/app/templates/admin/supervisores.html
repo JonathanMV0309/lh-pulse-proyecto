@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+<h2>
+Gestión de Supervisores
+</h2>
+
+
+<table class="table">
+
+<thead>
+
+<tr>
+
+<th>Nombre</th>
+<th>Tiendas asignadas</th>
+<th>Estado</th>
+
+</tr>
+
+</thead>
+
+
+<tbody>
+
+{% for supervisor in supervisores %}
+
+<tr>
+
+<td>
+{{ supervisor.nombre }}
+</td>
+
+
+<td>
+{{ supervisor.tiendas|length }}
+</td>
+
+
+<td>
+{{ supervisor.estado }}
+</td>
+
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+
+</table>
+
+
+</div>
+
+
+{% endblock %}

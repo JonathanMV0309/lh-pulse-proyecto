@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block contenido %}
+<style>
+  .hs { --hs-ink:#2D2A26; --hs-mu:#6B6259; --hs-line:rgba(139,125,107,.22); --hs-card:#FDFBF7; --hs-cream:#F5F0E8; --hs-gold:#A8865A;
+        --hs-ok:#1F5E3F; --hs-ok-s:#D9EFE2; --hs-ok-f:#B9E0C9; --hs-am:#7A5A12; --hs-am-s:#FBF0D6; --hs-bad:#9F1D1D; --hs-bad-s:#FBE3DF; color:var(--hs-ink); }
+  .hs-cab { display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:12px; margin-bottom:16px; }
+  .hs-kicker { font:800 11px Inter,sans-serif; letter-spacing:.2em; text-transform:uppercase; color:var(--hs-gold); }
+  .hs-cab h1 { margin:4px 0 0; font:800 24px/1.2 Inter,sans-serif; text-wrap:balance; }
+  .hs-cab p { margin:6px 0 0; color:var(--hs-mu); font-size:14px; max-width:760px; }
+  .hs-fuente { display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:999px; background:var(--hs-cream); border:1px solid var(--hs-line); color:var(--hs-mu); font-size:12.5px; font-weight:600; }
+  .hs-barra { display:flex; flex-wrap:wrap; gap:12px 18px; align-items:center; padding:12px 14px; border-radius:16px; background:var(--hs-card); border:1px solid var(--hs-line); margin-bottom:14px; }
+  .hs-seg { display:inline-flex; padding:3px; border-radius:12px; background:var(--hs-cream); border:1px solid var(--hs-line); }
+  .hs-seg button { border:0; padding:8px 14px; border-radius:9px; background:transparent; color:var(--hs-mu); font:700 13px Inter,sans-serif; cursor:pointer; transition:background .15s ease-out, color .15s ease-out; }
+  .hs-seg button[aria-pressed="true"] { background:#fff; color:var(--hs-ink); box-shadow:0 1px 3px rgba(45,42,38,.12); }
+  .hs-anios { display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+  .hs-anios > span { font:700 11px Inter,sans-serif; letter-spacing:.06em; text-transform:uppercase; color:var(--hs-mu); margin-right:2px; }
+  .hs-anios button { padding:6px 12px; border-radius:999px; border:1px solid var(--hs-line); background:#fff; color:var(--hs-mu); font:700 12.5px Inter,sans-serif; cursor:pointer; }
+  .hs-anios button[aria-pressed="true"] { background:var(--hs-ink); border-color:var(--hs-ink); color:#fff; }
+  .hs-buscar { margin-left:auto; position:relative; }
+  .hs-buscar input { width:min(240px, 60vw); padding:8px 12px 8px 32px; border-radius:10px; border:1px solid var(--hs-line); font:14px Inter,sans-serif; background:#fff; }
+  .hs-buscar i { position:absolute; left:11px; top:50%; transform:translateY(-50%); color:var(--hs-mu); }
+  .hs-seg button:focus-visible, .hs-anios button:focus-visible, .hs-buscar input:focus-visible, .hs-th:focus-visible { outline:2px solid var(--hs-gold); outline-offset:2px; }
+  .hs-resumen { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px; margin-bottom:14px; }
+  .hs-kpi { padding:12px 16px; border-radius:14px; background:var(--hs-card); border:1px solid var(--hs-line); }
+  .hs-kpi span { display:block; color:var(--hs-mu); font:700 11px Inter,sans-serif; letter-spacing:.06em; text-transform:uppercase; }
+  .hs-kpi b { display:block; margin-top:2px; font:800 22px Inter,sans-serif; font-variant-numeric:tabular-nums; }
+  .hs-kpi small { color:var(--hs-mu); font-size:12.5px; }
+  .hs-leyenda { display:flex; flex-wrap:wrap; gap:8px 14px; margin:0 0 10px; color:var(--hs-mu); font-size:12.5px; }
+  .hs-leyenda i { display:inline-block; border:1px solid rgba(139,125,107,.3); width:12px; height:12px; border-radius:4px; vertical-align:-1px; margin-right:5px; }
+  .hs-caja { overflow:auto; max-height:calc(100vh - 180px); border-radius:16px; background:var(--hs-card); border:1px solid var(--hs-line); }
+  .hs-tabla { border-collapse:separate; border-spacing:0; font-size:13px; min-width:100%; }
+  .hs-tabla th, .hs-tabla td { padding:7px 8px; border-bottom:1px solid var(--hs-line); white-space:nowrap; }
+  .hs-tabla thead th { position:sticky; z-index:2; background:var(--hs-cream); color:var(--hs-mu); font:700 11px Inter,sans-serif; letter-spacing:.04em; text-transform:uppercase; text-align:center; }
+  .hs-tabla thead tr:first-child th { top:0; } .hs-tabla thead tr:nth-child(2) th { top:31px; }
+  .hs-tabla .hs-anio-cab { color:var(--hs-ink); font-size:12px; border-left:2px solid #fff; }
+  .hs-tabla .hs-tienda { position:sticky; left:0; z-index:1; background:var(--hs-card); text-align:left; min-width:230px; max-width:260px; border-right:1px solid var(--hs-line); }
+  .hs-tabla thead .hs-tienda { z-index:3; background:var(--hs-cream); }
+  .hs-tienda b { display:block; font-size:13px; overflow:hidden; text-overflow:ellipsis; }
+  .hs-tienda small { color:var(--hs-mu); font-size:11.5px; }
+  .hs-th { cursor:pointer; user-select:none; } .hs-th:hover { color:var(--hs-ink); }
+  .hs-th[aria-sort="descending"]::after { content:" ↓"; } .hs-th[aria-sort="ascending"]::after { content:" ↑"; }
+  .hs-v { text-align:center; font-variant-numeric:tabular-nums; font-weight:600; min-width:52px; }
+  .hs-v.prom { font-weight:800; border-left:2px solid #fff; }
+  .hs-v.vacio { color:#BDB3A6; font-weight:400; }
+  .hs-v.c-top { background:var(--hs-ok-f); color:var(--hs-ok); font-weight:800; }
+  .hs-v.c-ok { background:var(--hs-ok-s); color:var(--hs-ok); }
+  .hs-v.c-cerca { background:var(--hs-am-s); color:var(--hs-am); }
+  .hs-v.c-bajo { color:var(--hs-bad); }
+  .hs-tabla tbody tr:hover td { filter:brightness(.97); }
+  .hs-tabla tr.hs-mia .hs-tienda b::after { content:"Tu tienda"; margin-left:6px; padding:1px 7px; border-radius:999px; background:var(--hs-ink); color:#fff; font-size:10px; vertical-align:1px; }
+  .hs-tabla tfoot td { position:sticky; bottom:0; background:var(--hs-cream); border-top:2px solid rgba(139,125,107,.45); font-weight:800; }
+  .hs-tabla tfoot .hs-tienda { z-index:3; background:var(--hs-cream); }
+  .hs-vacio-todo { padding:40px 16px; text-align:center; color:var(--hs-mu); }
+  @media (max-width:640px) { .hs-buscar { margin-left:0; width:100%; } .hs-buscar input { width:100%; } .hs-tabla .hs-tienda { min-width:150px; max-width:170px; } }
+  @media (prefers-reduced-motion: reduce) { .hs-seg button { transition:none; } }
+</style>
+
+<div class="hs">
+  <header class="hs-cab">
+    <div>
+      <span class="hs-kicker">Histórico</span>
+      <h1>{% if es_tienda %}Cumplimientos e incrementos de mi tienda{% else %}Cumplimientos e incrementos por tienda{% endif %}</h1>
+      <p>Mes a mes desde {{ datos.anios[0] if datos else 2022 }}: cuánto se cumplió de la cuota y cuánto creció la venta frente al mismo mes del año anterior.{% if es_tienda %} Abajo está el total de la red para comparar.{% endif %}</p>
+    </div>
+    {% if datos %}<span class="hs-fuente"><i class="bi bi-file-earmark-excel" aria-hidden="true"></i>Hoja ACUM de «{{ datos.archivo }}»</span>{% endif %}
+  </header>
+
+  {% if not datos %}
+    <div class="hs-caja"><div class="hs-vacio-todo"><i class="bi bi-table fs-1 d-block mb-2" aria-hidden="true"></i>Todavía no hay un archivo cargado con la hoja ACUM.</div></div>
+  {% else %}
+  <div class="hs-barra">
+    <div class="hs-seg" role="group" aria-label="Qué ver">
+      <button type="button" data-tipo="cumplimiento" aria-pressed="true">Cumplimiento de cuota</button>
+      <button type="button" data-tipo="incremento" aria-pressed="false">Incremento vs. año anterior</button>
+    </div>
+    <div class="hs-anios" role="group" aria-label="Años"><span>Años</span></div>
+    {% if not es_tienda %}
+    <label class="hs-buscar"><i class="bi bi-search" aria-hidden="true"></i><input type="search" placeholder="Buscar tienda" aria-label="Buscar tienda"></label>
+    {% endif %}
+  </div>
+  <div class="hs-resumen" aria-live="polite"></div>
+  <div class="hs-leyenda"></div>
+  <div class="hs-caja"><table class="hs-tabla"><thead></thead><tbody></tbody><tfoot></tfoot></table></div>
+  {% endif %}
+</div>
+
+{% if datos %}
+<script id="hsDatos" type="application/json">{{ datos|tojson }}</script>
+<script>
+(function () {
+  'use strict';
+  var D = JSON.parse(document.getElementById('hsDatos').textContent);
+  var MES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+  var MI = {{ mi_store_id|tojson }};
+  var raiz = document.querySelector('.hs');
+  var tipo = 'cumplimiento', anios = D.anios.slice(-2), filtro = '', orden = null;   // orden: {anio, mes|-1, dir}
+  try { var g = JSON.parse(sessionStorage.getItem('lh-historico') || 'null'); if (g) { tipo = g.tipo || tipo; anios = (g.anios || anios).filter(function (a) { return D.anios.indexOf(a) >= 0; }); if (!anios.length) anios = D.anios.slice(-2); } } catch (e) { /* sin almacenamiento */ }
+
+  function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  // Un 0 % de cumplimiento es un mes sin venta (tienda sin abrir o sin dato): se muestra «—»
+  function serie(f, a) { var s = (f[tipo] && f[tipo][a]) || []; return tipo === 'cumplimiento' ? s.map(function (v) { return v === 0 ? null : v; }) : s; }
+  function prom(vals) { var v = vals.filter(function (x) { return x != null; }); return v.length ? v.reduce(function (s, x) { return s + x; }, 0) / v.length : null; }
+  function mesesCon(a) {   // meses del año que tienen algún dato
+    var m = [];
+    for (var i = 0; i < 12; i++) if (D.tiendas.concat(D.total ? [D.total] : []).some(function (f) { return serie(f, a)[i] != null; })) m.push(i);
+    return m;
+  }
+  function clase(v) {
+    if (v == null) return 'vacio';
+    if (tipo === 'cumplimiento') return v >= 1.1 ? 'c-top' : v >= 1 ? 'c-ok' : v >= 0.9 ? 'c-cerca' : 'c-bajo';
+    return v >= 0.1 ? 'c-top' : v >= 0 ? 'c-ok' : v >= -0.05 ? 'c-cerca' : 'c-bajo';
+  }
+  function txt(v) {
+    if (v == null) return '—';
+    var p = Math.round(v * 100);
+    return (tipo === 'incremento' && p > 0 ? '+' : '') + p + '%';
+  }
+  function guardar() { try { sessionStorage.setItem('lh-historico', JSON.stringify({ tipo: tipo, anios: anios })); } catch (e) { /* sin almacenamiento */ } }
+
+  // Años
+  var caja = raiz.querySelector('.hs-anios');
+  D.anios.forEach(function (a) {
+    var b = document.createElement('button'); b.type = 'button'; b.textContent = a; b.dataset.anio = a;
+    b.addEventListener('click', function () {
+      var i = anios.indexOf(a);
+      if (i >= 0) { if (anios.length > 1) anios.splice(i, 1); } else { anios.push(a); anios.sort(); }
+      guardar(); pintar();
+    });
+    caja.appendChild(b);
+  });
+  raiz.querySelectorAll('.hs-seg button').forEach(function (b) {
+    b.addEventListener('click', function () { tipo = b.dataset.tipo; orden = null; guardar(); pintar(); });
+  });
+  var buscar = raiz.querySelector('.hs-buscar input');
+  if (buscar) buscar.addEventListener('input', function () { filtro = buscar.value.trim().toLowerCase(); pintar(); });
+
+  function pintar() {
+    raiz.querySelectorAll('.hs-seg button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.tipo === tipo)); });
+    raiz.querySelectorAll('.hs-anios button').forEach(function (b) { b.setAttribute('aria-pressed', String(anios.indexOf(+b.dataset.anio) >= 0)); });
+    var cols = anios.map(function (a) { return { anio: a, meses: mesesCon(a) }; });
+
+    // Encabezado: años arriba, meses abajo (clic para ordenar)
+    var h1 = '<tr><th class="hs-tienda" rowspan="2">Tienda</th>' + cols.map(function (c) {
+      return '<th class="hs-anio-cab" colspan="' + (c.meses.length + 1) + '">' + c.anio + '</th>';
+    }).join('') + '</tr>';
+    var h2 = '<tr>' + cols.map(function (c) {
+      return c.meses.map(function (m) { return th(c.anio, m, MES[m]); }).join('') + th(c.anio, -1, 'Prom.');
+    }).join('') + '</tr>';
+    function th(a, m, t) {
+      var s = orden && orden.anio === a && orden.mes === m ? (orden.dir < 0 ? 'descending' : 'ascending') : 'none';
+      return '<th class="hs-th' + (m < 0 ? ' prom' : '') + '" tabindex="0" role="columnheader" aria-sort="' + s + '" data-a="' + a + '" data-m="' + m + '" title="Ordenar">' + t + '</th>';
+    }
+    raiz.querySelector('thead').innerHTML = h1 + h2;
+
+    var filas = D.tiendas.filter(function (f) { return !filtro || (f.codigo + ' ' + f.nombre).toLowerCase().indexOf(filtro) >= 0; });
+    if (orden) {
+      // Las que no tienen dato van siempre al final
+      var val = function (f) { var s = serie(f, orden.anio); var v = orden.mes < 0 ? prom(s) : s[orden.mes]; return v == null ? (orden.dir < 0 ? -Infinity : Infinity) : v; };
+      filas = filas.slice().sort(function (x, y) { var a = val(x), b = val(y); return orden.dir < 0 ? b - a : a - b; });
+    }
+    function fila(f, esTotal) {
+      return '<tr' + (f.store_id && f.store_id === MI ? ' class="hs-mia"' : '') + '><td class="hs-tienda"><b title="' + esc(f.nombre) + '">' + esc(esTotal ? f.nombre : f.nombre) + '</b>' +
+        (esTotal ? '<small>Todas las tiendas</small>' : '<small>' + esc(f.codigo) + '</small>') + '</td>' +
+        cols.map(function (c) {
+          var s = serie(f, c.anio), p = prom(s);
+          return c.meses.map(function (m) { return '<td class="hs-v ' + clase(s[m]) + '">' + txt(s[m]) + '</td>'; }).join('') +
+            '<td class="hs-v prom ' + clase(p) + '" title="Promedio de los meses con dato">' + txt(p) + '</td>';
+        }).join('') + '</tr>';
+    }
+    raiz.querySelector('tbody').innerHTML = filas.length ? filas.map(function (f) { return fila(f, false); }).join('')
+      : '<tr><td class="hs-vacio-todo" colspan="99">' + (D.tiendas.length ? 'Ninguna tienda coincide con la búsqueda.' : 'Tu tienda todavía no aparece en la hoja ACUM.') + '</td></tr>';
+    raiz.querySelector('tfoot').innerHTML = D.total ? fila(D.total, true) : '';
+    raiz.querySelectorAll('.hs-th').forEach(function (t) {
+      var ir = function () {
+        var a = +t.dataset.a, m = +t.dataset.m;
+        orden = orden && orden.anio === a && orden.mes === m ? (orden.dir < 0 ? { anio: a, mes: m, dir: 1 } : null) : { anio: a, mes: m, dir: -1 };
+        pintar();
+      };
+      t.addEventListener('click', ir);
+      t.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); ir(); } });
+    });
+    leyenda(); resumen(cols);
+  }
+
+  function leyenda() {
+    raiz.querySelector('.hs-leyenda').innerHTML = tipo === 'cumplimiento'
+      ? '<span><i style="background:var(--hs-ok-f)"></i>110 % o más</span><span><i style="background:var(--hs-ok-s)"></i>100 % a 109 %</span><span><i style="background:var(--hs-am-s)"></i>90 % a 99 %</span><span><b style="color:var(--hs-bad)">85 %</b> Menos de 90 %</span><span>Clic en un mes para ordenar</span>'
+      : '<span><i style="background:var(--hs-ok-f)"></i>Creció 10 % o más</span><span><i style="background:var(--hs-ok-s)"></i>Creció hasta 9 %</span><span><i style="background:var(--hs-am-s)"></i>Bajó hasta 5 %</span><span><b style="color:var(--hs-bad)">−8 %</b> Bajó más de 5 %</span><span>Clic en un mes para ordenar</span>';
+  }
+
+  function resumen(cols) {
+    var a = anios[anios.length - 1], meses = mesesCon(a), m = meses[meses.length - 1];
+    var cajaR = raiz.querySelector('.hs-resumen');
+    if (m == null) { cajaR.innerHTML = ''; return; }
+    var nombreMes = MES[m] + ' ' + a, html = '';
+    if (MI) {
+      var mia = D.tiendas[0];
+      if (!mia) { cajaR.innerHTML = ''; return; }
+      var s = serie(mia, a), sAnt = serie(mia, a - 1);
+      var cumplidos = s.filter(function (v) { return v != null && v >= (tipo === 'cumplimiento' ? 1 : 0); }).length;
+      html += kpi('Último mes · ' + nombreMes, txt(s[m]), D.total ? 'Red: ' + txt(serie(D.total, a)[m]) : '');
+      html += kpi('Promedio ' + a, txt(prom(s)), sAnt.length ? 'En ' + (a - 1) + ': ' + txt(prom(sAnt)) : '');
+      html += kpi(tipo === 'cumplimiento' ? 'Meses con la cuota cumplida' : 'Meses creciendo', cumplidos + ' de ' + s.filter(function (v) { return v != null; }).length, 'en ' + a);
+    } else {
+      var conDato = D.tiendas.filter(function (f) { return serie(f, a)[m] != null; });
+      var ok = conDato.filter(function (f) { return serie(f, a)[m] >= (tipo === 'cumplimiento' ? 1 : 0); }).length;
+      var mejor = D.tiendas.map(function (f) { return { f: f, p: prom(serie(f, a)) }; }).filter(function (x) { return x.p != null; }).sort(function (x, y) { return y.p - x.p; })[0];
+      html += kpi(tipo === 'cumplimiento' ? 'Cumplieron la cuota · ' + nombreMes : 'Crecieron · ' + nombreMes, ok + ' de ' + conDato.length, 'tiendas');
+      if (D.total) html += kpi('Red · ' + nombreMes, txt(serie(D.total, a)[m]), 'Promedio ' + a + ': ' + txt(prom(serie(D.total, a))));
+      if (mejor) html += kpi('Mejor promedio ' + a, txt(mejor.p), esc(mejor.f.nombre));
+    }
+    cajaR.innerHTML = html;
+  }
+  function kpi(t, v, s) { return '<div class="hs-kpi"><span>' + esc(t) + '</span><b>' + v + '</b>' + (s ? '<small>' + s + '</small>' : '') + '</div>'; }
+
+  pintar();
+})();
+</script>
+{% endif %}
+{% endblock %}

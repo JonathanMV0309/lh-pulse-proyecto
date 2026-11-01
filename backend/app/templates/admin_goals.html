@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<style>
+.goal-shell { padding-bottom: 55px; }
+.goal-hero { background: linear-gradient(135deg,#FDFBF7,#F5F0E8); border:1px solid rgba(139,125,107,.18); border-radius:20px; padding:25px 28px; box-shadow:0 8px 28px rgba(45,42,38,.06); }
+.goal-nav { display:flex; gap:8px; flex-wrap:wrap; position:sticky; top:76px; z-index:10; padding:10px; margin:18px 0; background:rgba(245,240,232,.94); backdrop-filter:blur(10px); border:1px solid rgba(139,125,107,.16); border-radius:15px; }
+.goal-nav a { color:#6B6259; text-decoration:none; font-weight:700; font-size:13px; padding:9px 13px; border-radius:10px; }
+.goal-nav a:hover,.goal-nav a.active { background:#8B7D6B; color:#fff; }
+.goal-panel { scroll-margin-top:145px; background:#FDFBF7; border:1px solid rgba(139,125,107,.16); border-radius:18px; box-shadow:0 6px 22px rgba(45,42,38,.05); margin-bottom:22px; overflow:hidden; }
+.goal-panel-head { padding:20px 22px; border-bottom:1px solid rgba(139,125,107,.14); }
+.goal-panel-body { padding:22px; }
+.goal-kpis { display:grid; grid-template-columns:repeat(5,minmax(150px,1fr)); gap:13px; }
+.goal-kpi { background:#F5F0E8; border-radius:14px; padding:16px; }
+.goal-kpi small { display:block; color:#6B6259; font-weight:700; margin-bottom:5px; }
+.goal-kpi strong { font-size:20px; color:#2D2A26; }
+.goal-kpi.accent { background:rgba(13,92,117,.09); }
+.goal-kpi.aux { background:rgba(217,93,57,.09); }
+.goal-table thead th { background:#F5F0E8; color:#6B6259; font-size:11px; letter-spacing:.45px; text-transform:uppercase; white-space:nowrap; }
+.goal-table td { vertical-align:middle; }
+.type-select { min-width:125px; font-weight:700; }
+.meta-input { min-width:145px; text-align:right; }
+.aux-row { background:rgba(217,93,57,.045); }
+.role-pill { display:inline-flex; align-items:center; gap:5px; border-radius:20px; padding:4px 9px; font-size:11px; font-weight:800; }
+.role-fixed { background:rgba(45,106,79,.12); color:#2D6A4F; }
+.role-aux { background:rgba(217,93,57,.12); color:#B44B2D; }
+.last-save { display:flex; align-items:center; gap:8px; color:#6B6259; font-size:12px; background:#F5F0E8; border-radius:10px; padding:8px 11px; }
+.save-bar { position:sticky; bottom:12px; z-index:15; display:flex; justify-content:space-between; align-items:center; gap:12px; padding:13px 15px; border-radius:14px; background:rgba(45,42,38,.94); color:#fff; box-shadow:0 12px 35px rgba(45,42,38,.22); }
+.save-bar .btn { font-weight:800; }
+.empty-state { padding:40px 20px; text-align:center; color:#6B6259; }
+.value-up { color:#2D6A4F; }
+.value-down { color:#D95D39; }
+@media(max-width:991px){.goal-kpis{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:575px){.goal-kpis{grid-template-columns:1fr}.save-bar{align-items:stretch;flex-direction:column}.save-bar .btn{width:100%}}
+</style>
+{% endblock %}
+
+{% block contenido %}
+<div class="goal-shell">
+<section class="goal-hero">
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+<div><div class="text-uppercase small fw-bold text-muted mb-1">{% if usuario.role and usuario.role.nombre|upper in ['TIENDA','STORE'] %}Gestión de mi tienda{% else %}Administración{% endif %}</div><h1 class="h3 fw-bold mb-1">Metas y vendedores</h1><p class="text-muted mb-0">Consulta la meta de la tienda, clasifica asesoras y guarda una sola distribución para todo el sistema.</p></div>
+{% if ultima_meta %}<div class="last-save"><i class="bi bi-clock-history"></i><span>Último guardado: <strong>{{ ultima_meta.updated_at.strftime('%d/%m/%Y %I:%M %p') if ultima_meta.updated_at else 'Sin fecha' }}</strong>{% if ultimo_usuario %} · {{ ultimo_usuario.nombre }}{% endif %}</span></div>{% endif %}
+</div>
+</section>
+
+<section class="goal-panel mt-4"><div class="goal-panel-body">
+<form method="GET" action="{{ url_for('admin_goals.admin_metas') }}" class="row g-3 align-items-end">
+<div class="col-lg-4"><label class="form-label fw-semibold">Tienda</label>{% if usuario.role and usuario.role.nombre|upper in ['TIENDA','STORE'] %}<input type="hidden" name="store_id" value="{{ store_id_actual }}"><select class="form-select" disabled>{% for tienda in tiendas %}{% if tienda.id == store_id_actual %}<option selected>{{ tienda.codigo }} - {{ tienda.nombre }}</option>{% endif %}{% endfor %}</select>{% else %}<select class="form-select" name="store_id" required><option value="">Seleccionar tienda…</option>{% for tienda in tiendas %}<option value="{{ tienda.id }}" {% if tienda.id == store_id_actual %}selected{% endif %}>{{ tienda.codigo }} - {{ tienda.nombre }}</option>{% endfor %}</select>{% endif %}</div>
+<div class="col-sm-3 col-lg-2"><label class="form-label fw-semibold">Año</label><select class="form-select" name="anio">{% for y in range(2024,2029) %}<option value="{{ y }}" {% if y == anio_actual %}selected{% endif %}>{{ y }}</option>{% endfor %}</select></div>
+<div class="col-sm-3 col-lg-2"><label class="form-label fw-semibold">Mes</label><select class="form-select" name="mes">{% set meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'] %}{% for m in range(1,13) %}<option value="{{ m }}" {% if m == mes_actual %}selected{% endif %}>{{ meses[m-1] }}</option>{% endfor %}</select></div>
+<div class="col-sm-6 col-lg-3"><label class="form-label fw-semibold">Buscar asesora</label><input class="form-control" id="advisorSearch" name="q" value="{{ filtro_nombre or '' }}" placeholder="Nombre de asesora"></div>
+<div class="col-lg-1"><button class="btn btn-primary w-100" style="background:#8B7D6B;border-color:#8B7D6B"><i class="bi bi-search"></i></button></div>
+</form>
+</div></section>
+
+{% if store_id_actual and distribucion %}
+<nav class="goal-nav"><a href="#resumen" class="active"><i class="bi bi-shop me-1"></i> Meta tienda</a><a href="#venta-diaria"><i class="bi bi-calendar-day me-1"></i> Venta diaria</a><a href="#vendedores"><i class="bi bi-person-badge me-1"></i> Vendedor único</a><a href="#distribucion"><i class="bi bi-diagram-3 me-1"></i> Distribución</a><a href="#metas"><i class="bi bi-person-check me-1"></i> Metas de asesoras</a></nav>
+
+<section class="goal-panel" id="resumen">
+<header class="goal-panel-head"><h2 class="h5 fw-bold mb-1"><i class="bi bi-bullseye me-2"></i>Meta de la tienda</h2><p class="small text-muted mb-0">La venta de auxiliares reduce únicamente el saldo que se distribuye entre las asesoras fijas.</p></header>
+<div class="goal-panel-body"><div class="goal-kpis">
+<div class="goal-kpi"><small>Meta tienda</small><strong id="metaTienda" data-value="{{ distribucion.meta_tienda }}">${{ "{:,.0f}".format(distribucion.meta_tienda) }}</strong></div>
+<div class="goal-kpi aux"><small>Venta auxiliares</small><strong id="ventaAuxiliares">${{ "{:,.0f}".format(distribucion.venta_auxiliar_real) }}</strong></div>
+<div class="goal-kpi accent"><small>Meta distribuible</small><strong id="metaDistribuible">${{ "{:,.0f}".format(distribucion.meta_ajustada) }}</strong></div>
+<div class="goal-kpi"><small>Asesoras fijas</small><strong id="cantidadFijas">{{ distribucion.cantidad_asesoras }}</strong></div>
+<div class="goal-kpi"><small>Auxiliares</small><strong id="cantidadAuxiliares">{{ distribucion.cantidad_auxiliares }}</strong></div>
+</div></div></section>
+
+{% if ventas_diarias %}
+<section class="goal-panel" id="venta-diaria">
+<header class="goal-panel-head"><h2 class="h5 fw-bold mb-1"><i class="bi bi-calendar-day me-2"></i>Consulta de venta diaria</h2><p class="small text-muted mb-0">Comparativo del período, conservando la consulta que antes estaba en “Metas por tienda”.</p></header>
+<div class="goal-panel-body"><div class="row g-3">
+<div class="col-md-3"><div class="goal-kpi"><small>Venta año anterior</small><strong>${{ "{:,.0f}".format(ventas_diarias.venta_anterior) }}</strong></div></div>
+<div class="col-md-3"><div class="goal-kpi"><small>Venta actual</small><strong>${{ "{:,.0f}".format(ventas_diarias.venta_actual) }}</strong></div></div>
+<div class="col-md-3"><div class="goal-kpi"><small>Diferencia</small><strong class="{{ 'value-up' if ventas_diarias.diferencia >= 0 else 'value-down' }}">{{ '+' if ventas_diarias.diferencia >= 0 else '' }}${{ "{:,.0f}".format(ventas_diarias.diferencia) }}</strong></div></div>
+<div class="col-md-3"><div class="goal-kpi"><small>Variación</small><strong class="{{ 'value-up' if ventas_diarias.incremento >= 0 else 'value-down' }}">{{ "%+.1f"|format(ventas_diarias.incremento) }}%</strong></div></div>
+</div></div>
+{% if ventas_diarias.filas %}
+<div class="table-responsive"><table class="table goal-table mb-0"><thead><tr><th>Día</th><th class="text-end">Año anterior</th><th class="text-end">Venta actual</th><th class="text-end">Diferencia</th><th class="text-end">Variación</th><th class="text-end">Meta diaria</th><th class="text-end">Cumplimiento</th></tr></thead><tbody>
+{% for dia in ventas_diarias.filas %}<tr><td>{{ dia.dia }}</td><td class="text-end">${{ "{:,.0f}".format(dia.venta_anterior) }}</td><td class="text-end">${{ "{:,.0f}".format(dia.venta_actual) }}</td><td class="text-end {{ 'value-up' if dia.diferencia >= 0 else 'value-down' }}">{{ '+' if dia.diferencia >= 0 else '' }}${{ "{:,.0f}".format(dia.diferencia) }}</td><td class="text-end {{ 'value-up' if dia.incremento >= 0 else 'value-down' }}">{{ "%+.1f"|format(dia.incremento) }}%</td><td class="text-end">${{ "{:,.0f}".format(dia.meta_diaria) }}</td><td class="text-end fw-bold">{{ "%.1f"|format(dia.cumplimiento) }}%</td></tr>{% endfor %}
+</tbody></table></div>
+{% endif %}
+</section>
+{% endif %}
+
+<section class="goal-panel" id="vendedores">
+<header class="goal-panel-head"><h2 class="h5 fw-bold mb-1"><i class="bi bi-person-badge me-2"></i>Resultados por vendedor único</h2><p class="small text-muted mb-0">Consulta independiente; estos registros no participan en las metas de asesoras.</p></header>
+<div class="table-responsive"><table class="table goal-table mb-0"><thead><tr><th>Vendedor</th><th class="text-end">Venta</th><th class="text-end">Facturas</th><th class="text-end">Unidades</th><th class="text-end">Ticket</th></tr></thead><tbody>
+{% for vendedor in vendedores %}{% set ticket=(vendedor.venta/vendedor.facturas) if vendedor.facturas else 0 %}<tr><td class="fw-bold">{{ vendedor.nombre }}</td><td class="text-end">${{ "{:,.0f}".format(vendedor.venta or 0) }}</td><td class="text-end">{{ "{:,.0f}".format(vendedor.facturas or 0) }}</td><td class="text-end">{{ "{:,.0f}".format(vendedor.unidades or 0) }}</td><td class="text-end">${{ "{:,.0f}".format(ticket) }}</td></tr>{% else %}<tr><td colspan="5" class="empty-state">No hay registros de vendedor único para este período.</td></tr>{% endfor %}
+</tbody></table></div></section>
+
+<section class="goal-panel" id="distribucion">
+<header class="goal-panel-head d-flex flex-wrap justify-content-between align-items-center gap-2"><div><h2 class="h5 fw-bold mb-1"><i class="bi bi-diagram-3 me-2"></i>Distribución y clasificación</h2><p class="small text-muted mb-0">La clasificación aplica solo a {{ mes_actual }}/{{ anio_actual }} y puede cambiar el siguiente mes.</p></div><div class="d-flex gap-2"><button type="button" class="btn btn-outline-primary btn-sm" id="editarMetas"><i class="bi bi-pencil me-1"></i> Editar</button><button type="button" class="btn btn-outline-secondary btn-sm" id="recalcularMetas" disabled><i class="bi bi-arrow-repeat me-1"></i> Recalcular equitativamente</button></div></header>
+<div class="table-responsive" id="metas"><table class="table goal-table mb-0" id="tablaDistribucion"><thead><tr><th>Asesora</th><th>Tipo en el período</th><th class="text-end">Venta real</th><th class="text-end">Meta individual</th><th class="text-end">Cumplimiento</th></tr></thead><tbody>
+{% for asesora in distribucion.asesoras %}
+<tr class="advisor-row {% if asesora.tipo_asesora == 'AUXILIAR' %}aux-row{% endif %}" data-advisor-id="{{ asesora.advisor_id }}" data-sale="{{ asesora.venta }}">
+<td><div class="fw-bold">{{ asesora.nombre }}</div><span class="role-pill {% if asesora.tipo_asesora == 'AUXILIAR' %}role-aux{% else %}role-fixed{% endif %}"><i class="bi {% if asesora.tipo_asesora == 'AUXILIAR' %}bi-person-plus{% else %}bi-person-check{% endif %}"></i><span class="role-label">{{ 'Auxiliar' if asesora.tipo_asesora == 'AUXILIAR' else 'Fija' }}</span></span></td>
+<td><select class="form-select form-select-sm type-select" disabled><option value="FIJA" {% if asesora.tipo_asesora == 'FIJA' %}selected{% endif %}>Fija</option><option value="AUXILIAR" {% if asesora.tipo_asesora == 'AUXILIAR' %}selected{% endif %}>Auxiliar</option></select></td>
+<td class="text-end fw-semibold">${{ "{:,.0f}".format(asesora.venta) }}</td>
+<td><input type="number" min="0" step="0.01" class="form-control form-control-sm meta-input ms-auto" value="{{ asesora.meta }}" readonly {% if asesora.tipo_asesora == 'AUXILIAR' %}disabled{% endif %}></td>
+<td class="text-end"><span class="compliance fw-bold">{% if asesora.tipo_asesora == 'AUXILIAR' %}Aporta a tienda{% elif asesora.meta > 0 %}{{ "{:.1f}%".format((asesora.venta/asesora.meta)*100) }}{% else %}Sin meta{% endif %}</span></td>
+</tr>
+{% else %}<tr><td colspan="5" class="empty-state">No hay asesoras con información en este período.</td></tr>{% endfor %}
+</tbody></table></div>
+{% if distribucion.asesoras %}<div class="goal-panel-body pt-3"><div class="save-bar"><div><div class="fw-bold">Cambios del período {{ mes_actual }}/{{ anio_actual }}</div><small class="text-white-50" id="saveMessage">Pulsa “Editar” para habilitar los cambios.</small></div><button type="button" class="btn btn-warning" id="guardarDistribucion" disabled><i class="bi bi-save me-1"></i> Guardar distribución</button></div></div>{% endif %}
+</section>
+{% else %}<div class="goal-panel"><div class="empty-state"><i class="bi bi-shop fs-1 d-block mb-2"></i>Selecciona una tienda y un período para administrar sus metas.</div></div>{% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ super() }}
+{% if store_id_actual and distribucion %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const rows = Array.from(document.querySelectorAll(".advisor-row"));
+    const money = new Intl.NumberFormat("es-CO",{style:"currency",currency:"COP",maximumFractionDigits:0});
+    const metaTienda = Number(document.getElementById("metaTienda").dataset.value || 0);
+    const saveButton = document.getElementById("guardarDistribucion");
+    const saveMessage = document.getElementById("saveMessage");
+    const editButton = document.getElementById("editarMetas");
+    const recalculateButton = document.getElementById("recalcularMetas");
+    let editing = false;
+
+    function refreshSummary(rewriteGoals) {
+        let auxSales=0, fixedCount=0;
+        rows.forEach(function(row){ const type=row.querySelector(".type-select").value; if(type==="AUXILIAR") auxSales+=Number(row.dataset.sale||0); else fixedCount+=1; });
+        const distributable=Math.max(metaTienda-auxSales,0);
+        const automaticGoal=fixedCount ? distributable/fixedCount : 0;
+        document.getElementById("ventaAuxiliares").textContent=money.format(auxSales);
+        document.getElementById("metaDistribuible").textContent=money.format(distributable);
+        document.getElementById("cantidadFijas").textContent=fixedCount;
+        document.getElementById("cantidadAuxiliares").textContent=rows.length-fixedCount;
+        rows.forEach(function(row){
+            const type=row.querySelector(".type-select").value;
+            const input=row.querySelector(".meta-input");
+            const pill=row.querySelector(".role-pill");
+            const isAux=type==="AUXILIAR";
+            const sale=Number(row.dataset.sale||0);
+            row.classList.toggle("aux-row",isAux);
+            input.disabled=isAux;
+            input.readOnly=!editing;
+            if(isAux) input.value="0"; else if(rewriteGoals) input.value=automaticGoal.toFixed(2);
+            pill.classList.toggle("role-aux",isAux); pill.classList.toggle("role-fixed",!isAux);
+            row.querySelector(".role-label").textContent=isAux ? "Auxiliar" : "Fija";
+            const goal=Number(input.value||0);
+            row.querySelector(".compliance").textContent=isAux ? "Aporta a tienda" : goal>0 ? ((sale/goal)*100).toFixed(1)+"%" : "Sin meta";
+        });
+    }
+
+    rows.forEach(function(row){
+        row.querySelector(".type-select").addEventListener("change",function(){refreshSummary(true);});
+        row.querySelector(".meta-input").addEventListener("input",function(){refreshSummary(false);});
+    });
+    const search=document.getElementById("advisorSearch");
+    function filterRows(){
+        const term=(search.value||"").trim().toLowerCase();
+        rows.forEach(function(row){row.style.display=!term||row.textContent.toLowerCase().includes(term)?"":"none";});
+    }
+    search.addEventListener("input",filterRows);
+    filterRows();
+    editButton.addEventListener("click",function(){
+        editing=true;
+        rows.forEach(function(row){
+            row.querySelector(".type-select").disabled=false;
+            const input=row.querySelector(".meta-input");
+            input.readOnly=false;
+            input.disabled=row.querySelector(".type-select").value==="AUXILIAR";
+        });
+        recalculateButton.disabled=false;
+        saveButton.disabled=false;
+        saveMessage.textContent="Edición habilitada. Guarda para reflejar el cumplimiento en todo el sistema.";
+        editButton.disabled=true;
+    });
+    recalculateButton.addEventListener("click",function(){refreshSummary(true);});
+
+    saveButton.addEventListener("click",async function(){
+        const asignaciones=rows.map(function(row){return {advisor_id:Number(row.dataset.advisorId),tipo_asesora:row.querySelector(".type-select").value,meta_venta:Number(row.querySelector(".meta-input").value||0)};});
+        saveButton.disabled=true; saveMessage.textContent="Guardando todos los cambios…";
+        try {
+            const response=await fetch("{{ url_for('admin_goals.guardar_distribucion_unificada') }}",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({store_id:{{ store_id_actual|tojson }},anio:{{ anio_actual|tojson }},mes:{{ mes_actual|tojson }},asignaciones:asignaciones})});
+            const data=await response.json();
+            if(!response.ok || !data.success) throw new Error(data.error||"No fue posible guardar.");
+            saveMessage.textContent="Distribución guardada correctamente ("+data.guardadas+" asesoras).";
+            saveButton.classList.replace("btn-warning","btn-success");
+            setTimeout(function(){window.location.reload();},900);
+        } catch(error){ saveMessage.textContent=error.message; saveButton.disabled=false; }
+    });
+    refreshSummary(false);
+});
+</script>
+{% endif %}
+{% endblock %}

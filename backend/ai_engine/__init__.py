@@ -1,0 +1,1 @@
+"""Modulo de Inteligencia Comercial Predictiva para L&H SCORE."""

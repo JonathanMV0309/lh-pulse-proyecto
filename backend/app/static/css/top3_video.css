@@ -1,0 +1,261 @@
+/* =========================================================
+   Ceremonia Top 3 con video (top3_video.js)
+   Fondo crema igual al del video; el video se funde con el fondo.
+   ========================================================= */
+.top3-overlay.t3v-modo {
+    background:
+        radial-gradient(ellipse at 50% 42%, #EFE7DA 0%, #E2D7C6 48%, #CFC2AE 100%);
+}
+.top3-overlay.t3v-modo > .top3-background-glow,
+.top3-overlay.t3v-modo > .top3-particles,
+.top3-overlay.t3v-modo > .top3-content {
+    display: none !important;
+}
+
+.t3v {
+    --t3v-ease: cubic-bezier(.23, 1, .32, 1);
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    color: #2D2A26;
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+}
+
+/* Título */
+.t3v-titulo {
+    position: absolute;
+    top: clamp(14px, 3.2vh, 34px);
+    left: 0;
+    right: 0;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    text-align: center;
+    pointer-events: none;
+    animation: t3vEntra .9s var(--t3v-ease) both;
+}
+.t3v-marca {
+    font-size: clamp(20px, 2.6vw, 34px);
+    font-weight: 800;
+    letter-spacing: .12em;
+    color: #2D2A26;
+}
+.t3v-sub {
+    font-size: clamp(11px, 1.05vw, 14px);
+    font-weight: 600;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: #8B7D6B;
+}
+
+/* Video 16:9 que cabe en la pantalla, con los bordes difuminados */
+.t3v-caja {
+    --k: 1;
+    position: relative;
+    width: min(100%, calc((100vh - 32px) * 16 / 9), 1600px);
+    aspect-ratio: 16 / 9;
+}
+.t3v-video, .t3v-quieto {
+    /* Bordes difuminados para que el video se funda con el fondo (el podio no se toca) */
+    -webkit-mask-image:
+        linear-gradient(to right, transparent, #000 7%, #000 93%, transparent),
+        linear-gradient(to bottom, transparent, #000 9%, #000 91%, transparent);
+    -webkit-mask-composite: source-in;
+            mask-image:
+        linear-gradient(to right, transparent, #000 7%, #000 93%, transparent),
+        linear-gradient(to bottom, transparent, #000 9%, #000 91%, transparent);
+            mask-composite: intersect;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.t3v-video[hidden], .t3v-quieto[hidden] { display: none; }
+
+/* Anuncio de cada puesto mientras corre el video */
+.t3v-anuncio {
+    position: absolute;
+    top: clamp(84px, 13vh, 130px);
+    left: 50%;
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 22px 10px 10px;
+    border-radius: 999px;
+    background: rgba(255, 253, 248, .94);
+    border: 1px solid rgba(197, 168, 128, .7);
+    box-shadow: 0 14px 34px rgba(45, 42, 38, .16);
+    opacity: 0;
+    transform: translate(-50%, -10px) scale(.96);
+    pointer-events: none;
+}
+.t3v-anuncio.visible { animation: t3vAnuncio 2.1s var(--t3v-ease) both; }
+@keyframes t3vAnuncio {
+    0% { opacity: 0; transform: translate(-50%, -10px) scale(.96); }
+    14% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+    82% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, 6px) scale(.98); }
+}
+.t3v-anuncio-foto {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #EDE4D6;
+    border: 2px solid #C5A880;
+}
+.t3v-anuncio-texto { display: flex; flex-direction: column; line-height: 1.2; text-align: left; }
+.t3v-anuncio-texto small { font-size: 11.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #A08A5B; }
+.t3v-anuncio-texto strong { font-size: 18px; font-weight: 800; color: #2D2A26; }
+.t3v-anuncio-texto span { font-size: 13px; font-weight: 600; color: #6B6259; }
+.t3v-anuncio.t3v-puesto1 { border-color: #C9A14A; box-shadow: 0 16px 40px rgba(169, 129, 52, .28); }
+
+/* Foto de la tienda sobre su bloque */
+.t3v-medallon {
+    position: absolute;
+    z-index: 2;
+    width: calc(96px * var(--k));
+    height: calc(96px * var(--k));
+    border-radius: 50%;
+    padding: calc(4px * var(--k));
+    background: linear-gradient(145deg, #F3DFAE, #C9A14A 55%, #9E7A33);
+    box-shadow: 0 calc(10px * var(--k)) calc(22px * var(--k)) rgba(45, 42, 38, .28);
+    transform: translate(-50%, -100%) translateY(calc(-40px * var(--k))) scale(.6);
+    opacity: 0;
+}
+.t3v-medallon.t3v-p1 {
+    width: calc(108px * var(--k));
+    height: calc(108px * var(--k));
+}
+.t3v-medallon.visible {
+    animation: t3vCae .7s var(--t3v-ease) forwards;
+}
+@keyframes t3vCae {
+    0% { opacity: 0; transform: translate(-50%, -100%) translateY(calc(-40px * var(--k))) scale(.6); }
+    60% { opacity: 1; transform: translate(-50%, -100%) translateY(calc(3px * var(--k))) scale(1.04); }
+    100% { opacity: 1; transform: translate(-50%, -100%) translateY(calc(-4px * var(--k))) scale(1); }
+}
+.t3v-foto {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    background: #EDE4D6;
+}
+
+/* Placa con nombre y cumplimiento frente a cada bloque */
+.t3v-placa {
+    position: absolute;
+    z-index: 2;
+    min-width: calc(170px * var(--k));
+    max-width: calc(250px * var(--k));
+    padding: calc(7px * var(--k)) calc(14px * var(--k));
+    border-radius: calc(12px * var(--k));
+    background: rgba(255, 253, 248, .95);
+    border: 1px solid rgba(197, 168, 128, .75);
+    box-shadow: 0 calc(8px * var(--k)) calc(18px * var(--k)) rgba(45, 42, 38, .14);
+    text-align: center;
+    transform: translate(-50%, -50%) translateY(calc(10px * var(--k)));
+    opacity: 0;
+    transition: opacity .5s ease-out, transform .6s var(--t3v-ease);
+}
+.t3v-placa.visible { opacity: 1; transform: translate(-50%, -50%); }
+.t3v-placa strong {
+    display: block;
+    font-size: calc(15px * var(--k));
+    font-weight: 800;
+    color: #2D2A26;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.t3v-placa span {
+    display: block;
+    font-size: calc(13px * var(--k));
+    font-weight: 700;
+    color: #A07A2E;
+    font-variant-numeric: tabular-nums;
+}
+.t3v-placa.t3v-p1 { border-color: #C9A14A; }
+
+/* Saltar y botones finales */
+.t3v-saltar {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    z-index: 5;
+    padding: 8px 16px;
+    border: 1px solid rgba(139, 125, 107, .45);
+    border-radius: 999px;
+    background: rgba(255, 253, 248, .85);
+    color: #4A4038;
+    font: 600 13px/1 Inter, "Segoe UI", Arial, sans-serif;
+    cursor: pointer;
+}
+.t3v-saltar:hover { background: #FFFDF8; }
+.t3v-saltar:focus-visible { outline: 2px solid #C5A880; outline-offset: 2px; }
+.t3v-saltar[hidden] { display: none; }
+
+.t3v #top3Actions {
+    /* Centrado sin transform: la animación original de los botones usa transform */
+    position: absolute;
+    bottom: clamp(14px, 3.5vh, 36px);
+    left: 0;
+    right: 0;
+    width: max-content;
+    max-width: calc(100% - 32px);
+    margin: 0 auto;
+    justify-content: center;
+    z-index: 5;
+}
+
+@keyframes t3vEntra {
+    from { opacity: 0; transform: translateY(-12px); }
+    to { opacity: 1; transform: none; }
+}
+
+@media (max-width: 700px) {
+    .t3v #top3Actions {
+        flex-direction: column;
+        gap: 10px;
+        width: calc(100% - 32px);
+    }
+    .t3v #top3Actions .top3-button { width: 100%; }
+    .t3v-anuncio { gap: 10px; padding: 8px 16px 8px 8px; max-width: calc(100% - 32px); }
+    .t3v-anuncio-foto { width: 42px; height: 42px; }
+    .t3v-anuncio-texto strong { font-size: 15px; }
+    .t3v-placa strong { font-size: calc(17px * var(--k)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .t3v-titulo { animation: none; }
+    .t3v-medallon.visible { animation: none; opacity: 1; transform: translate(-50%, -100%) translateY(calc(-4px * var(--k))); }
+    .t3v-placa { transition: none; }
+}
+
+/* Botones finales con la paleta cálida (los originales eran para fondo oscuro) */
+.t3v .top3-button-dashboard {
+    background: #2D2A26;
+    color: #FFFDF8;
+    border: 0;
+    box-shadow: 0 10px 24px rgba(45, 42, 38, .22);
+}
+.t3v .top3-button-home {
+    background: #FFFDF8;
+    color: #2D2A26;
+    border: 1px solid rgba(197, 168, 128, .8);
+    box-shadow: 0 8px 20px rgba(45, 42, 38, .12);
+}
+.t3v .top3-button:focus-visible { outline: 2px solid #C5A880; outline-offset: 3px; }

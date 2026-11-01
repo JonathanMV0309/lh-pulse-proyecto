@@ -1,0 +1,9 @@
+# Binarios: nunca convertir finales de línea
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.mp4 binary
+# Los parches se guardan tal cual (LF) para que git apply funcione en cualquier equipo
+*.patch -text

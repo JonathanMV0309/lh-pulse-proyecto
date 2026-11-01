@@ -1,0 +1,183 @@
+/* =========================================================
+   L&H PULSE - Gráficas premium del administrador (V2)
+   Ventas por clima (dona + tarjetas con cielo animado) y
+   Top cumplimiento (velocímetros). Prefijo gp-.
+   Si el JS no corre, se ven las gráficas originales.
+   ========================================================= */
+
+.gp-wrap {
+    --gp-ease: cubic-bezier(.22, 1, .36, 1);
+    --gp-spring: cubic-bezier(.34, 1.56, .64, 1);
+    --gp-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+    position: relative;
+    z-index: 2;
+    padding: 4px 4px 8px;
+}
+
+/* ---------- Clima: dona + leyenda ---------- */
+.gp-donut-row {
+    display: grid;
+    grid-template-columns: 170px minmax(0, 1fr);
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+.gp-donut { display: block; width: 170px; height: 170px; }
+
+.gp-legend { display: flex; flex-direction: column; gap: 7px; font-size: 13px; }
+.gp-legend span { display: flex; justify-content: space-between; gap: 10px; color: #202a2d; }
+.gp-legend i { display: inline-block; width: 10px; height: 10px; margin-right: 7px; border-radius: 3px; }
+.gp-legend b { font-family: var(--gp-mono); }
+
+.gp-climates {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+}
+
+.gp-cl {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    min-height: 168px;
+    padding: 13px;
+    overflow: hidden;
+    border-radius: 16px;
+    color: #fff;
+}
+
+.gp-cl .gp-sky { position: absolute; inset: 0; pointer-events: none; }
+.gp-cl .gp-info { position: relative; z-index: 2; }
+.gp-cl small { font-size: 10.5px; font-weight: 800; letter-spacing: .12em; opacity: .92; }
+.gp-cl b { display: block; margin: 2px 0; font: 800 20px var(--gp-mono); }
+.gp-cl .gp-share { height: 6px; margin-top: 6px; overflow: hidden; border-radius: 3px; background: rgba(255, 255, 255, .3); }
+.gp-cl .gp-share i { display: block; width: 0; height: 100%; border-radius: 3px; background: #fff; transition: width 1.4s var(--gp-ease); }
+.gp-cl .gp-meta { margin-top: 5px; font-size: 11.5px; opacity: .94; }
+
+.gp-calido { background: linear-gradient(170deg, #f2a541, #d95d39); }
+.gp-templado { background: linear-gradient(170deg, #7fb3a3, #2d6a4f); }
+.gp-frio { background: linear-gradient(170deg, #7aa7c7, #0d5c75); }
+.gp-costero { background: linear-gradient(170deg, #5fb6c9, #1d6f8c); }
+.gp-otro { background: linear-gradient(170deg, #a99c86, #6b6259); }
+
+.gp-sun {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #ffe08a;
+    box-shadow: 0 0 0 8px rgba(255, 224, 138, .25), 0 0 0 18px rgba(255, 224, 138, .12);
+    animation: gpPulse 3s ease-in-out infinite;
+}
+
+@keyframes gpPulse {
+    50% { box-shadow: 0 0 0 12px rgba(255, 224, 138, .3), 0 0 0 26px rgba(255, 224, 138, .1); }
+}
+
+.gp-cloud {
+    position: absolute;
+    height: 18px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, .85);
+    animation: gpDrift linear infinite;
+}
+
+.gp-cloud::before {
+    content: "";
+    position: absolute;
+    left: 11px;
+    top: -10px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: inherit;
+}
+
+@keyframes gpDrift {
+    from { transform: translateX(-80px); }
+    to { transform: translateX(260px); }
+}
+
+.gp-flake { position: absolute; top: -10px; color: #fff; font-size: 11px; opacity: .9; animation: gpFall linear infinite; }
+
+@keyframes gpFall {
+    to { transform: translateY(200px) rotate(180deg); }
+}
+
+.gp-wave {
+    position: absolute;
+    left: -50%;
+    bottom: 0;
+    width: 200%;
+    height: 38px;
+    background: radial-gradient(ellipse at 25% 0, rgba(255, 255, 255, .35) 35%, transparent 36%) 0 0 / 90px 38px repeat-x;
+    animation: gpWaves 4s linear infinite;
+}
+
+@keyframes gpWaves {
+    to { transform: translateX(90px); }
+}
+
+.gp-wind {
+    position: absolute;
+    left: -40%;
+    height: 2px;
+    width: 60%;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, .55);
+    animation: gpWind 3.5s linear infinite;
+}
+
+@keyframes gpWind {
+    to { transform: translateX(220%); }
+}
+
+/* Animaciones del cielo en pausa fuera de pantalla */
+.gp-paused,
+.gp-paused * { animation-play-state: paused !important; }
+
+/* ---------- Top cumplimiento: velocímetros ---------- */
+.gp-gauges {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
+    gap: 10px;
+}
+
+.gp-ga {
+    padding: 10px 6px 12px;
+    border: 1px solid rgba(139, 125, 107, .18);
+    border-radius: 16px;
+    background: #fff;
+    text-align: center;
+    transition: transform .25s var(--gp-ease), box-shadow .25s ease;
+}
+
+.gp-ga:hover { transform: translateY(-3px); box-shadow: 0 10px 22px rgba(32, 42, 45, .08); }
+.gp-ga.gp-win { border-color: rgba(224, 169, 109, .7); background: linear-gradient(180deg, #fffaf0, #fff); }
+.gp-ga svg { display: block; width: 100%; max-width: 140px; margin: 0 auto; }
+.gp-ga .gp-needle { transform-origin: 60px 60px; transform: rotate(-90deg); transition: transform 1.6s var(--gp-spring); }
+.gp-ga .gp-name { display: block; overflow: hidden; color: #202a2d; font-size: 12.5px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+.gp-ga .gp-pv { font: 800 17px var(--gp-mono); }
+.gp-ga small { color: #6b6259; font-size: 10.5px; }
+.gp-empty { grid-column: 1 / -1; padding: 30px 10px; color: #6b6259; text-align: center; }
+
+@media (max-width: 575.98px) {
+    .gp-donut-row { grid-template-columns: minmax(0, 1fr); justify-items: center; }
+    .gp-legend { width: 100%; }
+    .gp-gauges { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Desactivado: las animaciones se muestran siempre. */
+@media (prefers-reduced-motion: reduce) and (max-width: 0px) {
+    .gp-sun,
+    .gp-cloud,
+    .gp-flake,
+    .gp-wave,
+    .gp-wind { animation: none !important; }
+    .gp-ga .gp-needle,
+    .gp-cl .gp-share i { transition: none; }
+}

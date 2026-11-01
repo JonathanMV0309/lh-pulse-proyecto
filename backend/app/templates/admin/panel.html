@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+
+{% block contenido %}
+
+<div class="container-fluid py-4">
+
+    <!-- ENCABEZADO -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="fw-bold mb-1">Panel Administrativo</h1>
+            <p class="text-muted mb-0">Gestiona usuarios, tiendas, supervisores y asesoras.</p>
+        </div>
+        <a href="/dashboard" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Volver al Dashboard
+        </a>
+    </div>
+
+    <!-- ESTADÍSTICAS -->
+    <div class="row g-4 mb-5">
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted mb-1">Usuarios</p>
+                            <h2 class="fw-bold mb-0">{{ usuarios }}</h2>
+                        </div>
+                        <div class="bg-primary bg-opacity-10 rounded-3 p-3">
+                            <i class="bi bi-people fs-3 text-primary"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted mb-1">Tiendas</p>
+                            <h2 class="fw-bold mb-0">{{ tiendas }}</h2>
+                        </div>
+                        <div class="bg-success bg-opacity-10 rounded-3 p-3">
+                            <i class="bi bi-shop fs-3 text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted mb-1">Supervisores</p>
+                            <h2 class="fw-bold mb-0">{{ supervisores }}</h2>
+                        </div>
+                        <div class="bg-warning bg-opacity-10 rounded-3 p-3">
+                            <i class="bi bi-person-badge fs-3 text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted mb-1">Asesoras</p>
+                            <h2 class="fw-bold mb-0">{{ asesoras }}</h2>
+                        </div>
+                        <div class="bg-danger bg-opacity-10 rounded-3 p-3">
+                            <i class="bi bi-person-vcard fs-3 text-danger"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADMINISTRACIÓN -->
+    <div class="mb-4">
+        <h3 class="fw-bold">Administración</h3>
+        <p class="text-muted">Selecciona qué información deseas gestionar.</p>
+    </div>
+
+    <div class="row g-4">
+        <!-- Usuarios -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4 text-center">
+                    <div class="mb-3"><i class="bi bi-people-fill fs-1 text-primary"></i></div>
+                    <h4 class="fw-bold">Usuarios</h4>
+                    <p class="text-muted">Crear, editar y administrar usuarios del sistema.</p>
+                    <a href="/admin/usuarios" class="btn btn-primary w-100">
+                        <i class="bi bi-arrow-right me-1"></i> Administrar usuarios
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- Tiendas -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4 text-center">
+                    <div class="mb-3"><i class="bi bi-shop-window fs-1 text-success"></i></div>
+                    <h4 class="fw-bold">Tiendas</h4>
+                    <p class="text-muted">Consultar y administrar las tiendas registradas.</p>
+                    <a href="/admin/tiendas" class="btn btn-success w-100">
+                        <i class="bi bi-arrow-right me-1"></i> Administrar tiendas
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- Supervisores -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4 text-center">
+                    <div class="mb-3"><i class="bi bi-person-badge-fill fs-1 text-warning"></i></div>
+                    <h4 class="fw-bold">Supervisores</h4>
+                    <p class="text-muted">Gestionar supervisores y sus tiendas asignadas.</p>
+                    <a href="/admin/supervisores" class="btn btn-warning w-100">
+                        <i class="bi bi-arrow-right me-1"></i> Administrar supervisores
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- Asesoras -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4 text-center">
+                    <div class="mb-3"><i class="bi bi-person-vcard-fill fs-1 text-danger"></i></div>
+                    <h4 class="fw-bold">Asesoras</h4>
+                    <p class="text-muted">Gestionar asesoras y sus tiendas asignadas.</p>
+                    <a href="/admin/asesoras" class="btn btn-danger w-100">
+                        <i class="bi bi-arrow-right me-1"></i> Administrar asesoras
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- Notificaciones -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4 text-center">
+                    <div class="mb-3"><i class="bi bi-bell-fill fs-1 text-info"></i></div>
+                    <h4 class="fw-bold">Notificaciones</h4>
+                    <p class="text-muted">Enviar avisos a tiendas.</p>
+                    <a href="/notificaciones/admin" class="btn btn-info w-100">
+                        <i class="bi bi-arrow-right me-1"></i> Administrar notificaciones
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- USUARIOS Y ASIGNACIONES -->
+    <div class="card border-0 shadow-sm mt-5">
+        <div class="card-header bg-white border-0 p-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="fw-bold mb-1">Usuarios y asignaciones</h4>
+                    <p class="text-muted mb-0">Consulta rápidamente quién está asociado a cada tienda, supervisor o asesora.</p>
+                </div>
+                <a href="/admin/usuarios" class="btn btn-primary">
+                    <i class="bi bi-list-ul me-1"></i> Ver todos
+                </a>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Correo</th>
+                        <th>Rol</th>
+                        <th>Tienda</th>
+                        <th>Supervisor</th>
+                        <th>Asesora</th>
+                        <th>Estado</th>
+                        <th class="text-end">Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for usuario in lista_usuarios %}
+                    <tr>
+                        <td class="fw-semibold">{{ usuario.nombre }}</td>
+                        <td>{{ usuario.correo }}</td>
+                        <td>
+                            {% if usuario.role %}
+                                <span class="badge bg-primary">{{ usuario.role.nombre }}</span>
+                            {% else %}
+                                <span class="text-muted">Sin rol</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if usuario.store %}
+                                {{ usuario.store.nombre }}
+                            {% else %}
+                                <span class="text-muted">Sin asignar</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if usuario.supervisor %}
+                                {{ usuario.supervisor.nombre }}
+                            {% else %}
+                                <span class="text-muted">Sin asignar</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if usuario.advisor %}
+                                {{ usuario.advisor.nombre }}
+                            {% else %}
+                                <span class="text-muted">Sin asignar</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if usuario.activo %}
+                                <span class="badge bg-success">Activo</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Inactivo</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <a href="/admin/usuarios/{{ usuario.id }}/editar" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-pencil"></i> Editar
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center py-4 text-muted">No hay usuarios registrados.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

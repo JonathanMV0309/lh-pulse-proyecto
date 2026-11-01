@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/trafico.css') }}">{% endblock %}
+{% block contenido %}
+<section class="traffic-page" id="trafficPage" data-url="{{ url_for('trafico.datos') }}">
+  <header class="traffic-heading">
+    <div><p class="traffic-eyebrow"><i class="bi bi-activity"></i> L&H PULSE · INTELIGENCIA DE VISITAS</p><h1>Tráfico y conversión</h1><p>Comprende cuántas personas llegan, cuántas compran y cuáles son los mejores momentos.</p></div>
+    <span class="traffic-source"><i class="bi bi-shield-check"></i> Histórico verificado + actualización diaria</span>
+  </header>
+  <form class="traffic-filters" method="get" action="{{ url_for('trafico.index') }}" id="trafficFilterForm">
+    <div class="traffic-filter-intro"><i class="bi bi-sliders2"></i><div><strong>Consulta fácil</strong><small>Elige una tienda y un período.</small></div></div>
+    <label>Tienda<select name="tienda" class="form-select"><option value="">Todas las autorizadas</option>{% for t in tiendas_trafico %}<option value="{{ t.id }}" {% if filtros_trafico.tienda == t.id %}selected{% endif %}>{{ t.codigo }} · {{ t.nombre }}</option>{% endfor %}</select></label>
+    <label>Período rápido<select id="trafficPeriodPreset" class="form-select"><option value="30">Últimos 30 días</option><option value="7">Últimos 7 días</option><option value="month">Este mes</option><option value="previous-month">Mes anterior</option><option value="custom">Fechas personalizadas</option></select></label>
+    <label>Desde<input type="date" id="trafficFrom" name="desde" value="{{ filtros_trafico.desde }}" required class="form-control"></label>
+    <label>Hasta<input type="date" id="trafficTo" name="hasta" value="{{ filtros_trafico.hasta }}" required class="form-control"></label>
+    <label>Día de la semana<select name="dia" class="form-select"><option value="">Todos los días</option>{% for d in ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'] %}<option value="{{ loop.index0 }}" {% if filtros_trafico.dia == loop.index0 %}selected{% endif %}>{{ d }}</option>{% endfor %}</select></label>
+    <details class="traffic-advanced"><summary><i class="bi bi-gear"></i> Opciones de calidad</summary><label>Datos del sensor<select name="calidad" class="form-select"><option value="validos" {% if filtros_trafico.calidad == 'validos' %}selected{% endif %}>Usar solo datos confiables</option><option value="todos" {% if filtros_trafico.calidad == 'todos' %}selected{% endif %}>Incluir datos marcados con error</option></select></label></details>
+    <button class="btn traffic-button" type="submit"><i class="bi bi-search"></i> Consultar datos</button>
+  </form>
+  <p class="traffic-note"><i class="bi bi-info-circle"></i> Los mapas horarios se generan automáticamente; no necesitas escoger una hora inicial o final.</p>
+  <div id="trafficStatus" class="traffic-status" role="status" aria-live="polite"><span class="spinner-border spinner-border-sm"></span> Preparando información…</div>
+  <div id="trafficResults" hidden>
+    <div class="traffic-kpis">
+      <article class="kpi-visits"><i class="bi bi-people"></i><span>Personas registradas</span><strong id="trafficTotal">—</strong><small>Visitas detectadas por el sensor</small></article>
+      <article class="kpi-invoices"><i class="bi bi-receipt"></i><span>Facturas</span><strong id="invoiceTotal">—</strong><small>Transacciones registradas</small></article>
+      <article class="kpi-conversion"><i class="bi bi-arrow-repeat"></i><span>Conversión</span><strong id="conversionTotal">—</strong><small>De visitantes a compradores</small></article>
+      <article class="kpi-ticket"><i class="bi bi-cash-coin"></i><span>Ticket promedio</span><strong id="ticketAverage">—</strong><small id="ticketCoverage">Se calcula donde coinciden ventas y facturas</small></article>
+    </div>
+    <div class="traffic-insight" id="trafficInsight"><i class="bi bi-lightbulb"></i><div><strong>Lectura rápida</strong><span>Analizando el período seleccionado…</span></div></div>
+    <p id="trafficCoverage" class="traffic-note"></p>
+    <article class="traffic-panel traffic-chart-panel"><div class="traffic-panel-heading"><div><span class="traffic-kicker">TENDENCIA</span><h2>Evolución diaria</h2><p>Personas, facturas y conversión durante el período.</p></div></div><div class="traffic-chart"><canvas id="trafficChart"></canvas></div><p id="trafficChartFallback" hidden>La gráfica no pudo cargarse. Los valores siguen disponibles en la tabla diaria.</p></article>
+    <article class="traffic-panel"><div class="traffic-panel-heading"><div><span class="traffic-kicker">COMPARACIÓN</span><h2>Frente al año anterior</h2><p id="comparisonPeriod">Mismas fechas del año anterior.</p></div></div><div id="yearComparison" class="traffic-scroll" tabindex="0"></div><p class="traffic-note">«—» indica que no existe una base comparable para calcular la variación.</p></article>
+    <article class="traffic-panel"><div class="traffic-panel-heading"><div><span class="traffic-kicker">MOMENTOS CLAVE</span><h2>¿Dónde y cuándo hay más actividad?</h2><p>El color más intenso representa una mayor cantidad acumulada.</p></div><label>Indicador<select id="heatMetric" class="form-select"><option value="trafico">Personas</option><option value="facturas">Facturas</option></select></label></div><p id="heatPeak" class="traffic-peak"></p><h3>Día de semana × hora</h3><div id="weekHeat" class="traffic-scroll" tabindex="0"></div><h3 class="mt-4">Tienda × hora</h3><div id="storeHeat" class="traffic-scroll" tabindex="0"></div><p class="traffic-note">Solo aparecen las horas que tienen información registrada. «—» significa que no existe un dato.</p></article>
+    <article class="traffic-panel"><div class="traffic-panel-heading"><div><span class="traffic-kicker">TIENDAS</span><h2>Mayor actividad</h2><p>Ordenadas por el indicador escogido en el mapa.</p></div></div><div id="trafficRanking" class="traffic-scroll" tabindex="0"></div></article>
+    <article class="traffic-panel"><div class="traffic-panel-heading"><div><span class="traffic-kicker">DETALLE</span><h2>Información por fecha</h2><p>Consulta los valores exactos utilizados en las gráficas.</p></div></div><div id="trafficDaily" class="traffic-scroll" tabindex="0"></div></article>
+    <details class="traffic-method"><summary>¿Cómo se calculan estos indicadores?</summary><p>Hasta el corte histórico, el tráfico proviene de Cuenta_Personas. Después se incorporan automáticamente los totales diarios del Excel principal.</p><p>La conversión divide facturas comparables entre visitas comparables. El ticket promedio divide las ventas disponibles entre las facturas de los mismos días y tiendas; la cobertura se muestra junto al resultado.</p><p>Los registros marcados con error se excluyen inicialmente para proteger la lectura.</p></details>
+  </div>
+</section>
+{% endblock %}
+{% block extra_js %}<script src="{{ url_for('static', filename='js/trafico.js') }}" defer></script>{% endblock %}

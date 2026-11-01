@@ -1,0 +1,1674 @@
+/* ===== RESET & BASE ===== */
+body {
+    margin: 0;
+    background: #F7F5F2;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #222222;
+    padding-top: 80px; /* altura del navbar */
+}
+
+/* ===== TIPOGRAFÍA ===== */
+h1, h2, h3, h4, h5, h6,
+.hero-title,
+.brand-text {
+    font-family: 'Playfair Display', serif;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+}
+
+/* ===== NAVBAR PREMIUM ===== */
+.navbar {
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+    background: rgba(255,255,255,0.8) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 0.75rem 0;
+}
+
+.brand-text {
+    font-size: 1.8rem;
+    color: #222222;
+    letter-spacing: 2px;
+    font-weight: 700;
+}
+
+/* Nuevos estilos para los enlaces del navbar: píldoras elegantes */
+.navbar .nav-link {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    color: #555555;
+    padding: 0.6rem 1.2rem;
+    border-radius: 40px; /* completamente redondeado */
+    transition: all 0.25s ease;
+    margin: 0 0.15rem;
+}
+
+.navbar .nav-link i {
+    font-size: 1.2rem;
+    vertical-align: middle;
+}
+
+.navbar .nav-link:hover {
+    color: #222222;
+    background: rgba(197, 168, 128, 0.15);
+    transform: translateY(-1px);
+}
+
+.navbar .nav-link.active {
+    color: #FFFFFF;
+    background-color: #C5A880;
+    box-shadow: 0 4px 12px rgba(197, 168, 128, 0.3);
+}
+
+.navbar .nav-link.active:hover {
+    background-color: #b8946e;
+    color: #FFFFFF;
+}
+
+/* Dropdown de usuario */
+.navbar .dropdown-menu {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+}
+
+/* ===== CARDS GENÉRICAS ===== */
+.premium-card {
+    border: none;
+    border-radius: 20px;
+    background: #FFFFFF;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.premium-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.07);
+}
+
+/* ===== UTILIDADES ===== */
+.main-content {
+    min-height: calc(100vh - 80px);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .brand-text {
+        font-size: 1.5rem;
+    }
+    .navbar .nav-link {
+        border-radius: 12px; /* menos redondeo en móvil pero aún píldora */
+        margin-bottom: 4px;
+    }
+}
+
+/* ==========================================================
+   L&H SCORE - NAVBAR FUTURISTA
+   ========================================================== */
+
+:root {
+    --lh-blue: #2563eb;
+    --lh-blue-dark: #1d4ed8;
+    --lh-blue-light: #eff6ff;
+    --lh-cyan: #06b6d4;
+
+    --lh-dark: #0f172a;
+    --lh-text: #334155;
+    --lh-muted: #64748b;
+
+    --lh-border: #e2e8f0;
+    --lh-white: #ffffff;
+
+    --lh-shadow:
+        0 10px 30px rgba(15, 23, 42, 0.07);
+
+    --lh-shadow-hover:
+        0 15px 35px rgba(37, 99, 235, 0.14);
+}
+
+
+/* ==========================================================
+   BODY
+   ========================================================== */
+
+body {
+    background:
+        radial-gradient(
+            circle at 15% 10%,
+            rgba(37, 99, 235, 0.035),
+            transparent 28%
+        ),
+        radial-gradient(
+            circle at 85% 5%,
+            rgba(6, 182, 212, 0.025),
+            transparent 25%
+        ),
+        #f8fafc;
+
+    color: var(--lh-text);
+
+    font-family: "Inter", sans-serif;
+
+    margin: 0;
+}
+
+
+/* ==========================================================
+   NAVBAR
+   ========================================================== */
+
+.lh-navbar {
+    position: sticky;
+
+    top: 0;
+
+    z-index: 1050;
+
+    width: 100%;
+
+    background: rgba(255, 255, 255, 0.94);
+
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+
+    box-shadow:
+        0 5px 25px rgba(15, 23, 42, 0.045);
+}
+
+
+.lh-navbar-container {
+
+    width: min(1500px, 94%);
+
+    min-height: 78px;
+
+    margin: 0 auto;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 25px;
+}
+
+
+/* ==========================================================
+   BRAND
+   ========================================================== */
+
+.lh-brand {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 11px;
+
+    text-decoration: none;
+
+    color: var(--lh-dark);
+
+    flex-shrink: 0;
+}
+
+
+.lh-brand:hover {
+    color: var(--lh-dark);
+}
+
+
+.lh-brand-mark {
+
+    width: 42px;
+    height: 42px;
+
+    border-radius: 13px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--lh-blue),
+            var(--lh-cyan)
+        );
+
+    color: white;
+
+    font-weight: 800;
+
+    font-size: 12px;
+
+    letter-spacing: -0.5px;
+
+    box-shadow:
+        0 7px 18px rgba(37, 99, 235, 0.24);
+
+    position: relative;
+
+    overflow: hidden;
+}
+
+
+.lh-brand-mark::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 22px;
+    height: 22px;
+
+    border-radius: 50%;
+
+    background: rgba(255,255,255,0.16);
+
+    top: -8px;
+    right: -7px;
+}
+
+
+.lh-brand-mark span {
+    position: relative;
+    z-index: 2;
+}
+
+
+.lh-brand-info {
+
+    display: flex;
+
+    flex-direction: column;
+
+    line-height: 1;
+}
+
+
+.lh-brand-name {
+
+    font-size: 16px;
+
+    font-weight: 800;
+
+    letter-spacing: -0.5px;
+}
+
+
+.lh-brand-subtitle {
+
+    margin-top: 5px;
+
+    color: var(--lh-muted);
+
+    font-size: 8px;
+
+    font-weight: 700;
+
+    letter-spacing: 1.6px;
+}
+
+
+/* ==========================================================
+   MENU
+   ========================================================== */
+
+.lh-menu {
+
+    flex: 1;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+}
+
+
+.lh-nav-list {
+
+    list-style: none;
+
+    margin: 0;
+    padding: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 4px;
+}
+
+
+.lh-nav-item {
+    position: relative;
+}
+
+
+.lh-nav-link {
+
+    border: 0;
+
+    background: transparent;
+
+    text-decoration: none;
+
+    color: #475569;
+
+    min-height: 42px;
+
+    padding: 0 13px;
+
+    border-radius: 11px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease;
+
+    white-space: nowrap;
+}
+
+
+.lh-nav-link i:first-child {
+
+    font-size: 15px;
+
+    color: #64748b;
+
+    transition: color 0.2s ease;
+}
+
+
+.lh-nav-link:hover {
+
+    color: var(--lh-blue);
+
+    background: var(--lh-blue-light);
+
+}
+
+
+.lh-nav-link:hover i:first-child {
+
+    color: var(--lh-blue);
+}
+
+
+.lh-nav-link.active {
+
+    color: var(--lh-blue);
+
+    background:
+        linear-gradient(
+            135deg,
+            #eff6ff,
+            #f0f9ff
+        );
+
+    box-shadow:
+        inset 0 0 0 1px rgba(37, 99, 235, 0.08);
+}
+
+
+.lh-nav-link.active i:first-child {
+    color: var(--lh-blue);
+}
+
+
+/* ==========================================================
+   CHEVRON
+   ========================================================== */
+
+.lh-chevron {
+
+    font-size: 10px !important;
+
+    margin-left: 2px;
+
+    color: #94a3b8 !important;
+
+    transition:
+        transform 0.2s ease;
+}
+
+
+.lh-dropdown.show .lh-chevron {
+
+    transform: rotate(180deg);
+
+}
+
+
+/* ==========================================================
+   DROPDOWN
+   ========================================================== */
+
+.lh-dropdown-menu {
+
+    min-width: 270px;
+
+    padding: 8px;
+
+    margin-top: 9px !important;
+
+    border: 1px solid var(--lh-border);
+
+    border-radius: 16px;
+
+    background: rgba(255,255,255,0.98);
+
+    box-shadow:
+        0 20px 50px rgba(15, 23, 42, 0.13);
+
+    animation:
+        lhDropdownIn 0.18s ease;
+}
+
+
+@keyframes lhDropdownIn {
+
+    from {
+
+        opacity: 0;
+
+        transform:
+            translateY(-5px)
+            scale(0.98);
+
+    }
+
+    to {
+
+        opacity: 1;
+
+        transform:
+            translateY(0)
+            scale(1);
+
+    }
+
+}
+
+
+.lh-dropdown-menu .dropdown-item {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 11px 12px;
+
+    border-radius: 11px;
+
+    color: var(--lh-text);
+
+    transition:
+        background 0.18s ease,
+        transform 0.18s ease;
+}
+
+
+.lh-dropdown-menu .dropdown-item:hover {
+
+    background: var(--lh-blue-light);
+
+    color: var(--lh-dark);
+
+    transform: translateX(2px);
+}
+
+
+.lh-menu-icon {
+
+    width: 38px;
+    height: 38px;
+
+    border-radius: 10px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    background: #f1f5f9;
+
+    color: var(--lh-blue);
+
+    flex-shrink: 0;
+}
+
+
+.lh-dropdown-menu .dropdown-item:hover
+.lh-menu-icon {
+
+    background: white;
+}
+
+
+.lh-dropdown-menu .dropdown-item span:last-child {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+}
+
+
+.lh-dropdown-menu strong {
+
+    font-size: 13px;
+
+    font-weight: 700;
+}
+
+
+.lh-dropdown-menu small {
+
+    font-size: 11px;
+
+    color: var(--lh-muted);
+}
+
+
+/* ==========================================================
+   USER AREA
+   ========================================================== */
+
+.lh-user-area {
+
+    display: flex;
+
+    align-items: center;
+
+    margin-left: auto;
+}
+
+
+.lh-user-divider {
+
+    width: 1px;
+
+    height: 34px;
+
+    background: var(--lh-border);
+
+    margin-right: 14px;
+}
+
+
+.lh-user-button {
+
+    border: 0;
+
+    background: transparent;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    padding: 5px 7px;
+
+    border-radius: 13px;
+
+    transition:
+        background 0.2s ease;
+}
+
+
+.lh-user-button:hover {
+
+    background: #f8fafc;
+}
+
+
+.lh-user-button::after {
+
+    display: none;
+}
+
+
+.lh-user-avatar {
+
+    width: 37px;
+    height: 37px;
+
+    border-radius: 11px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    background:
+        linear-gradient(
+            135deg,
+            #dbeafe,
+            #cffafe
+        );
+
+    color: var(--lh-blue);
+
+    border: 1px solid #bfdbfe;
+
+    flex-shrink: 0;
+}
+
+
+.lh-user-avatar.large {
+
+    width: 42px;
+    height: 42px;
+
+    border-radius: 12px;
+}
+
+
+.lh-user-data {
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    line-height: 1.2;
+
+    max-width: 145px;
+}
+
+
+.lh-user-data strong {
+
+    font-size: 12px;
+
+    color: var(--lh-dark);
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+
+    max-width: 145px;
+}
+
+
+.lh-user-data small {
+
+    font-size: 10px;
+
+    color: var(--lh-muted);
+
+    margin-top: 2px;
+}
+
+
+.lh-user-chevron {
+
+    font-size: 10px;
+
+    color: #94a3b8;
+
+    margin-left: 2px;
+}
+
+
+/* ==========================================================
+   USER DROPDOWN
+   ========================================================== */
+
+.lh-user-menu {
+
+    min-width: 260px;
+
+    padding: 8px;
+
+    margin-top: 8px !important;
+
+    border: 1px solid var(--lh-border);
+
+    border-radius: 16px;
+
+    box-shadow:
+        0 20px 50px rgba(15, 23, 42, 0.13);
+}
+
+
+.lh-user-menu-header {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 11px;
+
+    padding: 10px 9px 12px;
+}
+
+
+.lh-user-menu-header > div:last-child {
+
+    display: flex;
+
+    flex-direction: column;
+
+    min-width: 0;
+}
+
+
+.lh-user-menu-header strong {
+
+    font-size: 13px;
+
+    color: var(--lh-dark);
+}
+
+
+.lh-user-menu-header small {
+
+    font-size: 10px;
+
+    color: var(--lh-muted);
+
+    margin-top: 3px;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+
+    max-width: 180px;
+}
+
+
+.lh-user-menu .dropdown-item {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 10px 11px;
+
+    border-radius: 10px;
+
+    font-size: 13px;
+
+    font-weight: 500;
+}
+
+
+.lh-user-menu .dropdown-item i {
+
+    width: 18px;
+
+    color: #64748b;
+}
+
+
+.lh-user-menu .dropdown-item:hover {
+
+    background: var(--lh-blue-light);
+
+    color: var(--lh-blue);
+}
+
+
+.lh-user-menu .dropdown-item:hover i {
+
+    color: var(--lh-blue);
+}
+
+
+.lh-user-menu .lh-logout:hover {
+
+    background: #fef2f2;
+
+    color: #dc2626;
+}
+
+
+.lh-user-menu .lh-logout:hover i {
+
+    color: #dc2626;
+}
+
+
+/* ==========================================================
+   MOBILE BUTTON
+   ========================================================== */
+
+.lh-mobile-toggle {
+
+    display: none;
+
+    margin-left: auto;
+
+    width: 42px;
+    height: 42px;
+
+    border: 1px solid var(--lh-border);
+
+    border-radius: 11px;
+
+    background: white;
+
+    color: var(--lh-dark);
+
+    font-size: 22px;
+}
+
+
+/* ==========================================================
+   MAIN
+   ========================================================== */
+
+.lh-main-content {
+
+    min-height: calc(100vh - 78px);
+
+    padding-top: 26px;
+
+    padding-bottom: 50px;
+}
+
+
+/* ==========================================================
+   RESPONSIVE
+   ========================================================== */
+
+@media (max-width: 1100px) {
+
+    .lh-navbar-container {
+
+        width: 96%;
+
+    }
+
+    .lh-nav-link {
+
+        padding-left: 9px;
+        padding-right: 9px;
+
+        font-size: 12px;
+
+    }
+
+    .lh-brand-subtitle {
+
+        display: none;
+
+    }
+
+    .lh-user-data {
+
+        display: none;
+
+    }
+
+}
+
+
+@media (max-width: 991px) {
+
+    .lh-navbar-container {
+
+        min-height: 70px;
+
+        flex-wrap: wrap;
+
+    }
+
+
+    .lh-mobile-toggle {
+
+        display: flex;
+
+        align-items: center;
+        justify-content: center;
+
+    }
+
+
+    .lh-menu {
+
+        width: 100%;
+
+        flex-basis: 100%;
+
+        padding: 10px 0 15px;
+
+    }
+
+
+    .lh-nav-list {
+
+        width: 100%;
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+    }
+
+
+    .lh-nav-item {
+
+        width: 100%;
+
+    }
+
+
+    .lh-nav-link {
+
+        width: 100%;
+
+        justify-content: flex-start;
+
+        min-height: 46px;
+
+    }
+
+
+    .lh-user-area {
+
+        width: 100%;
+
+        margin-top: 8px;
+
+        padding-top: 10px;
+
+        border-top: 1px solid var(--lh-border);
+
+    }
+
+
+    .lh-user-divider {
+
+        display: none;
+
+    }
+
+
+    .lh-user-data {
+
+        display: flex;
+
+    }
+
+
+    .lh-user-button {
+
+        width: 100%;
+
+        justify-content: flex-start;
+
+    }
+
+
+    .lh-user-chevron {
+
+        margin-left: auto;
+
+    }
+
+
+    .lh-dropdown-menu {
+
+        width: 100%;
+
+        margin-top: 3px !important;
+
+        box-shadow: none;
+
+        border: 1px solid #e2e8f0;
+
+    }
+
+
+    .lh-main-content {
+
+        padding-top: 15px;
+
+    }
+
+}
+
+
+@media (max-width: 500px) {
+
+    .lh-brand-info {
+
+        display: none;
+
+    }
+
+    .lh-brand-mark {
+
+        width: 40px;
+        height: 40px;
+
+    }
+
+}
+
+/* ==========================================================
+   L&H SCORE - NAVBAR FUTURISTA
+   ========================================================== */
+
+body {
+    background: #f4f7fb;
+    color: #172033;
+    font-family: "Inter", sans-serif;
+}
+
+
+.lh-navbar {
+    min-height: 72px;
+    background: rgba(255, 255, 255, .94) !important;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-bottom: 1px solid rgba(37, 99, 235, .08);
+    box-shadow: 0 8px 30px rgba(15, 23, 42, .06);
+}
+
+
+.lh-brand {
+    display: flex !important;
+    align-items: center;
+    gap: 10px;
+    color: #172033 !important;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+
+.brand-mark {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 11px;
+    background: linear-gradient(
+        135deg,
+        #2563eb,
+        #38bdf8
+    );
+    color: white;
+    font-size: .72rem;
+    font-weight: 800;
+    box-shadow: 0 7px 18px rgba(37, 99, 235, .25);
+}
+
+
+.brand-text {
+    font-family: "Space Grotesk", sans-serif;
+    letter-spacing: -.3px;
+}
+
+
+.brand-text b {
+    color: #2563eb;
+}
+
+
+.lh-nav-link {
+    display: flex !important;
+    align-items: center;
+    gap: 7px;
+    min-height: 42px;
+    padding: 8px 12px !important;
+    border-radius: 10px;
+    color: #526174 !important;
+    font-size: .84rem;
+    font-weight: 600;
+    transition: .2s ease;
+}
+
+
+.lh-nav-link i {
+    color: #2563eb;
+    font-size: 1rem;
+}
+
+
+.lh-nav-link:hover,
+.lh-nav-link:focus {
+    background: #eff6ff;
+    color: #2563eb !important;
+}
+
+
+.lh-user {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    color: #526174 !important;
+    font-size: .82rem;
+    font-weight: 600;
+}
+
+
+.lh-user-icon {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+
+.lh-dropdown {
+    min-width: 220px;
+    margin-top: 10px !important;
+    padding: 8px;
+    border: 1px solid rgba(37, 99, 235, .1);
+    border-radius: 14px;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, .12);
+}
+
+
+.lh-dropdown .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 9px;
+    color: #526174;
+    font-size: .84rem;
+}
+
+
+.lh-dropdown .dropdown-item i {
+    width: 18px;
+    color: #2563eb;
+}
+
+
+.lh-dropdown .dropdown-item:hover {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+
+.lh-dropdown .dropdown-item.text-danger i {
+    color: #dc2626;
+}
+
+
+.main-content {
+    padding-top: 90px;
+    min-height: 100vh;
+}
+
+
+@media (max-width: 991px) {
+
+    .lh-navbar {
+        min-height: 64px;
+    }
+
+    .lh-nav-link {
+        margin-top: 3px;
+    }
+
+    .lh-user-name {
+        display: inline;
+    }
+
+    .lh-dropdown {
+        box-shadow: 0 12px 30px rgba(15, 23, 42, .1);
+    }
+
+}
+
+/* =========================================================
+   L&H SCORE - SIDEBAR
+========================================================= */
+
+.lh-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 260px;
+    height: 100vh;
+
+    background: linear-gradient(
+        180deg,
+        #071a35 0%,
+        #0a2345 50%,
+        #0d2d55 100%
+    );
+
+    color: #ffffff;
+
+    z-index: 1050;
+
+    display: flex;
+    flex-direction: column;
+
+    box-shadow: 8px 0 30px rgba(0, 0, 0, 0.12);
+
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+
+/* =========================================================
+   LOGO
+========================================================= */
+
+.lh-sidebar-brand {
+    height: 75px;
+
+    display: flex;
+    align-items: center;
+
+    padding: 0 22px;
+
+    text-decoration: none;
+
+    color: #ffffff;
+
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+
+    flex-shrink: 0;
+}
+
+.lh-sidebar-brand:hover {
+    color: #ffffff;
+}
+
+.lh-brand-icon {
+    width: 38px;
+    height: 38px;
+
+    border-radius: 11px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: linear-gradient(
+        135deg,
+        #1e88ff,
+        #00b8ff
+    );
+
+    margin-right: 11px;
+
+    box-shadow: 0 5px 18px rgba(0, 184, 255, 0.25);
+}
+
+.lh-brand-text {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+}
+
+
+/* =========================================================
+   NAVEGACIÓN
+========================================================= */
+
+.lh-sidebar-nav {
+
+    width: 100%;
+
+    padding: 18px 12px;
+
+    display: flex !important;
+
+    flex-direction: column !important;
+
+    align-items: stretch !important;
+
+    gap: 5px;
+
+    flex: 1;
+}
+
+
+/* MUY IMPORTANTE:
+   Evita que Bootstrap convierta los elementos en fila
+*/
+
+.lh-sidebar-nav ul,
+.lh-sidebar-nav .navbar-nav {
+
+    width: 100%;
+
+    display: flex !important;
+
+    flex-direction: column !important;
+
+    align-items: stretch !important;
+
+    gap: 5px;
+
+    margin: 0;
+    padding: 0;
+
+    list-style: none;
+}
+
+.lh-sidebar-nav li {
+
+    width: 100%;
+
+    display: block !important;
+
+    margin: 0;
+
+    padding: 0;
+}
+
+
+/* =========================================================
+   BOTONES PRINCIPALES
+========================================================= */
+
+.lh-nav-link {
+
+    width: 100%;
+
+    min-height: 46px;
+
+    display: flex !important;
+
+    align-items: center;
+
+    justify-content: flex-start;
+
+    gap: 12px;
+
+    padding: 11px 14px;
+
+    border-radius: 10px;
+
+    color: rgba(255,255,255,0.72);
+
+    text-decoration: none;
+
+    font-size: 14px;
+
+    font-weight: 500;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease;
+
+    box-sizing: border-box;
+}
+
+.lh-nav-link i {
+
+    width: 22px;
+
+    min-width: 22px;
+
+    text-align: center;
+
+    font-size: 18px;
+}
+
+.lh-nav-link:hover {
+
+    color: #ffffff;
+
+    background: rgba(255,255,255,0.08);
+
+    transform: translateX(2px);
+}
+
+.lh-nav-link.active {
+
+    color: #ffffff;
+
+    background: linear-gradient(
+        90deg,
+        rgba(30,136,255,0.30),
+        rgba(0,184,255,0.12)
+    );
+
+    box-shadow:
+        inset 3px 0 0 #1e88ff;
+}
+
+
+/* =========================================================
+   SUBMENÚ
+========================================================= */
+
+.lh-submenu {
+
+    width: 100%;
+
+    display: flex !important;
+
+    flex-direction: column !important;
+
+    gap: 3px;
+
+    padding: 4px 0 5px 0;
+
+    margin: 0;
+
+    list-style: none;
+}
+
+.lh-submenu li {
+
+    width: 100%;
+
+    display: block !important;
+}
+
+.lh-submenu a {
+
+    width: 100%;
+
+    min-height: 38px;
+
+    display: flex !important;
+
+    align-items: center;
+
+    padding: 8px 12px 8px 48px;
+
+    box-sizing: border-box;
+
+    color: rgba(255,255,255,0.55);
+
+    text-decoration: none;
+
+    font-size: 13px;
+
+    border-radius: 8px;
+
+    transition: all 0.2s ease;
+}
+
+.lh-submenu a:hover {
+
+    color: #ffffff;
+
+    background: rgba(255,255,255,0.06);
+}
+
+.lh-submenu a.active {
+
+    color: #5dc8ff;
+
+    background: rgba(30,136,255,0.10);
+}
+
+
+/* =========================================================
+   SEPARADORES
+========================================================= */
+
+.lh-nav-section {
+
+    padding: 16px 14px 7px;
+
+    color: rgba(255,255,255,0.32);
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    letter-spacing: 1.3px;
+
+    text-transform: uppercase;
+}
+
+
+/* =========================================================
+   USUARIO
+========================================================= */
+
+.lh-sidebar-user {
+
+    padding: 14px;
+
+    border-top: 1px solid rgba(255,255,255,0.08);
+
+    flex-shrink: 0;
+}
+
+.lh-user-box {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 10px;
+
+    border-radius: 10px;
+
+    background: rgba(255,255,255,0.05);
+}
+
+.lh-user-avatar {
+
+    width: 36px;
+    height: 36px;
+
+    min-width: 36px;
+
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: linear-gradient(
+        135deg,
+        #1e88ff,
+        #00b8ff
+    );
+
+    color: #ffffff;
+}
+
+.lh-user-info {
+
+    min-width: 0;
+}
+
+.lh-user-name {
+
+    color: #ffffff;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+}
+
+.lh-user-role {
+
+    color: rgba(255,255,255,0.45);
+
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   CONTENIDO
+========================================================= */
+
+.lh-main-content {
+
+    margin-left: 260px;
+
+    min-height: 100vh;
+
+    padding: 25px 30px;
+
+    background: #f5f8fc;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 991px) {
+
+    .lh-sidebar {
+
+        width: 235px;
+
+        transform: translateX(-100%);
+
+        transition: transform 0.25s ease;
+    }
+
+    .lh-sidebar.show {
+
+        transform: translateX(0);
+    }
+
+    .lh-main-content {
+
+        margin-left: 0;
+
+        padding: 20px 15px;
+    }
+}

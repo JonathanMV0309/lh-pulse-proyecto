@@ -1,0 +1,27 @@
+{% extends "dashboard.html" %}
+
+{% block extra_css %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard_admin_v2/dashboard-v2.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tienda_animaciones.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tienda_movil.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_movil.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_animaciones.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard_admin_v2/graficas-premium.css') }}">
+{% endblock %}
+
+{% block extra_js %}
+    {{ super() }}
+    <script id="dashboard-v2-data" type="application/json">
+    {
+        "ranking": {{ ranking_completo | default([], true) | tojson }},
+        "lineas": {{ evolucion_lineas_global | default([], true) | tojson }}
+    }
+    </script>
+    <script src="{{ url_for('static', filename='dashboard_admin_v2/dashboard-v2.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/tienda_animaciones.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/tienda_movil.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/admin_animaciones.js') }}"></script>
+    <script src="{{ url_for('static', filename='dashboard_admin_v2/graficas-premium.js') }}"></script>
+    <script src="{{ url_for('static', filename='hilo3d/hilo_red.js') }}?v=1"></script>
+{% endblock %}

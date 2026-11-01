@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+
+{% block contenido %}
+<style>
+  .nv { --nv-ink:#2D2A26; --nv-muted:#6B6259; --nv-line:rgba(139,125,107,.22); --nv-card:#FDFBF7; --nv-cream:#F5F0E8; --nv-gold:#A8865A; color:var(--nv-ink); }
+  .nv-cab { display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:12px; margin-bottom:16px; }
+  .nv-cab h1 { margin:0; font:800 24px Inter,sans-serif; display:flex; gap:10px; align-items:center; } .nv-cab h1 i { color:var(--nv-gold); }
+  .nv-cab p { margin:4px 0 0; color:var(--nv-muted); font-size:14px; max-width:720px; }
+  .nv-filtros { display:flex; flex-wrap:wrap; gap:10px; align-items:flex-end; padding:14px 16px; border-radius:16px; background:var(--nv-card); border:1px solid var(--nv-line); margin-bottom:14px; }
+  .nv-filtros label { display:grid; gap:4px; font:700 11px Inter,sans-serif; letter-spacing:.06em; text-transform:uppercase; color:var(--nv-muted); }
+  .nv-filtros select, .nv-filtros input { min-width:170px; }
+  .nv-resumen { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px; margin-bottom:14px; }
+  .nv-kpi { padding:12px 16px; border-radius:14px; background:var(--nv-card); border:1px solid var(--nv-line); }
+  .nv-kpi span { display:block; color:var(--nv-muted); font:700 11px Inter,sans-serif; letter-spacing:.06em; text-transform:uppercase; }
+  .nv-kpi b { font:800 22px Inter,sans-serif; }
+  .nv-tabla-caja { overflow-x:auto; border-radius:16px; background:var(--nv-card); border:1px solid var(--nv-line); }
+  .nv-tabla { width:100%; border-collapse:collapse; font-size:14px; }
+  .nv-tabla th { padding:10px 12px; background:var(--nv-cream); color:var(--nv-muted); font:700 11.5px Inter,sans-serif; letter-spacing:.05em; text-transform:uppercase; text-align:left; white-space:nowrap; }
+  .nv-tabla td { padding:10px 12px; border-top:1px solid var(--nv-line); vertical-align:top; }
+  .nv-tabla td.num { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .nv-tabla small { display:block; color:var(--nv-muted); }
+  .nv-tipo { display:inline-block; padding:3px 10px; border-radius:999px; font-size:12.5px; font-weight:700; background:#EEE6D8; white-space:nowrap; }
+  .nv-tipo.ausencia { background:#FBE6DF; color:#8A3B30; } .nv-tipo.movimiento { background:#E3ECF7; color:#24476B; }
+  .nv-obs { max-width:280px; color:var(--nv-muted); font-size:13px; }
+  .nv-acc { white-space:nowrap; } .nv-acc button { border:0; background:transparent; color:var(--nv-muted); padding:4px 6px; border-radius:8px; } .nv-acc button:hover { background:var(--nv-cream); color:var(--nv-ink); }
+  .nv-vacio { padding:40px 16px; text-align:center; color:var(--nv-muted); }
+  .nv-modal { position:fixed; inset:0; z-index:3000; display:grid; place-items:center; padding:16px; background:rgba(29,25,21,.45); }
+  .nv-modal[hidden] { display:none; }
+  .nv-caja { width:min(620px,100%); max-height:calc(100vh - 32px); overflow:auto; padding:20px 22px; border-radius:20px; background:#fff; box-shadow:0 30px 70px rgba(0,0,0,.3); }
+  .nv-caja h3 { margin:0 0 12px; font:800 19px Inter,sans-serif; }
+  .nv-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .nv-grid .ancho { grid-column:1/-1; }
+  .nv-grid label { display:grid; gap:4px; font:600 13px Inter,sans-serif; }
+  .nv-nota { color:var(--nv-muted); font-size:12.5px; margin:4px 0 0; }
+  .nv-nueva { padding:12px 14px; border-radius:14px; background:#F5F0E8; border:1px dashed rgba(139,125,107,.45); }
+  .nv-nueva > b { display:block; margin-bottom:8px; font-size:13.5px; }
+  .nv-error { color:#B55A4E; font-weight:600; font-size:13.5px; min-height:20px; margin:10px 0 0; }
+  @media (max-width:640px) { .nv-grid { grid-template-columns:1fr; } }
+</style>
+
+<div class="container-fluid mt-4 px-4 nv">
+  <div class="nv-cab">
+    <div>
+      <h1><i class="bi bi-person-lines-fill" aria-hidden="true"></i> {% if rol == 'tienda' %}Novedades de mi equipo{% else %}Novedades del personal{% endif %}</h1>
+      <p>
+        {% if rol == 'editor' %}Registra incapacidades, vacaciones, permisos, licencias, traslados, ingresos y retiros. Las tiendas ven las de su gente para tenerlas en cuenta en sus horarios; las observaciones solo las ve Talento Humano.
+        {% elif rol == 'lector' %}Ausencias del personal por tienda: de qué día a qué día y cuántas horas.
+        {% else %}Lo que Talento Humano registró de tu equipo. Tenlo en cuenta al armar los horarios.{% endif %}
+      </p>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <a class="btn btn-outline-success" id="nvExcel" href="/novedades/exportar"><i class="bi bi-file-earmark-excel"></i> Descargar Excel</a>
+      {% if rol == 'editor' %}<button type="button" class="btn btn-dark" id="nvNueva"><i class="bi bi-plus-lg"></i> Nueva novedad</button>{% endif %}
+    </div>
+  </div>
+
+  <div class="nv-filtros">
+    <label>Mes<input type="month" id="nvMes" class="form-control form-control-sm"></label>
+    {% if rol != 'tienda' %}
+    <label>Tienda<select id="nvTienda" class="form-select form-select-sm"><option value="">Todas</option>{% for t in tiendas %}<option value="{{ t.id }}">{{ t.codigo }} · {{ t.nombre }}</option>{% endfor %}</select></label>
+    {% endif %}
+    {% if rol != 'lector' %}
+    <label>Tipo<select id="nvTipo" class="form-select form-select-sm"><option value="">Todos</option>{% for t in tipos %}<option value="{{ t.clave }}">{{ t.nombre }}</option>{% endfor %}</select></label>
+    {% endif %}
+  </div>
+
+  <div class="nv-resumen" id="nvResumen"></div>
+  <div class="nv-tabla-caja"><table class="nv-tabla"><thead id="nvCabeza"></thead><tbody id="nvCuerpo"><tr><td class="nv-vacio">Cargando…</td></tr></tbody></table></div>
+</div>
+
+{% if rol == 'editor' %}
+<div class="nv-modal" id="nvModal" hidden>
+  <form class="nv-caja" id="nvForm" role="dialog" aria-modal="true" aria-labelledby="nvTitulo">
+    <h3 id="nvTitulo">Nueva novedad</h3>
+    <input type="hidden" name="id">
+    <div class="nv-grid">
+      <label class="ancho">Tipo de novedad<select name="tipo" class="form-select" required><option value="">Elige…</option>{% for t in tipos %}<option value="{{ t.clave }}">{{ t.nombre }}</option>{% endfor %}</select></label>
+      <label>Tienda<select name="store_id" class="form-select" required><option value="">Elige…</option>{% for t in tiendas %}<option value="{{ t.id }}">{{ t.codigo }} · {{ t.nombre }}</option>{% endfor %}</select></label>
+      <label id="nvPersonaCaja">Persona<select name="persona" class="form-select"><option value="">Primero elige la tienda</option></select></label>
+      <div class="ancho nv-nueva" id="nvNuevaCaja" hidden>
+        <b>Persona nueva en esta tienda</b>
+        <div class="nv-grid">
+          <label class="ancho">Nombre completo<input name="nueva_nombre" class="form-control" maxlength="120" placeholder="Nombres y apellidos"></label>
+          <label>Cargo<select name="nueva_cargo" class="form-select"><option>Asesora</option><option>Auxiliar</option><option>Subadministradora</option><option>Segunda</option><option>Asesora volante</option></select></label>
+          <label>Cédula (opcional)<input name="nueva_cedula" class="form-control" inputmode="numeric" maxlength="20"></label>
+        </div>
+        <p class="nv-nota">Queda asignada a la tienda y aparece en sus «Horarios del equipo».</p>
+      </div>
+      <label id="nvDestinoCaja" class="ancho" hidden>Se traslada a<select name="tienda_destino_id" class="form-select"><option value="">Elige…</option>{% for t in tiendas %}<option value="{{ t.id }}">{{ t.codigo }} · {{ t.nombre }}</option>{% endfor %}</select></label>
+      <label>Desde<input type="date" name="desde" class="form-control" required></label>
+      <label>Hasta<input type="date" name="hasta" class="form-control"></label>
+      <label id="nvHorasCaja" class="ancho">Horas de ausencia<input type="number" name="horas" class="form-control" min="0" step="0.5"><span class="nv-nota" id="nvHorasNota"></span></label>
+      <label class="ancho">Observaciones (solo las ve Talento Humano)<textarea name="observacion" class="form-control" rows="3" maxlength="500" placeholder="Número de incapacidad, quién autorizó, detalles…"></textarea></label>
+    </div>
+    <p class="nv-error" id="nvError" aria-live="polite"></p>
+    <div class="d-flex justify-content-end gap-2 mt-2">
+      <button type="button" class="btn btn-outline-secondary" data-cerrar>Cancelar</button>
+      <button type="submit" class="btn btn-dark">Guardar</button>
+    </div>
+  </form>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script id="nvConfig" type="application/json">{{ {"rol": rol, "tipos": tipos, "horasDia": horas_dia}|tojson }}</script>
+<script>
+(function () {
+  'use strict';
+  var C = JSON.parse(document.getElementById('nvConfig').textContent), rol = C.rol;
+  var TIPO = {}; C.tipos.forEach(function (t) { TIPO[t.clave] = t; });
+  var MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+  var $ = function (id) { return document.getElementById(id); };
+  var lista = [];
+  function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function f(iso) { var p = iso.split('-'); return +p[2] + ' ' + MESES[+p[1] - 1] + ' ' + p[0]; }
+  function h(v) { return v == null ? '—' : String(Math.round(v * 10) / 10).replace('.', ',') + ' h'; }
+  var hoy = new Date(); $('nvMes').value = hoy.getFullYear() + '-' + String(hoy.getMonth() + 1).padStart(2, '0');
+
+  function cargar() {
+    var q = new URLSearchParams({ mes: $('nvMes').value });
+    if ($('nvTienda') && $('nvTienda').value) q.set('store_id', $('nvTienda').value);
+    if ($('nvTipo') && $('nvTipo').value) q.set('tipo', $('nvTipo').value);
+    $('nvExcel').href = '/novedades/exportar?' + q;   // el Excel baja lo mismo que se ve
+    fetch('/novedades/api/lista?' + q, { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (d) { lista = d.novedades; pintar(); });
+  }
+  function pintar() {
+    var cols = rol === 'editor' ? ['Tienda', 'Persona', 'Novedad', 'Desde', 'Hasta', 'Días', 'Horas', 'Observaciones', '']
+      : rol === 'lector' ? ['Tienda', 'Persona', 'Desde', 'Hasta', 'Días', 'Horas de ausencia']
+      : ['Persona', 'Novedad', 'Desde', 'Hasta', 'Días'];
+    $('nvCabeza').innerHTML = '<tr>' + cols.map(function (c) { return '<th>' + c + '</th>'; }).join('') + '</tr>';
+    if (!lista.length) { $('nvCuerpo').innerHTML = '<tr><td class="nv-vacio" colspan="' + cols.length + '">No hay novedades para este filtro.</td></tr>'; }
+    else $('nvCuerpo').innerHTML = lista.map(function (n) {
+      var persona = '<b>' + esc(n.persona) + '</b>' + (n.cargo ? '<small>' + esc(n.cargo) + '</small>' : '');
+      var tipo = n.tipo_nombre ? '<span class="nv-tipo ' + (n.ausencia ? 'ausencia' : 'movimiento') + '">' + esc(n.tipo_nombre) + '</span>' + (n.destino ? '<small>a ' + esc(n.destino) + '</small>' : '') : '';
+      var celdas = rol === 'editor' ? ['<td>' + esc(n.tienda) + '</td>', '<td>' + persona + '</td>', '<td>' + tipo + '</td>', '<td>' + f(n.desde) + '</td>', '<td>' + f(n.hasta) + '</td>', '<td class="num">' + n.dias + '</td>', '<td class="num">' + h(n.horas) + '</td>',
+        '<td class="nv-obs">' + esc(n.observacion) + (n.creado_por ? '<small>Registró: ' + esc(n.creado_por) + '</small>' : '') + '</td>',
+        '<td class="nv-acc"><button type="button" data-editar="' + n.id + '" aria-label="Editar"><i class="bi bi-pencil"></i></button><button type="button" data-borrar="' + n.id + '" aria-label="Borrar"><i class="bi bi-trash"></i></button></td>']
+        : rol === 'lector' ? ['<td>' + esc(n.tienda) + '</td>', '<td>' + persona + '</td>', '<td>' + f(n.desde) + '</td>', '<td>' + f(n.hasta) + '</td>', '<td class="num">' + n.dias + '</td>', '<td class="num">' + h(n.horas) + '</td>']
+        : ['<td>' + persona + '</td>', '<td>' + tipo + '</td>', '<td>' + f(n.desde) + '</td>', '<td>' + f(n.hasta) + '</td>', '<td class="num">' + n.dias + '</td>'];
+      return '<tr>' + celdas.join('') + '</tr>';
+    }).join('');
+    var aus = lista.filter(function (n) { return n.horas != null; });
+    var horas = aus.reduce(function (s, n) { return s + (n.horas || 0); }, 0);
+    var personas = {}; aus.forEach(function (n) { personas[n.tienda + n.persona] = 1; });
+    $('nvResumen').innerHTML = '<div class="nv-kpi"><span>Novedades</span><b>' + lista.length + '</b></div>' +
+      (rol !== 'tienda' ? '<div class="nv-kpi"><span>Horas de ausencia</span><b>' + h(horas) + '</b></div><div class="nv-kpi"><span>Personas con ausencias</span><b>' + Object.keys(personas).length + '</b></div>' : '');
+  }
+  ['nvMes', 'nvTienda', 'nvTipo'].forEach(function (id) { if ($(id)) $(id).addEventListener('change', cargar); });
+  cargar();
+
+  if (rol !== 'editor') return;
+  /* ---------------- Formulario de Talento Humano ---------------- */
+  var modal = $('nvModal'), form = $('nvForm'), personas = [];
+  function campo(n) { return form.elements[n]; }
+  function abrir(n) {
+    form.reset(); $('nvError').textContent = '';
+    $('nvTitulo').textContent = n ? 'Editar novedad' : 'Nueva novedad';
+    campo('id').value = n ? n.id : '';
+    if (n) {
+      campo('tipo').value = n.tipo; campo('store_id').value = n.store_id; campo('desde').value = n.desde; campo('hasta').value = n.hasta;
+      campo('horas').value = n.horas == null ? '' : n.horas; campo('observacion').value = n.observacion || ''; campo('tienda_destino_id').value = n.tienda_destino_id || '';
+    }
+    ajustarTipo();
+    cargarPersonas(n);
+    modal.hidden = false; campo('tipo').focus();
+  }
+  function cargarPersonas(n) {
+    var sel = campo('persona'), id = campo('store_id').value;
+    if (!id) { sel.innerHTML = '<option value="">Primero elige la tienda</option>'; return; }
+    fetch('/novedades/api/personas?store_id=' + id + (n && n.advisor_id ? '&incluir=' + n.advisor_id : ''), { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (l) {
+      personas = l;
+      sel.innerHTML = '<option value="">Elige…</option>' + l.map(function (p, i) { return '<option value="' + i + '">' + esc(p.nombre) + (p.cargo === 'Asesora' ? '' : ' (' + esc(p.cargo) + ')') + (p.creada ? ' · creada por TH' : '') + '</option>'; }).join('') +
+        '<option value="nueva">➕ Crear persona nueva…</option>';
+      $('nvNuevaCaja').hidden = true;
+      if (n) { var i = l.findIndex(function (p) { return (n.advisor_id && p.advisor_id === n.advisor_id) || (!n.advisor_id && p.nombre === n.persona); }); if (i >= 0) sel.value = i; }
+    });
+  }
+  function ajustarTipo() {
+    var t = TIPO[campo('tipo').value];
+    $('nvDestinoCaja').hidden = campo('tipo').value !== 'TRASLADO';
+    $('nvHorasCaja').hidden = !(t && t.ausencia);
+    $('nvPersonaCaja').firstChild.textContent = t && !t.persona ? 'Persona (opcional)' : 'Persona';
+    var tp = campo('tipo').value;
+    campo('desde').parentNode.firstChild.textContent = tp === 'RETIRO' || tp === 'TRASLADO' ? 'Desde (primer día que ya no está en la tienda)' : tp === 'INGRESO' ? 'Desde (primer día en la tienda)' : tp === 'CIERRE_TIENDA' ? 'Desde (primer día cerrada)' : 'Desde';
+    // Cierre de tienda (remodelación): la cuota de la tienda cuenta solo los días que vendió
+    campo('hasta').parentNode.firstChild.textContent = tp === 'CIERRE_TIENDA' ? 'Hasta (último día cerrada)' : 'Hasta';
+    if (tp === 'CIERRE_TIENDA') $('nvHorasCaja').hidden = true;
+    var avisoCierre = $('nvCierreNota');
+    if (!avisoCierre) { avisoCierre = document.createElement('p'); avisoCierre.id = 'nvCierreNota'; avisoCierre.className = 'nv-nota ancho'; campo('hasta').parentNode.after(avisoCierre); }
+    avisoCierre.textContent = tp === 'CIERRE_TIENDA' ? 'La cuota de la tienda (total y al corte) va a contar solo los días que vendió. Se ajusta sola al guardar y en cada carga del Excel.' : '';
+    avisoCierre.hidden = tp !== 'CIERRE_TIENDA';
+    sugerirHoras();
+  }
+  function sugerirHoras() {
+    var d = campo('desde').value, h2 = campo('hasta').value || d;
+    if (!d) { $('nvHorasNota').textContent = ''; return; }
+    var dias = Math.round((new Date(h2) - new Date(d)) / 864e5) + 1;
+    $('nvHorasNota').textContent = dias > 0 ? dias + (dias === 1 ? ' día' : ' días') + ' × ' + C.horasDia + ' h = ' + dias * C.horasDia + ' h. Si lo dejas vacío se usa ese valor; cámbialo si fue parcial (por ejemplo, un permiso de 3 horas).' : '';
+  }
+  $('nvNueva').addEventListener('click', function () { abrir(null); });
+  campo('tipo').addEventListener('change', ajustarTipo);
+  campo('store_id').addEventListener('change', function () { cargarPersonas(null); });
+  campo('persona').addEventListener('change', function () {
+    var nueva = campo('persona').value === 'nueva';
+    $('nvNuevaCaja').hidden = !nueva;
+    if (nueva) campo('nueva_nombre').focus();
+  });
+  campo('desde').addEventListener('change', function () { if (!campo('hasta').value) campo('hasta').value = campo('desde').value; sugerirHoras(); });
+  campo('hasta').addEventListener('change', sugerirHoras);
+  modal.addEventListener('click', function (e) { if (e.target === modal || e.target.closest('[data-cerrar]')) modal.hidden = true; });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') modal.hidden = true; });
+  function crearPersona() {
+    // Si eligió «Crear persona nueva…», primero se crea en la tienda
+    if (campo('persona').value !== 'nueva') return Promise.resolve(personas[campo('persona').value] || {});
+    return fetch('/novedades/api/persona', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ store_id: campo('store_id').value, nombre: campo('nueva_nombre').value, cargo: campo('nueva_cargo').value, cedula: campo('nueva_cedula').value }) })
+      .then(function (r) { return r.json(); }).then(function (j) { if (!j.ok) throw new Error(j.error); return j.persona; });
+  }
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    crearPersona().then(guardarNovedad).catch(function (er) { $('nvError').textContent = er.message || 'No se pudo crear la persona.'; });
+  });
+  function guardarNovedad(p) {
+    var datos = { id: campo('id').value || null, tipo: campo('tipo').value, store_id: campo('store_id').value, desde: campo('desde').value, hasta: campo('hasta').value,
+      horas: campo('horas').value, observacion: campo('observacion').value, tienda_destino_id: campo('tienda_destino_id').value,
+      advisor_id: p.advisor_id || null, nombre: p.nombre || '', cargo: p.cargo || '' };
+    fetch('/novedades/api', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(datos) })
+      .then(function (r) { return r.json(); }).then(function (j) { if (!j.ok) { $('nvError').textContent = j.error; return; } modal.hidden = true; cargar(); })
+      .catch(function () { $('nvError').textContent = 'No se pudo guardar.'; });
+  }
+  $('nvCuerpo').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-editar]'), x = e.target.closest('[data-borrar]');
+    if (b) abrir(lista.find(function (n) { return n.id === +b.dataset.editar; }));
+    if (x && confirm('¿Borrar esta novedad? No se puede deshacer.')) fetch('/novedades/api/' + x.dataset.borrar, { method: 'DELETE', credentials: 'same-origin' }).then(cargar);
+  });
+})();
+</script>
+{% endblock %}

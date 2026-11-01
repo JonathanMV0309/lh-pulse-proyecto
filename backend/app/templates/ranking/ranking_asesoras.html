@@ -1,0 +1,944 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+
+<style>
+
+/* =========================================================
+   PÁGINA RANKING
+========================================================= */
+
+.ranking-page {
+    padding-bottom: 50px;
+}
+
+/* =========================================================
+   ENCABEZADO
+========================================================= */
+
+.page-hero {
+    background: linear-gradient(
+        135deg,
+        #FDFBF7,
+        #F5F0E8
+    );
+    border: 1px solid rgba(139, 125, 107, 0.2);
+    border-radius: 24px;
+    padding: 30px;
+    color: #2D2A26;
+    margin-bottom: 25px;
+    box-shadow:
+        0 15px 40px rgba(45, 42, 38, 0.06);
+}
+
+.page-hero small {
+    color: #8B7D6B;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.page-hero h1 {
+    font-weight: 700;
+    font-family: 'Montserrat', sans-serif;
+}
+
+/* =========================================================
+   FILTROS
+========================================================= */
+
+.filter-card,
+.ranking-card {
+    background: #FDFBF7;
+    border: 1px solid rgba(139, 125, 107, 0.15);
+    border-radius: 22px;
+    box-shadow:
+        0 8px 30px rgba(45, 42, 38, 0.06);
+}
+
+.filter-card {
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+.ranking-card {
+    overflow: hidden;
+}
+
+/* =========================================================
+   FECHA DE CORTE
+========================================================= */
+
+.corte-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.corte-label i {
+    color: #8B7D6B;
+}
+
+.corte-select {
+    border: 1px solid rgba(139, 125, 107, 0.25);
+    border-radius: 10px;
+    min-height: 42px;
+    font-weight: 600;
+}
+
+.corte-info {
+    font-size: .75rem;
+    color: #6B6259;
+    margin-top: 5px;
+}
+
+/* =========================================================
+   TABLA
+========================================================= */
+
+.ranking-table {
+    margin: 0;
+}
+
+.ranking-table thead {
+    background: #F5F0E8;
+    color: #2D2A26;
+}
+
+.ranking-table th {
+    border: 0;
+    padding: 16px;
+    font-size: .78rem;
+    letter-spacing: .7px;
+    white-space: nowrap;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    color: #6B6259;
+}
+
+.ranking-table td {
+    padding: 16px;
+    vertical-align: middle;
+}
+
+/* =========================================================
+   POSICIÓN
+========================================================= */
+
+.position {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: #E8DFD0;
+    color: #2D2A26;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+}
+
+.position.top {
+    background: linear-gradient(
+        135deg,
+        #C5A880,
+        #B8946E
+    );
+    color: white;
+}
+
+/* =========================================================
+   ASESORA
+========================================================= */
+
+.advisor-name {
+    font-weight: 700;
+    color: #2D2A26;
+}
+
+/* =========================================================
+   TIENDA
+========================================================= */
+
+.store-name {
+    font-size: .82rem;
+    color: #6B6259;
+    font-weight: 600;
+}
+
+/* =========================================================
+   MÉTRICAS
+========================================================= */
+
+.metric {
+    font-weight: 700;
+}
+
+/* =========================================================
+   CUMPLIMIENTO
+========================================================= */
+
+.cumplimiento-wrapper {
+    min-width: 130px;
+    text-align: right;
+}
+
+.cumplimiento-valor {
+    font-weight: 800;
+    margin-bottom: 5px;
+}
+
+.cumplimiento-barra {
+    width: 100%;
+    height: 7px;
+    background: #E8DFD0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.cumplimiento-barra-fill {
+    height: 100%;
+    border-radius: 10px;
+    transition: width .3s ease;
+}
+
+/* =========================================================
+   COLORES CUMPLIMIENTO (ACENTOS JOYAS APAGADAS)
+========================================================= */
+
+.cumplimiento-excelente {
+    color: #6B7D3F; /* verde oliva */
+}
+
+.cumplimiento-excelente
+.cumplimiento-barra-fill {
+    background: #6B7D3F;
+}
+
+.cumplimiento-bueno {
+    color: #2C5F6E; /* azul petróleo */
+}
+
+.cumplimiento-bueno
+.cumplimiento-barra-fill {
+    background: #2C5F6E;
+}
+
+.cumplimiento-cerca {
+    color: #B8860B; /* mostaza oscura */
+}
+
+.cumplimiento-cerca
+.cumplimiento-barra-fill {
+    background: #D9A441; /* mostaza */
+}
+
+.cumplimiento-bajo {
+    color: #8C3B3B; /* granate apagado */
+}
+
+.cumplimiento-bajo
+.cumplimiento-barra-fill {
+    background: #8C3B3B;
+}
+
+/* =========================================================
+   SIN RESULTADOS
+========================================================= */
+
+.empty-ranking {
+    text-align: center;
+    padding: 70px 20px;
+    color: #6B6259;
+}
+
+.empty-ranking i {
+    font-size: 50px;
+    color: #C5A880; /* dorado */
+}
+
+/* =========================================================
+   BOTONES Y BADGES EN PALETA CÁLIDA
+========================================================= */
+
+.btn-primary {
+    background-color: #8B7D6B !important;
+    border-color: #8B7D6B !important;
+    color: white !important;
+}
+.btn-primary:hover {
+    background-color: #6B5D4F !important;
+    border-color: #6B5D4F !important;
+}
+.btn-outline-secondary {
+    color: #6B6259 !important;
+    border-color: #A89A87 !important;
+}
+.btn-outline-secondary:hover {
+    background-color: #F5F0E8 !important;
+    color: #2D2A26 !important;
+}
+
+.alert-info {
+    background-color: rgba(44, 95, 110, 0.1);
+    border: 1px solid rgba(44, 95, 110, 0.2);
+    color: #2C5F6E;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 767px) {
+    .page-hero {
+        padding: 24px;
+    }
+
+    .page-hero h1 {
+        font-size: 25px;
+    }
+
+    .ranking-table th,
+    .ranking-table td {
+        padding: 12px;
+    }
+
+    .cumplimiento-wrapper {
+        min-width: 110px;
+    }
+}
+
+</style>
+
+{% endblock %}
+
+
+{% block contenido %}
+
+<div class="ranking-page">
+
+    <!-- =====================================================
+         ENCABEZADO
+    ====================================================== -->
+
+    <div class="page-hero">
+
+        <small>
+            COMPETENCIA
+        </small>
+
+        <h1 class="mb-2">
+
+            <i class="bi bi-people-fill me-2"></i>
+
+            Ranking de asesoras
+
+        </h1>
+
+        <p class="mb-0 opacity-75">
+
+            Ranking global de asesoras de todas las tiendas.
+
+        </p>
+
+    </div>
+
+    <!-- =====================================================
+         FILTROS
+    ====================================================== -->
+
+    <div class="filter-card">
+
+        <form
+            method="GET"
+            action="{{ url_for('app_pages.ranking_asesoras') }}"
+        >
+
+            <div class="row g-3 align-items-end">
+
+                <!-- =================================================
+                     BUSCAR
+                ================================================== -->
+
+                <div class="col-lg-4">
+
+                    <label class="form-label fw-semibold">
+                        Buscar
+                    </label>
+
+                    <div class="input-group">
+
+                        <span class="input-group-text">
+                            <i class="bi bi-search"></i>
+                        </span>
+
+                        <input
+                            type="text"
+                            name="buscar"
+                            value="{{ busqueda or '' }}"
+                            class="form-control"
+                            placeholder="Nombre de asesora o tienda..."
+                        >
+
+                    </div>
+
+                </div>
+
+                <!-- =================================================
+                     AÑO
+                ================================================== -->
+
+                <div class="col-md-3 col-lg-2">
+
+                    <label class="form-label fw-semibold">
+                        Año
+                    </label>
+
+                    <select
+                        name="anio"
+                        id="filtroAnio"
+                        class="form-select"
+                        onchange="actualizarDiasCorte()"
+                    >
+
+                        {% for y in [2024, 2025, 2026, 2027] %}
+
+                            <option
+                                value="{{ y }}"
+                                {% if y == anio %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ y }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+                <!-- =================================================
+                     MES
+                ================================================== -->
+
+                <div class="col-md-3 col-lg-2">
+
+                    <label class="form-label fw-semibold">
+                        Mes
+                    </label>
+
+                    <select
+                        name="mes"
+                        id="filtroMes"
+                        class="form-select"
+                        onchange="actualizarDiasCorte()"
+                    >
+
+                        {% for m in range(1, 13) %}
+
+                            <option
+                                value="{{ m }}"
+                                {% if m == mes %}
+                                    selected
+                                {% endif %}
+                            >
+
+                                {{
+                                    [
+                                        "Enero",
+                                        "Febrero",
+                                        "Marzo",
+                                        "Abril",
+                                        "Mayo",
+                                        "Junio",
+                                        "Julio",
+                                        "Agosto",
+                                        "Septiembre",
+                                        "Octubre",
+                                        "Noviembre",
+                                        "Diciembre"
+                                    ][m - 1]
+                                }}
+
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+                <!-- =================================================
+                     DÍA DE CORTE
+                ================================================== -->
+
+                <div class="col-md-3 col-lg-2">
+
+                    <label
+                        class="form-label fw-semibold corte-label"
+                    >
+
+                        <i class="bi bi-calendar3"></i>
+
+                        Fecha de corte
+
+                    </label>
+
+                    <select
+                        name="dia_corte"
+                        id="filtroDiaCorte"
+                        class="form-select corte-select"
+                    >
+
+                        {% if dias_corte %}
+
+                            {% for dia in dias_corte %}
+
+                                <option
+                                    value="{{ dia }}"
+                                    {% if dia == dia_corte %}
+                                        selected
+                                    {% endif %}
+                                >
+
+                                    {{ "%02d"|format(dia) }}/{{ "%02d"|format(mes) }}/{{ anio }}
+
+                                </option>
+
+                            {% endfor %}
+
+                        {% else %}
+
+                            <option value="">
+
+                                No hay cortes disponibles
+
+                            </option>
+
+                        {% endif %}
+
+                    </select>
+
+                    {% if dia_corte %}
+
+                        <div class="corte-info">
+
+                            Corte seleccionado: día {{ dia_corte }}
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+                <!-- =================================================
+                     BOTONES
+                ================================================== -->
+
+                <div class="col-md-3 col-lg-2">
+
+                    <div class="d-flex gap-2">
+
+                        <button
+                            class="btn btn-primary flex-grow-1"
+                            type="submit"
+                        >
+
+                            <i class="bi bi-filter me-1"></i>
+
+                            Filtrar
+
+                        </button>
+
+                        <a
+                            href="{{ url_for('app_pages.ranking_asesoras') }}"
+                            class="btn btn-outline-secondary"
+                            title="Restablecer filtros"
+                        >
+
+                            <i class="bi bi-arrow-counterclockwise"></i>
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+    <!-- =====================================================
+         INFORMACIÓN DEL CORTE
+    ====================================================== -->
+
+    {% if dia_corte %}
+
+        <div class="alert alert-info border-0 shadow-sm mb-4">
+
+            <i class="bi bi-calendar-check me-2"></i>
+
+            Mostrando el ranking correspondiente al corte del
+
+            <strong>
+                {{ "%02d"|format(dia_corte) }}/{{ "%02d"|format(mes) }}/{{ anio }}
+            </strong>
+
+        </div>
+
+    {% endif %}
+
+    <!-- =====================================================
+         TABLA
+    ====================================================== -->
+
+    <div class="ranking-card">
+
+        {% if ranking %}
+
+            <div class="table-responsive">
+
+                <table class="table ranking-table table-hover">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                POS.
+                            </th>
+
+                            <th>
+                                ASESORA
+                            </th>
+
+                            <th>
+                                TIENDA
+                            </th>
+
+                            <th class="text-end">
+                                VENTAS
+                            </th>
+
+                            <th class="text-end">
+                                FACTURAS
+                            </th>
+
+                            <th class="text-end">
+                                TICKET
+                            </th>
+
+                            <th class="text-end">
+                                UPT
+                            </th>
+
+                            <th class="text-end">
+                                CUMPLIMIENTO
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for item in ranking %}
+
+                            <tr>
+
+                                <!-- =================================
+                                     POSICIÓN
+                                ================================== -->
+
+                                <td>
+
+                                    <span
+                                        class="
+                                            position
+                                            {% if item.posicion <= 3 %}
+                                                top
+                                            {% endif %}
+                                        "
+                                    >
+
+                                        {% if item.posicion == 1 %}
+
+                                            🥇
+
+                                        {% elif item.posicion == 2 %}
+
+                                            🥈
+
+                                        {% elif item.posicion == 3 %}
+
+                                            🥉
+
+                                        {% else %}
+
+                                            {{ item.posicion }}
+
+                                        {% endif %}
+
+                                    </span>
+
+                                </td>
+
+                                <!-- =================================
+                                     ASESORA
+                                ================================== -->
+
+                                <td>
+
+                                    <div class="advisor-name">
+
+                                        {{ item.asesora }}
+
+                                    </div>
+
+                                </td>
+
+                                <!-- =================================
+                                     TIENDA
+                                ================================== -->
+
+                                <td>
+
+                                    <div class="store-name">
+
+                                        {{ item.codigo_tienda }}
+
+                                    </div>
+
+                                    {{ item.tienda }}
+
+                                </td>
+
+                                <!-- =================================
+                                     VENTAS
+                                ================================== -->
+
+                                <td class="text-end metric">
+
+                                    {% if item.venta is not none %}
+
+                                        ${{ "{:,.0f}".format(
+                                            item.venta
+                                        ) }}
+
+                                    {% else %}
+
+                                        —
+
+                                    {% endif %}
+
+                                </td>
+
+                                <!-- =================================
+                                     FACTURAS
+                                ================================== -->
+
+                                <td class="text-end">
+
+                                    {{ "{:,.0f}".format(
+                                        item.facturas or 0
+                                    ) }}
+
+                                </td>
+
+                                <!-- =================================
+                                     TICKET
+                                ================================== -->
+
+                                <td class="text-end">
+
+                                    {% if item.ticket is not none %}
+
+                                        ${{ "{:,.0f}".format(
+                                            item.ticket
+                                        ) }}
+
+                                    {% else %}
+
+                                        —
+
+                                    {% endif %}
+
+                                </td>
+
+                                <!-- =================================
+                                     UPT
+                                ================================== -->
+
+                                <td class="text-end">
+
+                                    {{ "%.2f"|format(
+                                        item.upt or 0
+                                    ) }}
+
+                                </td>
+
+                                <!-- =================================
+                                     CUMPLIMIENTO
+                                ================================== -->
+
+                                <td class="text-end">
+
+                                    {% set cumplimiento =
+                                        (item.cumplimiento or 0)
+                                    %}
+
+                                    {% set cumplimiento_pct =
+                                        cumplimiento * 100
+                                    %}
+
+                                    {% if cumplimiento >= 1 %}
+
+                                        {% set clase_cumplimiento =
+                                            "cumplimiento-excelente"
+                                        %}
+
+                                    {% elif cumplimiento >= 0.9 %}
+
+                                        {% set clase_cumplimiento =
+                                            "cumplimiento-bueno"
+                                        %}
+
+                                    {% elif cumplimiento >= 0.8 %}
+
+                                        {% set clase_cumplimiento =
+                                            "cumplimiento-cerca"
+                                        %}
+
+                                    {% else %}
+
+                                        {% set clase_cumplimiento =
+                                            "cumplimiento-bajo"
+                                        %}
+
+                                    {% endif %}
+
+                                    {% if cumplimiento_pct > 100 %}
+
+                                        {% set barra_pct = 100 %}
+
+                                    {% elif cumplimiento_pct < 0 %}
+
+                                        {% set barra_pct = 0 %}
+
+                                    {% else %}
+
+                                        {% set barra_pct =
+                                            cumplimiento_pct
+                                        %}
+
+                                    {% endif %}
+
+                                    <div
+                                        class="
+                                            cumplimiento-wrapper
+                                            {{ clase_cumplimiento }}
+                                        "
+                                    >
+
+                                        <div class="cumplimiento-valor">
+
+                                            {{ "%.1f"|format(
+                                                cumplimiento_pct
+                                            ) }}%
+
+                                        </div>
+
+                                        <div class="cumplimiento-barra">
+
+                                            <div
+                                                class="cumplimiento-barra-fill"
+                                                style="
+                                                    width: {{ barra_pct }}%;
+                                                "
+                                            ></div>
+
+                                        </div>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <!-- =================================================
+                 SIN RESULTADOS
+            ================================================== -->
+
+            <div class="empty-ranking">
+
+                <i class="bi bi-people"></i>
+
+                <h4 class="mt-3">
+                    No hay resultados
+                </h4>
+
+                <p>
+                    No encontramos asesoras para el corte seleccionado.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+<!-- =========================================================
+     JAVASCRIPT
+========================================================= -->
+
+<script>
+
+function actualizarDiasCorte() {
+
+    const anio =
+        document.getElementById("filtroAnio").value;
+
+    const mes =
+        document.getElementById("filtroMes").value;
+
+    const selectDia =
+        document.getElementById("filtroDiaCorte");
+
+    if (!anio || !mes) {
+        return;
+    }
+
+    /*
+     * Recargamos la página para que Flask consulte
+     * los días reales disponibles en ese año/mes.
+     */
+
+    const url =
+        new URL(
+            window.location.href
+        );
+
+    url.searchParams.set("anio", anio);
+    url.searchParams.set("mes", mes);
+    url.searchParams.delete("dia_corte");
+
+    window.location.href = url.toString();
+}
+
+</script>
+
+{% endblock %}

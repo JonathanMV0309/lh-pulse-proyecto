@@ -1,0 +1,303 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+
+<style>
+
+    .page-header {
+        background: linear-gradient(135deg, #0b1f3a, #123c68);
+        color: white;
+        border-radius: 20px;
+        padding: 28px;
+        margin-bottom: 25px;
+    }
+
+    .kpi-card {
+        border: 0;
+        border-radius: 16px;
+        background: white;
+        box-shadow: 0 5px 20px rgba(0,0,0,.06);
+        height: 100%;
+    }
+
+    .kpi-title {
+        color: #6b7280;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+    }
+
+    .kpi-value {
+        font-size: 25px;
+        font-weight: 700;
+        color: #0b1f3a;
+        margin-top: 8px;
+    }
+
+    .goal-table th {
+        background: #f8fafc;
+        color: #475569;
+        font-size: 12px;
+        text-transform: uppercase;
+    }
+
+    .goal-table td {
+        vertical-align: middle;
+    }
+
+    .meta-principal {
+        font-size: 30px;
+        font-weight: 700;
+        color: #0b5ed7;
+    }
+
+    .sin-datos {
+        padding: 50px 20px;
+        text-align: center;
+        color: #6b7280;
+    }
+
+    /* ============================================
+       TABLA X DIA
+    ============================================ */
+    .tabla-xdia {
+        background: #FDFBF7;
+        border: 1px solid rgba(139,125,107,0.2);
+        border-radius: 16px;
+        box-shadow: 0 5px 20px rgba(45,42,38,0.06);
+        overflow: hidden;
+        margin-top: 24px;
+    }
+
+    .tabla-xdia .table {
+        margin-bottom: 0;
+    }
+
+    .tabla-xdia th {
+        background: #F5F0E8;
+        color: #6B6259;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: .4px;
+        font-weight: 700;
+        border: 0;
+        padding: 12px 14px;
+        font-family: 'Montserrat', sans-serif;
+    }
+
+    .tabla-xdia td {
+        padding: 12px 14px;
+        border-color: rgba(139,125,107,0.1);
+        vertical-align: middle;
+    }
+
+    .tabla-xdia tr:hover {
+        background: rgba(13,92,117,0.04);
+    }
+
+    .dia-corte-actual {
+        background: rgba(13,92,117,0.08) !important;
+        border-left: 4px solid #0D5C75;
+    }
+
+    .dif-positiva {
+        color: #2D6A4F;
+        font-weight: 700;
+    }
+
+    .dif-negativa {
+        color: #8C3B3B;
+        font-weight: 700;
+    }
+
+    .meta-dia-cumplida {
+        color: #2D6A4F;
+        font-weight: 700;
+    }
+
+    .meta-dia-no-cumplida {
+        color: #8C3B3B;
+        font-weight: 700;
+    }
+
+    .totales-xdia {
+        background: #E8DFD0;
+        font-weight: 700;
+    }
+
+</style>
+
+{% endblock %}
+
+
+{% block contenido %}
+
+<div class="container-fluid">
+
+    <!-- ENCABEZADO -->
+    <div class="page-header">
+        <h2 class="mb-2"><i class="bi bi-bullseye me-2"></i>Cuota y meta por tienda</h2>
+        <p class="mb-0 opacity-75">Consulta la cuota mensual y la distribución de la meta entre asesoras.</p>
+    </div>
+
+    <!-- FILTROS -->
+    <div class="card dashboard-card mb-4">
+        <div class="card-body p-4">
+            <form method="GET" action="{{ url_for('app_pages.cuota_tienda') }}" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label for="store_id" class="form-label fw-semibold">Tienda</label>
+                    <select name="store_id" id="store_id" class="form-select" required>
+                        <option value="">-- Seleccionar tienda --</option>
+                        {% for tienda in tiendas %}
+                            <option value="{{ tienda.id }}" {% if tienda.id == store_id_actual %}selected{% endif %}>
+                                {{ tienda.codigo }} - {{ tienda.nombre }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="anio" class="form-label fw-semibold">Año</label>
+                    <select name="anio" id="anio" class="form-select">
+                        {% for y in [2024, 2025, 2026, 2027] %}
+                            <option value="{{ y }}" {% if y == anio %}selected{% endif %}>{{ y }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="mes" class="form-label fw-semibold">Mes</label>
+                    <select name="mes" id="mes" class="form-select">
+                        {% set meses = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"] %}
+                        {% for m in range(1, 13) %}
+                            <option value="{{ m }}" {% if m == mes %}selected{% endif %}>{{ m }} - {{ meses[m-1] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search me-1"></i>Consultar</button>
+                </div>
+                <div class="col-md-2">
+                    <a href="{{ url_for('app_pages.cuota_tienda') }}" class="btn btn-outline-secondary w-100"><i class="bi bi-arrow-counterclockwise me-1"></i>Limpiar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if datos %}
+        <!-- INFO TIENDA -->
+        <div class="card dashboard-card mb-4">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="mb-1">{{ datos.codigo }}</h4>
+                        <div class="text-muted">{{ datos.nombre }}</div>
+                    </div>
+                    <span class="badge bg-primary fs-6">{{ anio }} - {{ "%02d"|format(mes) }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPIs -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-4"><div class="card kpi-card"><div class="card-body p-4"><div class="kpi-title">Cuota / Meta de la tienda</div><div class="meta-principal">${{ "{:,.0f}".format(datos.meta_tienda) }}</div></div></div></div>
+            <div class="col-md-4"><div class="card kpi-card"><div class="card-body p-4"><div class="kpi-title">Asesoras válidas</div><div class="kpi-value">{{ datos.cantidad_asesoras }}</div><small class="text-muted">VENDEDOR UNICO no participa</small></div></div></div>
+            <div class="col-md-4"><div class="card kpi-card"><div class="card-body p-4"><div class="kpi-title">Meta por asesora</div><div class="kpi-value">${{ "{:,.0f}".format(datos.meta_por_asesora) }}</div></div></div></div>
+        </div>
+
+        <!-- DISTRIBUCIÓN -->
+        <div class="card dashboard-card mb-4">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div><h5 class="mb-1">Distribución de la cuota</h5><small class="text-muted">La cuota se divide en partes iguales entre las asesoras válidas.</small></div>
+                    <span class="badge bg-light text-dark">{{ datos.asesoras|length }} asesoras</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover goal-table">
+                        <thead><tr><th>ASESORA</th><th class="text-end">VENTA ACTUAL</th><th class="text-end">META INDIVIDUAL</th><th class="text-end">CUMPLIMIENTO</th></tr></thead>
+                        <tbody>
+                            {% for asesora in datos.asesoras %}
+                                {% set cumplimiento = (asesora.venta / asesora.meta * 100) if asesora.meta > 0 else 0 %}
+                                <tr>
+                                    <td><strong>{{ asesora.nombre }}</strong></td>
+                                    <td class="text-end">${{ "{:,.0f}".format(asesora.venta) }}</td>
+                                    <td class="text-end">${{ "{:,.0f}".format(asesora.meta) }}</td>
+                                    <td class="text-end">
+                                        {% if cumplimiento >= 100 %}<span class="badge bg-success">{{ "%.1f"|format(cumplimiento) }}%</span>
+                                        {% elif cumplimiento >= 80 %}<span class="badge bg-warning text-dark">{{ "%.1f"|format(cumplimiento) }}%</span>
+                                        {% else %}<span class="badge bg-danger">{{ "%.1f"|format(cumplimiento) }}%</span>{% endif %}
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr><td colspan="4" class="sin-datos"><i class="bi bi-info-circle fs-2 d-block mb-2"></i>No hay asesoras válidas para este período.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================================================
+             VENTAS DIARIAS (X DIA)
+        =================================================== -->
+        {% if datos.ventas_diarias %}
+            <div class="tabla-xdia mb-4">
+                <div class="p-4 border-bottom">
+                    <h5 class="mb-1"><i class="bi bi-calendar-day me-2"></i>Venta diaria (X DIA)</h5>
+                    <small class="text-muted">Comparativo por día y cumplimiento de meta diaria.</small>
+                </div>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>DÍA</th>
+                                <th class="text-end">VENTA 2025</th>
+                                <th class="text-end">VENTA 2026</th>
+                                <th class="text-end">DIFERENCIA</th>
+                                <th class="text-end">INC. %</th>
+                                <th class="text-end">META DIARIA</th>
+                                <th class="text-end">CUMPLIMIENTO</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for dia in datos.ventas_diarias %}
+                                <tr class="{% if dia.es_dia_corte %}dia-corte-actual{% endif %}">
+                                    <td>{{ dia.dia }}</td>
+                                    <td class="text-end">${{ "{:,.0f}".format(dia.venta_2025) }}</td>
+                                    <td class="text-end">${{ "{:,.0f}".format(dia.venta_2026) }}</td>
+                                    <td class="text-end {% if dia.diferencia >= 0 %}dif-positiva{% else %}dif-negativa{% endif %}">${{ "{:,.0f}".format(dia.diferencia) }}</td>
+                                    <td class="text-end {% if dia.incremento >= 0 %}dif-positiva{% else %}dif-negativa{% endif %}">{{ "%+.1f"|format(dia.incremento) }}%</td>
+                                    <td class="text-end">${{ "{:,.0f}".format(dia.meta_diaria) }}</td>
+                                    <td class="text-end {% if dia.cumplimiento_diario >= 100 %}meta-dia-cumplida{% else %}meta-dia-no-cumplida{% endif %}">{{ "%.1f"|format(dia.cumplimiento_diario) }}%</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr class="totales-xdia">
+                                <td>TOTAL</td>
+                                <td class="text-end">${{ "{:,.0f}".format(datos.total_venta_2025) }}</td>
+                                <td class="text-end">${{ "{:,.0f}".format(datos.total_venta_2026) }}</td>
+                                <td class="text-end">${{ "{:,.0f}".format(datos.total_diferencia) }}</td>
+                                <td class="text-end">{{ "%+.1f"|format(datos.total_incremento) }}%</td>
+                                <td></td><td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        {% endif %}
+
+    {% elif store_id_actual %}
+        <div class="alert alert-warning"><i class="bi bi-exclamation-triangle me-2"></i>No se encontraron datos para la tienda y período seleccionados.</div>
+    {% else %}
+        <div class="card dashboard-card">
+            <div class="card-body sin-datos">
+                <i class="bi bi-shop fs-1 d-block mb-3"></i>
+                <h5>Selecciona una tienda</h5>
+                <p class="mb-0">Selecciona una tienda y un período para consultar su cuota y distribución.</p>
+            </div>
+        </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

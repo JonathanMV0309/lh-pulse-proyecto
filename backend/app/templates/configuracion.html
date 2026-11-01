@@ -1,0 +1,297 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+{% endblock %}
+
+{% block contenido %}
+
+<div class="page-shell">
+
+    <div class="page-header">
+
+        <div>
+
+            <span class="page-kicker">
+                SISTEMA
+            </span>
+
+            <h1>
+                <i class="bi bi-sliders"></i>
+                Configuración
+            </h1>
+
+            <p>
+                Administra tu cuenta y preferencias de acceso.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="row g-4">
+
+        <!-- PERFIL -->
+
+        <div class="col-lg-5">
+
+            <div class="glass-panel settings-card">
+
+                <div class="settings-icon">
+                    <i class="bi bi-person-circle"></i>
+                </div>
+
+                <span class="page-kicker">
+                    CUENTA
+                </span>
+
+                <h3>
+                    Información personal
+                </h3>
+
+                <div class="profile-data">
+
+                    <div>
+                        <span>Nombre</span>
+                        <strong>
+                            {{ usuario.nombre }}
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>Correo</span>
+                        <strong>
+                            {{ usuario.correo }}
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>Rol</span>
+                        <strong>
+                            {{ usuario.role.nombre if usuario.role else "Usuario" }}
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>Estado</span>
+
+                        {% if usuario.activo %}
+
+                            <strong class="text-success">
+                                Activo
+                            </strong>
+
+                        {% else %}
+
+                            <strong class="text-danger">
+                                Inactivo
+                            </strong>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- SEGURIDAD -->
+
+        <div class="col-lg-7">
+
+            <div class="glass-panel settings-card">
+
+                <div class="settings-icon">
+                    <i class="bi bi-shield-lock"></i>
+                </div>
+
+                <span class="page-kicker">
+                    SEGURIDAD
+                </span>
+
+                <h3>
+                    Cambiar contraseña
+                </h3>
+
+                <p class="settings-description">
+                    Utiliza una contraseña segura de mínimo 8 caracteres.
+                </p>
+
+
+                <form method="POST">
+
+                    <input
+                        type="hidden"
+                        name="accion"
+                        value="password"
+                    >
+
+
+                    <div class="mb-3">
+
+                        <label>
+                            Contraseña actual
+                        </label>
+
+                        <input
+                            type="password"
+                            name="password_actual"
+                            class="form-control"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="mb-3">
+
+                        <label>
+                            Nueva contraseña
+                        </label>
+
+                        <input
+                            type="password"
+                            name="password_nueva"
+                            class="form-control"
+                            minlength="8"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="mb-4">
+
+                        <label>
+                            Confirmar contraseña
+                        </label>
+
+                        <input
+                            type="password"
+                            name="password_confirmacion"
+                            class="form-control"
+                            minlength="8"
+                            required
+                        >
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="btn btn-neon">
+
+                        <i class="bi bi-check2-circle"></i>
+                        Actualizar contraseña
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+
+        <!-- PREFERENCIAS -->
+
+        <div class="col-12">
+
+            <div class="glass-panel settings-card">
+
+                <div class="settings-icon">
+                    <i class="bi bi-toggles"></i>
+                </div>
+
+                <span class="page-kicker">
+                    PREFERENCIAS
+                </span>
+
+                <h3>
+                    Preferencias del sistema
+                </h3>
+
+                <div class="row g-3 mt-2">
+
+                    <div class="col-md-4">
+
+                        <div class="preference-item">
+
+                            <i class="bi bi-bar-chart-line"></i>
+
+                            <div>
+
+                                <strong>
+                                    Dashboard
+                                </strong>
+
+                                <span>
+                                    Vista principal de desempeño
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-4">
+
+                        <div class="preference-item">
+
+                            <i class="bi bi-trophy"></i>
+
+                            <div>
+
+                                <strong>
+                                    Rankings
+                                </strong>
+
+                                <span>
+                                    Comparación competitiva
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-4">
+
+                        <div class="preference-item">
+
+                            <i class="bi bi-file-earmark-excel"></i>
+
+                            <div>
+
+                                <strong>
+                                    Importaciones
+                                </strong>
+
+                                <span>
+                                    Control de información cargada
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

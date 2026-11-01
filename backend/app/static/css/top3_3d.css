@@ -1,0 +1,88 @@
+/* Ceremonia Top 3 en 3D (top3_3d.js) */
+.top3-overlay.t3d-modo { background: radial-gradient(ellipse 85% 75% at 50% 42%, #F3ECE1 0%, #E7DDCD 55%, #D7CAB5 100%); }
+.top3-overlay.t3d-modo > .top3-background-glow,
+.top3-overlay.t3d-modo > .top3-particles,
+.top3-overlay.t3d-modo > .top3-content { display: none !important; }
+
+.t3d {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    color: #2D2A26;
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    opacity: 0;
+    transition: opacity .8s cubic-bezier(.23, 1, .32, 1);
+}
+.t3d.visible { opacity: 1; }
+.t3d-lienzo { position: absolute; inset: 0; }
+.t3d-lienzo canvas { display: block; width: 100%; height: 100%; }
+
+.t3d-titulo {
+    position: absolute;
+    top: clamp(16px, 4vh, 40px);
+    left: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    text-align: center;
+    pointer-events: none;
+}
+.t3d-marca { font-size: clamp(22px, 2.8vw, 38px); font-weight: 800; letter-spacing: .14em; }
+.t3d-sub { font-size: clamp(11px, 1.05vw, 14px); font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: #8B7D6B; }
+
+.t3d-saltar {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    z-index: 3;
+    padding: 8px 16px;
+    border: 1px solid rgba(139, 125, 107, .45);
+    border-radius: 999px;
+    background: rgba(255, 253, 248, .85);
+    color: #4A4038;
+    font: 600 13px/1 Inter, "Segoe UI", Arial, sans-serif;
+    cursor: pointer;
+}
+.t3d-saltar:hover { background: #FFFDF8; }
+.t3d-saltar:focus-visible { outline: 2px solid #C5A880; outline-offset: 2px; }
+.t3d-saltar[hidden] { display: none; }
+
+.t3d-lector { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Botones finales (centrados sin transform: la animación original usa transform) */
+.t3d #top3Actions {
+    position: absolute;
+    bottom: clamp(16px, 4vh, 40px);
+    left: 0;
+    right: 0;
+    width: max-content;
+    max-width: calc(100% - 32px);
+    margin: 0 auto;
+    justify-content: center;
+    z-index: 3;
+}
+.t3d .top3-button-dashboard { background: #2D2A26; color: #FFFDF8; border: 0; box-shadow: 0 10px 24px rgba(45, 42, 38, .22); }
+.t3d .top3-button-home { background: #FFFDF8; color: #2D2A26; border: 1px solid rgba(197, 168, 128, .8); box-shadow: 0 8px 20px rgba(45, 42, 38, .12); }
+.t3d .top3-button:focus-visible { outline: 2px solid #C5A880; outline-offset: 3px; }
+
+@media (max-width: 700px) {
+    .t3d #top3Actions { flex-direction: column; gap: 10px; width: calc(100% - 32px); }
+    .t3d #top3Actions .top3-button { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .t3d { transition: none; }
+}
+
+/* Un solo botón "Entrar" */
+.t3d #top3HomeButton[hidden] { display: none !important; }
+.t3d #top3DashboardButton { min-width: 200px; padding: 14px 34px; font-size: 16px; }
+
+/* Pantallas bajitas (portátiles, zoom, barra del navegador): título más compacto */
+@media (max-height: 720px) {
+    .t3d-titulo { top: 12px; gap: 3px; }
+    .t3d-marca { font-size: clamp(18px, 3.2vh, 28px); }
+    .t3d-sub { font-size: 11px; }
+    .t3d #top3DashboardButton { padding: 11px 28px; font-size: 15px; }
+}

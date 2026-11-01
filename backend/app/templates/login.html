@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L&H - Iniciar sesión</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --navy: #2D2A26;
+            --navy-dark: #1F1C19;
+            --blue: #0D5C75;
+            --blue-light: #C5A880;
+            --text: #2D2A26;
+            --muted: #8B7D6B;
+            --border: #E8DFD0;
+        }
+
+        html,
+        body {
+            width: 100%;
+            min-height: 100%;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: Inter, "Segoe UI", Arial, Helvetica, sans-serif;
+            color: var(--text);
+
+            /*
+             * Pon aquí la imagen generada:
+             * static/img/lh_pulse_login_fondo_calido.webp (fondo cálido, paleta de la app)
+             */
+            background:
+                #F5F0E8
+                url("/static/img/lh_pulse_login_fondo_calido.webp")
+                center center / cover no-repeat fixed;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 38px 24px;
+            overflow-x: hidden;
+        }
+
+        /* Capa muy sutil para mantener el aspecto limpio de la referencia */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.04);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .page {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            min-height: calc(100vh - 76px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* =========================
+           LOGO
+        ========================= */
+
+        .brand {
+            text-align: center;
+            margin-top: 16px;
+            margin-bottom: 32px;
+        }
+
+        .brand-logo {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #1F1C19;
+            font-size: clamp(72px, 7vw, 116px);
+            line-height: 0.82;
+            font-weight: 400;
+            letter-spacing: -8px;
+        }
+
+        .brand-logo .amp {
+            font-size: 0.68em;
+            margin: 0 2px;
+            font-weight: 300;
+        }
+
+        .brand-subtitle {
+            margin-top: 17px;
+            color: #4A4038;
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 0.35px;
+        }
+
+        /* =========================
+           TARJETA DE LOGIN
+        ========================= */
+
+        .login-card {
+            width: min(540px, 100%);
+            background: rgba(255, 255, 255, 0.91);
+            border: 1px solid rgba(255, 255, 255, 0.92);
+            border-radius: 17px;
+            padding: 31px 42px 38px;
+
+            box-shadow:
+                0 22px 55px rgba(45, 42, 38, 0.13),
+                0 3px 14px rgba(45, 42, 38, 0.05);
+
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .login-icon {
+            width: 86px;
+            height: 86px;
+            margin: 0 auto 21px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: linear-gradient(
+                145deg,
+                #ffffff,
+                #F5F0E8
+            );
+
+            border: 1px solid #E8DFD0;
+            border-radius: 11px;
+
+            box-shadow:
+                0 8px 18px rgba(45, 42, 38, 0.08),
+                inset 0 1px 0 rgba(255,255,255,0.9);
+        }
+
+        /* Pequeño gráfico de barras como en la referencia */
+        .mini-chart {
+            width: 44px;
+            height: 45px;
+            position: relative;
+        }
+
+        .mini-chart .bar {
+            position: absolute;
+            bottom: 8px;
+            width: 8px;
+            border-radius: 2px 2px 1px 1px;
+        }
+
+        .mini-chart .bar:nth-child(1) {
+            left: 2px;
+            height: 20px;
+            background: #2D2A26;
+        }
+
+        .mini-chart .bar:nth-child(2) {
+            left: 16px;
+            height: 30px;
+            background: #8B7D6B;
+        }
+
+        .mini-chart .bar:nth-child(3) {
+            left: 30px;
+            height: 39px;
+            background: #C5A880;
+        }
+
+        .mini-chart::after {
+            content: "";
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #C5A880;
+            left: 18px;
+            bottom: 0;
+        }
+
+        .welcome {
+            text-align: center;
+            margin-bottom: 27px;
+        }
+
+        .welcome h1 {
+            color: #2D2A26;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            margin-bottom: 8px;
+        }
+
+        .welcome p {
+            color: #8B7D6B;
+            font-size: 13.5px;
+            line-height: 1.5;
+        }
+
+        /* =========================
+           FORMULARIO
+        ========================= */
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 17px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            color: #6B6259;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .input-icon svg {
+            width: 20px;
+            height: 20px;
+            display: block;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .form-group input {
+            width: 100%;
+            height: 54px;
+            padding: 0 45px 0 51px;
+
+            border: 1px solid var(--border);
+            border-radius: 8px;
+
+            background: rgba(255, 255, 255, 0.78);
+            color: #2D2A26;
+
+            font-size: 14px;
+            outline: none;
+
+            transition:
+                border-color 0.2s ease,
+                box-shadow 0.2s ease,
+                background 0.2s ease;
+        }
+
+        .form-group input::placeholder {
+            color: #A89A88;
+        }
+
+        .form-group input:focus {
+            border-color: #C5A880;
+            background: #ffffff;
+
+            box-shadow:
+                0 0 0 3px rgba(197, 168, 128, 0.22);
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+
+            border: 0;
+            background: transparent;
+            color: #A89A88;
+
+            width: 28px;
+            height: 28px;
+            cursor: pointer;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .password-toggle svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 1.7;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* =========================
+           BOTÓN
+        ========================= */
+
+        .btn-login {
+            width: 100%;
+            height: 55px;
+            margin-top: 11px;
+
+            border: 0;
+            border-radius: 7px;
+
+            background: linear-gradient(
+                135deg,
+                #2D2A26,
+                #1F1C19
+            );
+
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 600;
+
+            cursor: pointer;
+
+            box-shadow:
+                0 8px 17px rgba(45, 42, 38, 0.16);
+
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease,
+                filter 0.2s ease;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-1px);
+            box-shadow:
+                0 12px 23px rgba(45, 42, 38, 0.21);
+            filter: brightness(1.04);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        .btn-login:disabled {
+            opacity: 0.62;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+        }
+
+        .btn-login.loading-active .normal {
+            display: none;
+        }
+
+        .btn-login.loading-active .loading {
+            display: inline;
+        }
+
+        /* =========================
+           OLVIDÉ CONTRASEÑA
+        ========================= */
+
+        .forgot {
+            display: block;
+            width: fit-content;
+            margin: 24px auto 0;
+
+            color: #0D5C75;
+            font-size: 13px;
+            text-decoration: none;
+        }
+
+        .forgot:hover {
+            color: #0A4A5E;
+            text-decoration: underline;
+        }
+
+        /* =========================
+           MENSAJES
+        ========================= */
+
+        .mensaje {
+            display: none;
+            margin-bottom: 15px;
+            padding: 11px 13px;
+            border-radius: 7px;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        .mensaje.error {
+            display: block;
+            background: rgba(239, 68, 68, 0.08);
+            color: #c74646;
+            border: 1px solid rgba(239, 68, 68, 0.15);
+        }
+
+        .mensaje.exito {
+            display: block;
+            background: rgba(34, 197, 94, 0.08);
+            color: #27824b;
+            border: 1px solid rgba(34, 197, 94, 0.15);
+        }
+
+        /* =========================
+           BENEFICIOS
+        ========================= */
+
+        .benefits {
+            width: min(720px, 100%);
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 42px;
+            margin-top: 53px;
+            text-align: center;
+        }
+
+        .benefit {
+            color: #4A4038;
+        }
+
+        .benefit-icon {
+            width: 49px;
+            height: 49px;
+            margin: 0 auto 10px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border: 1px solid #E8DFD0;
+            border-radius: 11px;
+
+            background: rgba(255,255,255,0.65);
+
+            box-shadow:
+                0 5px 14px rgba(45, 42, 38, 0.07);
+        }
+
+        .benefit-icon svg {
+            width: 23px;
+            height: 23px;
+            stroke: #8B7D6B;
+            fill: none;
+            stroke-width: 1.6;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .benefit strong {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .benefit span {
+            display: block;
+            color: #8B7D6B;
+            font-size: 11.5px;
+            line-height: 1.45;
+        }
+
+        /* =========================
+           FOOTER
+        ========================= */
+
+        .footer {
+            margin-top: 49px;
+            margin-bottom: 4px;
+
+            color: #A89A88;
+            font-size: 11.5px;
+            text-align: center;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 800px) {
+            body {
+                padding: 24px 16px;
+                background-attachment: scroll;
+            }
+
+            .page {
+                min-height: auto;
+            }
+
+            .brand {
+                margin-top: 5px;
+                margin-bottom: 25px;
+            }
+
+            .brand-logo {
+                font-size: 76px;
+            }
+
+            .login-card {
+                padding: 28px 24px 32px;
+            }
+
+            .benefits {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 25px 15px;
+                margin-top: 35px;
+            }
+
+            .footer {
+                margin-top: 35px;
+            }
+        }
+
+        @media (max-width: 450px) {
+            body {
+                padding: 18px 12px;
+            }
+
+            .brand-logo {
+                font-size: 64px;
+                letter-spacing: -5px;
+            }
+
+            .brand-subtitle {
+                font-size: 11px;
+            }
+
+            .login-card {
+                border-radius: 14px;
+                padding: 24px 18px 28px;
+            }
+
+            .login-icon {
+                width: 75px;
+                height: 75px;
+            }
+
+            .welcome h1 {
+                font-size: 20px;
+            }
+
+            .benefits {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="page">
+
+    <!-- =========================
+         LOGO L&H
+    ========================== -->
+
+    <header class="brand">
+        <div class="brand-logo">
+            <span>L</span>
+            <span class="amp">&amp;</span>
+            <span>H</span>
+        </div>
+
+        <div class="brand-subtitle">
+            ESTADÍSTICAS QUE IMPULSAN DECISIONES
+        </div>
+    </header>
+
+
+    <!-- =========================
+         LOGIN
+    ========================== -->
+
+    <main class="login-card">
+
+        <div class="login-icon">
+            <div class="mini-chart">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+
+        <div class="welcome">
+            <h1>Bienvenido de nuevo</h1>
+            <p>Ingresa tus credenciales para continuar</p>
+        </div>
+
+        <div id="mensaje" class="mensaje"></div>
+
+        <form id="loginForm">
+
+            <!-- USUARIO -->
+
+            <div class="form-group">
+                <div class="input-wrapper">
+
+                    <span class="input-icon">
+                        <svg viewBox="0 0 24 24">
+                            <circle cx="12" cy="8" r="3.5"></circle>
+                            <path d="M5 20c.8-3.2 3.1-5 7-5s6.2 1.8 7 5"></path>
+                        </svg>
+                    </span>
+
+                    <input
+                        type="text"
+                        id="correo"
+                        name="correo"
+                        placeholder="Usuario"
+                        autocomplete="username"
+                        required
+                    >
+
+                </div>
+            </div>
+
+
+            <!-- CONTRASEÑA -->
+
+            <div class="form-group">
+                <div class="input-wrapper">
+
+                    <span class="input-icon">
+                        <svg viewBox="0 0 24 24">
+                            <rect x="5" y="10" width="14" height="10" rx="2"></rect>
+                            <path d="M8 10V7a4 4 0 0 1 8 0v3"></path>
+                            <circle cx="12" cy="15" r="1"></circle>
+                        </svg>
+                    </span>
+
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Contraseña"
+                        autocomplete="current-password"
+                        required
+                    >
+
+                    <button
+                        type="button"
+                        class="password-toggle"
+                        id="togglePassword"
+                        aria-label="Mostrar contraseña"
+                    >
+                        <svg viewBox="0 0 24 24">
+                            <path d="M2.5 12s3.2-6 9.5-6 9.5 6 9.5 6-3.2 6-9.5 6-9.5-6-9.5-6Z"></path>
+                            <circle cx="12" cy="12" r="2.5"></circle>
+                        </svg>
+                    </button>
+
+                </div>
+            </div>
+
+
+            <!-- BOTÓN -->
+
+            <button
+                type="submit"
+                id="btnLogin"
+                class="btn-login"
+            >
+                <span class="normal">
+                    Iniciar sesión
+                </span>
+
+                <span class="loading">
+                    Ingresando...
+                </span>
+            </button>
+
+        </form>
+
+
+        <a
+            href="#"
+            class="forgot"
+            onclick="return false;"
+        >
+            ¿Olvidaste tu contraseña?
+        </a>
+
+    </main>
+
+
+    <!-- =========================
+         BENEFICIOS
+    ========================== -->
+
+    <section class="benefits">
+
+        <div class="benefit">
+
+            <div class="benefit-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M4 7.5 12 3l8 4.5-8 4.5-8-4.5Z"></path>
+                    <path d="M4 7.5V16l8 5 8-5V7.5"></path>
+                    <path d="M12 12v9"></path>
+                </svg>
+            </div>
+
+            <strong>Datos precisos</strong>
+            <span>Información<br>confiable</span>
+
+        </div>
+
+
+        <div class="benefit">
+
+            <div class="benefit-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 3v9l6 3"></path>
+                    <circle cx="12" cy="12" r="8.5"></circle>
+                </svg>
+            </div>
+
+            <strong>Visualizaciones</strong>
+            <span>Gráficos claros<br>y dinámicos</span>
+
+        </div>
+
+
+        <div class="benefit">
+
+            <div class="benefit-icon">
+                <svg viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="7"></circle>
+                    <path d="m12 5 1.3 2.2 2.5.5-1.7 1.8.3 2.5-2.4-1-2.4 1 .3-2.5-1.7-1.8 2.5-.5L12 5Z"></path>
+                    <path d="M8 18 6.5 21l3.2-1 2.3 1.5"></path>
+                    <path d="M16 18 17.5 21l-3.2-1  -2.3 1.5"></path>
+                </svg>
+            </div>
+
+            <strong>Análisis inteligente</strong>
+            <span>Decisiones basadas<br>en datos</span>
+
+        </div>
+
+
+        <div class="benefit">
+
+            <div class="benefit-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M4 19V5"></path>
+                    <path d="M4 19h17"></path>
+                    <path d="m7 15 4-4 3 2 5-6"></path>
+                    <path d="M16 7h3v3"></path>
+                </svg>
+            </div>
+
+            <strong>Resultados reales</strong>
+            <span>Impacto medible<br>en tu negocio</span>
+
+        </div>
+
+    </section>
+
+
+    <footer class="footer">
+        © 2025 L&H. Todos los derechos reservados.
+    </footer>
+
+</div>
+
+
+<script>
+    const form = document.getElementById("loginForm");
+    const mensaje = document.getElementById("mensaje");
+    const btnLogin = document.getElementById("btnLogin");
+
+    const passwordInput = document.getElementById("password");
+    const togglePassword = document.getElementById("togglePassword");
+
+
+    /* =========================
+       MOSTRAR / OCULTAR PASSWORD
+    ========================== */
+
+    togglePassword.addEventListener("click", function () {
+
+        const visible = passwordInput.type === "text";
+
+        passwordInput.type = visible ? "password" : "text";
+
+        togglePassword.setAttribute(
+            "aria-label",
+            visible ? "Mostrar contraseña" : "Ocultar contraseña"
+        );
+
+        togglePassword.innerHTML = visible
+            ? `
+                <svg viewBox="0 0 24 24">
+                    <path d="M2.5 12s3.2-6 9.5-6 9.5 6 9.5 6-3.2 6-9.5 6-9.5-6-9.5-6Z"></path>
+                    <circle cx="12" cy="12" r="2.5"></circle>
+                </svg>
+              `
+            : `
+                <svg viewBox="0 0 24 24">
+                    <path d="M3 3l18 18"></path>
+                    <path d="M10.6 5.1A10.7 10.7 0 0 1 12 5c6.3 0 9.5 7 9.5 7a17.4 17.4 0 0 1-3.1 4.1"></path>
+                    <path d="M6.6 6.7C3.7 8.3 2.5 12 2.5 12s3.2 7 9.5 7c1.4 0 2.6-.3 3.7-.8"></path>
+                    <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"></path>
+                </svg>
+              `;
+    });
+
+
+    /* =========================
+       MENSAJES
+    ========================== */
+
+    function mostrarMensaje(texto, tipo) {
+        mensaje.textContent = texto;
+        mensaje.className = "mensaje " + tipo;
+    }
+
+
+    /* =========================
+       LOGIN
+       Se conserva el endpoint que
+       ya utilizaba tu código.
+    ========================== */
+
+    form.addEventListener("submit", async function (event) {
+
+        event.preventDefault();
+
+        const correo =
+            document.getElementById("correo").value.trim();
+
+        const password =
+            document.getElementById("password").value;
+
+
+        if (!correo || !password) {
+
+            mostrarMensaje(
+                "Ingrese el usuario y la contraseña.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        btnLogin.disabled = true;
+        btnLogin.classList.add("loading-active");
+
+
+        try {
+
+            const response = await fetch(
+                "/api/auth/login",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    credentials: "same-origin",
+
+                    body: JSON.stringify({
+                        correo: correo,
+                        password: password
+                    })
+                }
+            );
+
+
+            const data = await response.json();
+
+
+            if (!response.ok) {
+
+                mostrarMensaje(
+                    data.error ||
+                    "No fue posible iniciar sesión.",
+                    "error"
+                );
+
+                btnLogin.disabled = false;
+                btnLogin.classList.remove("loading-active");
+
+                return;
+            }
+
+
+            mostrarMensaje(
+                "Inicio de sesión exitoso. Cargando...",
+                "exito"
+            );
+
+
+            setTimeout(function () {
+                window.location.href = "/dashboard";
+            }, 500);
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            mostrarMensaje(
+                "No se pudo conectar con el servidor.",
+                "error"
+            );
+
+            btnLogin.disabled = false;
+            btnLogin.classList.remove("loading-active");
+        }
+
+    });
+</script>
+
+<!-- Hilo: mascota del inicio de sesión (solo decorativa; no cambia el formulario) -->
+<link rel="stylesheet" href="/static/hilo3d/hilo3d.css?v=3">
+<script type="module" src="/static/hilo3d/hilo3d.js?v=3"></script>
+</body>
+</html>

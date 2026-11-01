@@ -1,0 +1,2315 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+<style>
+
+/* ==========================================================
+   IMPORTAR FUENTE MONTSERRAT (RESPALDO)
+========================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&display=swap');
+
+/* ==========================================================
+   FILTRO DE PERÍODO
+========================================================== */
+
+.period-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-end;
+}
+
+.period-form .futuristic-select {
+    min-width: 150px;
+}
+
+.period-label {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.period-label span {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    opacity: .75;
+}
+
+.period-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* ==========================================================
+   SELECTOR TIENDA
+========================================================== */
+
+.store-selector-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.store-select {
+    flex: 1;
+    min-width: 260px;
+}
+
+.select-error {
+    animation: selectError .4s ease-in-out 0s 3;
+}
+
+@keyframes selectError {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-6px);
+    }
+
+    75% {
+        transform: translateX(6px);
+    }
+}
+
+/* ==========================================================
+   LINK METAS
+========================================================== */
+
+.goals-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 18px;
+}
+
+/* ==========================================================
+   BADGE CORTE
+========================================================== */
+
+.cut-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 10px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    background: rgba(139, 125, 107, .15);  /* tono taupe cálido */
+    color: #2D2A26;
+}
+
+/* Ajustar espacio superior del dashboard */
+.dashboard-container {
+    margin-top: -20px; /* o el valor que necesites */
+    padding-top: 10px;
+}
+
+/* Si prefieres quitar el padding del main */
+main {
+    padding-top: 10px !important;
+}
+
+/* ==========================================================
+   TÍTULO PRINCIPAL DEL DASHBOARD (GRANDE Y MONTSERRAT)
+========================================================== */
+
+.dashboard-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(2.5rem, 5vw, 4rem);   /* grande y responsive */
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+</style>
+
+{% endblock %}
+
+
+{% block contenido %}
+
+<div class="dashboard-container">
+
+
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+
+    <header class="dashboard-header">
+
+        <div class="header-main">
+
+            <div class="header-kicker">
+
+                <span class="live-dot"></span>
+
+                L&H PULSE LIVE
+
+            </div>
+
+             <h1 class="dashboard-title">
+             L&amp;H PULSE
+             </h1>
+            <p class="dashboard-subtitle">
+
+                Seguimiento de desempeño, ventas y competitividad
+                de toda la operación.
+
+            </p>
+
+        </div>
+
+
+        <div class="period-card">
+
+            <div class="period-icon">
+
+                <i class="bi bi-calendar3"></i>
+
+            </div>
+
+            <div>
+
+                <span>PERÍODO ACTUAL</span>
+
+                <strong>
+
+                    {{ mes_nombre or "" }}
+
+                    {{ periodo_anio or anio_seleccionado or "" }}
+
+                    {% if dia_corte_seleccionado %}
+                        · Día {{ dia_corte_seleccionado }}
+                    {% endif %}
+
+                </strong>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- =====================================================
+         PANEL DE CONTROL
+    ====================================================== -->
+
+    <section class="control-panel">
+
+
+        <!-- =================================================
+             FILTRO AÑO / MES / DÍA
+        ================================================== -->
+
+        <div class="control-section">
+
+            <span class="section-kicker">
+
+                ANÁLISIS TEMPORAL
+
+            </span>
+
+            <h3>
+
+                Seleccionar período
+
+            </h3>
+
+            <p>
+
+                Selecciona el año, mes y día de corte que deseas
+                analizar. El dashboard mostrará la información
+                correspondiente exactamente a ese corte.
+
+            </p>
+
+
+            <form
+                method="GET"
+                action="{{ url_for('dashboard.dashboard') }}"
+                class="period-form"
+                id="periodFilterForm"
+            >
+
+
+                <!-- =================================================
+                     AÑO
+                ================================================== -->
+
+                <label class="period-label">
+
+                    <span>AÑO</span>
+
+                    <select
+                        name="anio"
+                        id="selectorAnio"
+                        class="futuristic-select"
+                    >
+
+                        {% set anios_filtro = [] %}
+
+                        {% for periodo in periodos_disponibles|default([], true) %}
+
+                            {% if periodo is mapping %}
+
+                                {% set anio_periodo = periodo.anio %}
+
+                            {% else %}
+
+                                {% set anio_periodo = periodo[0] %}
+
+                            {% endif %}
+
+
+                            {% if anio_periodo not in anios_filtro %}
+
+                                {% set _ = anios_filtro.append(anio_periodo) %}
+
+                            {% endif %}
+
+                        {% endfor %}
+
+
+                        {% if anios_filtro %}
+
+                            {% for y in anios_filtro|sort(reverse=true) %}
+
+                            <option
+                                value="{{ y }}"
+                                {% if y == anio_seleccionado %}
+                                    selected
+                                {% endif %}
+                            >
+
+                                {{ y }}
+
+                            </option>
+
+                            {% endfor %}
+
+                        {% elif anio_seleccionado %}
+
+                            <option
+                                value="{{ anio_seleccionado }}"
+                                selected
+                            >
+
+                                {{ anio_seleccionado }}
+
+                            </option>
+
+                        {% endif %}
+
+                    </select>
+
+                </label>
+
+
+
+                <!-- =================================================
+                     MES
+                ================================================== -->
+
+                <label class="period-label">
+
+                    <span>MES</span>
+
+                    <select
+                        name="mes"
+                        id="selectorMes"
+                        class="futuristic-select"
+                    >
+
+                        {% set nombres_meses = [
+
+                            "Enero",
+                            "Febrero",
+                            "Marzo",
+                            "Abril",
+                            "Mayo",
+                            "Junio",
+                            "Julio",
+                            "Agosto",
+                            "Septiembre",
+                            "Octubre",
+                            "Noviembre",
+                            "Diciembre"
+
+                        ] %}
+
+
+                        {% for m in range(1, 13) %}
+
+                        <option
+                            value="{{ m }}"
+                            {% if m == mes_seleccionado %}
+                                selected
+                            {% endif %}
+                        >
+
+                            {{ nombres_meses[m - 1] }}
+
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </label>
+
+
+
+                <!-- =================================================
+                     DÍA / CORTE
+                ================================================== -->
+
+                <label class="period-label">
+
+                    <span>DÍA / CORTE</span>
+
+                    <select
+                        name="dia_corte"
+                        id="selectorDiaCorte"
+                        class="futuristic-select"
+                    >
+
+                        {% set dia_actual = dia_corte_seleccionado %}
+
+                        {% if cortes_disponibles %}
+
+                            {% for d in cortes_disponibles|sort %}
+
+                            <option
+                                value="{{ d }}"
+                                {% if d == dia_actual %}
+                                    selected
+                                {% endif %}
+                            >
+
+                                Día {{ d }}
+
+                            </option>
+
+                            {% endfor %}
+
+                        {% else %}
+
+                            {% if dia_actual %}
+
+                            <option
+                                value="{{ dia_actual }}"
+                                selected
+                            >
+
+                                Día {{ dia_actual }}
+
+                            </option>
+
+                            {% else %}
+
+                            <option value="">
+
+                                Todos los días
+
+                            </option>
+
+                            {% endif %}
+
+                        {% endif %}
+
+                    </select>
+
+                </label>
+
+
+
+                <!-- =================================================
+                     BOTONES
+                ================================================== -->
+
+                <div class="period-actions">
+
+                    <button
+                        type="submit"
+                        class="btn-neon"
+                    >
+
+                        <i class="bi bi-bar-chart-fill"></i>
+
+                        Analizar
+
+                    </button>
+
+
+                    <a
+                        href="{{ url_for('dashboard.dashboard') }}"
+                        class="btn-reset"
+                        title="Restablecer período"
+                    >
+
+                        <i class="bi bi-arrow-counterclockwise"></i>
+
+                    </a>
+
+                </div>
+
+            </form>
+
+
+
+            <!-- =================================================
+                 INFORMACIÓN DEL PERÍODO
+            ================================================== -->
+
+            {% if mes_seleccionado %}
+
+            <div class="cut-badge">
+
+                <i class="bi bi-calendar-check"></i>
+
+                Analizando:
+
+                {{ mes_nombre }}
+
+                {{ anio_seleccionado }}
+
+                {% if dia_corte_seleccionado %}
+
+                    · Día {{ dia_corte_seleccionado }}
+
+                {% endif %}
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+
+
+        <!-- =================================================
+             SEPARADOR
+        ================================================== -->
+
+        <div class="control-divider"></div>
+
+
+
+        <!-- =================================================
+             EXPLORADOR DE TIENDAS
+        ================================================== -->
+
+        <div class="control-section store-explorer">
+
+            <span class="section-kicker">
+
+                EXPLORADOR
+
+            </span>
+
+            <h3>
+
+                Analizar una tienda individualmente
+
+            </h3>
+
+            <p>
+
+                Consulta el rendimiento completo de cualquier
+                tienda registrada para el mismo período y día
+                de corte seleccionado.
+
+            </p>
+
+
+
+            <div class="store-selector-row">
+
+                <select
+                    id="selectorTienda"
+                    class="futuristic-select store-select"
+                >
+
+                    <option value="">
+
+                        Seleccionar tienda...
+
+                    </option>
+
+
+                    {% for tienda in tiendas_disponibles|default([], true) %}
+
+                    <option value="{{ tienda.id }}">
+
+                        {{ tienda.codigo }} -
+
+                        {{ tienda.nombre }}
+
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+
+
+                <button
+                    type="button"
+                    id="btnVerTienda"
+                    class="btn-neon store-button"
+                >
+
+                    Ver dashboard
+
+                    <i class="bi bi-arrow-right"></i>
+
+                </button>
+
+            </div>
+
+
+
+            <a
+                href="{{ url_for('admin_goals.admin_metas') }}"
+                class="goals-link"
+            >
+
+                <i class="bi bi-bullseye"></i>
+
+                Administrar metas de asesoras
+
+            </a>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         SIN DATOS
+    ====================================================== -->
+
+    {% if not periodos_disponibles %}
+
+    <section class="empty-dashboard">
+
+        <div class="empty-icon">
+
+            <i class="bi bi-database-x"></i>
+
+        </div>
+
+        <h2>
+
+            No hay información disponible
+
+        </h2>
+
+        <p>
+
+            Importa un archivo Excel con la información
+            administrativa para visualizar el desempeño.
+
+        </p>
+
+        <a
+            href="{{ url_for('import_excel.pagina_importar') }}"
+            class="btn-neon"
+        >
+
+            <i class="bi bi-upload"></i>
+
+            Importar información
+
+        </a>
+
+    </section>
+
+
+    {% else %}
+
+
+    <!-- =====================================================
+         WELCOME
+    ====================================================== -->
+
+    <section class="welcome-panel">
+
+        <div class="welcome-glow"></div>
+
+        <div class="welcome-icon">
+
+            <i class="bi bi-stars"></i>
+
+        </div>
+
+        <div class="welcome-content">
+
+            <span class="section-kicker">
+
+                CENTRO DE CONTROL
+
+            </span>
+
+            <h2>
+
+                Bienvenido,
+
+                {{ usuario.nombre if usuario else "Administrador" }}
+
+            </h2>
+
+            <p>
+
+                Aquí puedes monitorear el rendimiento de las tiendas,
+                detectar oportunidades y comparar resultados.
+
+            </p>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         KPI PRINCIPALES
+    ====================================================== -->
+
+    <section class="kpi-grid">
+
+
+        <!-- VENTAS -->
+
+        <article class="kpi-card blue">
+
+            <div class="kpi-top">
+
+                <div class="kpi-icon">
+
+                    <i class="bi bi-cash-stack"></i>
+
+                </div>
+
+                <span class="kpi-label">
+
+                    VENTAS TOTALES
+
+                </span>
+
+            </div>
+
+
+            <div class="kpi-value">
+
+                ${{ "{:,.0f}".format(ventas or 0) }}
+
+            </div>
+
+
+            <div class="kpi-description">
+
+                Venta acumulada de tiendas
+
+            </div>
+
+
+            <div class="kpi-line blue-line"></div>
+
+        </article>
+
+
+
+        <!-- CUMPLIMIENTO -->
+
+        <article class="kpi-card cyan">
+
+            <div class="kpi-top">
+
+                <div class="kpi-icon">
+
+                    <i class="bi bi-graph-up-arrow"></i>
+
+                </div>
+
+                <span class="kpi-label">
+
+                    CUMPLIMIENTO
+
+                </span>
+
+            </div>
+
+
+            <div class="kpi-value">
+
+                {{ "%.1f"|format((cumplimiento or 0) * 100) }}%
+
+            </div>
+
+
+            <div class="kpi-description">
+
+                Cumplimiento promedio
+
+            </div>
+
+
+            <div class="kpi-line cyan-line"></div>
+
+        </article>
+
+
+
+        <!-- TIENDAS -->
+
+        <article class="kpi-card purple">
+
+            <div class="kpi-top">
+
+                <div class="kpi-icon">
+
+                    <i class="bi bi-shop"></i>
+
+                </div>
+
+                <span class="kpi-label">
+
+                    RED DE TIENDAS
+
+                </span>
+
+            </div>
+
+
+            <div class="kpi-value">
+
+                {{ tiendas or 0 }}
+
+            </div>
+
+
+            <div class="kpi-description">
+
+                Tiendas registradas
+
+            </div>
+
+
+            <div class="kpi-line purple-line"></div>
+
+        </article>
+
+
+
+        <!-- VENTA ANTERIOR -->
+
+        <article class="kpi-card gold">
+
+            <div class="kpi-top">
+
+                <div class="kpi-icon">
+
+                    <i class="bi bi-clock-history"></i>
+
+                </div>
+
+                <span class="kpi-label">
+
+                    VENTA AÑO ANTERIOR
+
+                </span>
+
+            </div>
+
+
+            <div class="kpi-value">
+
+                ${{ "{:,.0f}".format(venta_anterior or 0) }}
+
+            </div>
+
+
+            <div class="kpi-description">
+
+                Mismo período del año pasado
+
+            </div>
+
+
+            <div class="kpi-line gold-line"></div>
+
+        </article>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         KPIS ASESORAS
+    ====================================================== -->
+
+    <section class="secondary-kpi-grid">
+
+
+        <div class="secondary-kpi">
+
+            <div class="secondary-icon">
+
+                <i class="bi bi-people-fill"></i>
+
+            </div>
+
+            <div>
+
+                <span>
+
+                    ASESORAS
+
+                </span>
+
+                <strong>
+
+                    {{ total_asesoras or 0 }}
+
+                </strong>
+
+                <small>
+
+                    Registradas
+
+                </small>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="secondary-kpi">
+
+            <div class="secondary-icon">
+
+                <i class="bi bi-person-check-fill"></i>
+
+            </div>
+
+            <div>
+
+                <span>
+
+                    VENTA ASESORAS
+
+                </span>
+
+                <strong>
+
+                    ${{ "{:,.0f}".format(venta_asesoras or 0) }}
+
+                </strong>
+
+                <small>
+
+                    Venta acumulada
+
+                </small>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="secondary-kpi">
+
+            <div class="secondary-icon">
+
+                <i class="bi bi-receipt"></i>
+
+            </div>
+
+            <div>
+
+                <span>
+
+                    FACTURAS
+
+                </span>
+
+                <strong>
+
+                    {{ "{:,.0f}".format(facturas_asesoras or 0) }}
+
+                </strong>
+
+                <small>
+
+                    Facturas realizadas
+
+                </small>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="secondary-kpi">
+
+            <div class="secondary-icon">
+
+                <i class="bi bi-speedometer2"></i>
+
+            </div>
+
+            <div>
+
+                <span>
+
+                    UPT PROMEDIO
+
+                </span>
+
+                <strong>
+
+                    {{ "%.2f"|format(upt_asesoras or 0) }}
+
+                </strong>
+
+                <small>
+
+                    Unidades por factura
+
+                </small>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         KPI ADICIONALES GLOBALES
+    ====================================================== -->
+
+    <section class="secondary-kpi-grid">
+
+        <div class="secondary-kpi">
+            <div class="secondary-icon"><i class="bi bi-people"></i></div>
+            <div>
+                <span>TRÁFICO TOTAL</span>
+                <strong>{{ "{:,.0f}".format(trafico_total) }}</strong>
+                <small>Visitas acumuladas</small>
+            </div>
+        </div>
+
+        <div class="secondary-kpi">
+            <div class="secondary-icon"><i class="bi bi-receipt"></i></div>
+            <div>
+                <span>FACTURAS TOTALES</span>
+                <strong>{{ "{:,.0f}".format(facturas_total) }}</strong>
+                <small>Facturas registradas</small>
+            </div>
+        </div>
+
+        <div class="secondary-kpi">
+            <div class="secondary-icon"><i class="bi bi-arrow-repeat"></i></div>
+            <div>
+                <span>CONVERSIÓN GLOBAL</span>
+                <strong>{{ "%.2f"|format(conversion_global) }}%</strong>
+                <small>Facturas / Tráfico</small>
+            </div>
+        </div>
+
+        <div class="secondary-kpi">
+            <div class="secondary-icon"><i class="bi bi-cart-check"></i></div>
+            <div>
+                <span>TICKET PROMEDIO GLOBAL</span>
+                <strong>${{ "{:,.0f}".format(ticket_promedio_global) }}</strong>
+                <small>Venta por factura</small>
+            </div>
+        </div>
+
+        <div class="secondary-kpi">
+            <div class="secondary-icon"><i class="bi bi-calendar-check"></i></div>
+            <div>
+                <span>DIF. ACUM GLOBAL</span>
+                <strong>${{ "{:,.0f}".format(dif_acum_global) }}</strong>
+                <small>Acumulado vs. 2025</small>
+            </div>
+        </div>
+
+        <div class="secondary-kpi">
+            <div class="secondary-icon"><i class="bi bi-box-seam"></i></div>
+            <div>
+                <span>UNIDADES TOTALES</span>
+                <strong>{{ "{:,.0f}".format(unidades_global) }}</strong>
+                <small>Unidades vendidas</small>
+            </div>
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         VENTA VS AÑO ANTERIOR
+    ====================================================== -->
+
+    <section class="comparison-panel">
+
+        {% set diferencia_interanual = (ventas or 0) - (venta_anterior or 0) %}
+
+        <div>
+
+            <span class="section-kicker">
+
+                CRECIMIENTO
+
+            </span>
+
+            <h3>
+
+                Evolución interanual
+
+            </h3>
+
+            <p>
+
+                Comparación de las ventas frente al mismo período
+                del año anterior.
+
+            </p>
+
+        </div>
+
+
+        <div class="comparison-values">
+
+
+            <div>
+
+                <span>
+
+                    VENTA ACTUAL
+
+                </span>
+
+                <strong>
+
+                    ${{ "{:,.0f}".format(ventas or 0) }}
+
+                </strong>
+
+            </div>
+
+
+            <div class="comparison-arrow">
+
+                <i class="bi bi-arrow-right"></i>
+
+            </div>
+
+
+            <div>
+
+                <span>
+
+                    AÑO ANTERIOR
+
+                </span>
+
+                <strong>
+
+                    ${{ "{:,.0f}".format(venta_anterior or 0) }}
+
+                </strong>
+
+            </div>
+
+
+            <div
+                class="
+                    variation-badge
+                    {% if (variacion_porcentual or 0) >= 0 %}
+                        positive
+                    {% else %}
+                        negative
+                    {% endif %}
+                "
+            >
+
+                {% if (variacion_porcentual or 0) >= 0 %}
+
+                    <i class="bi bi-arrow-up"></i>
+
+                    +{{ ((variacion_porcentual or 0) * 100)|round(1) }}%
+
+                {% else %}
+
+                    <i class="bi bi-arrow-down"></i>
+
+                    {{ ((variacion_porcentual or 0) * 100)|round(1) }}%
+
+                {% endif %}
+
+            </div>
+
+
+            <div
+                class="
+                    comparison-difference
+                    {% if diferencia_interanual > 0 %}
+                        positive
+                    {% elif diferencia_interanual < 0 %}
+                        negative
+                    {% else %}
+                        neutral
+                    {% endif %}
+                "
+            >
+
+                <span>DIFERENCIA EN PESOS</span>
+
+                <strong>
+
+                    {% if diferencia_interanual > 0 %}
+
+                        +${{ "{:,.0f}".format(diferencia_interanual) }}
+
+                    {% elif diferencia_interanual < 0 %}
+
+                        -${{ "{:,.0f}".format(diferencia_interanual|abs) }}
+
+                    {% else %}
+
+                        $0
+
+                    {% endif %}
+
+                </strong>
+
+                <small>
+                    Venta actual menos año anterior
+                </small>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         CUMPLIMIENTO GENERAL
+    ====================================================== -->
+
+    <section class="progress-panel">
+
+        <div class="progress-header">
+
+            <div>
+
+                <span class="section-kicker">
+
+                    PERFORMANCE
+
+                </span>
+
+                <h3>
+
+                    Cumplimiento general
+
+                </h3>
+
+            </div>
+
+            <strong>
+
+                {{ "%.1f"|format((cumplimiento or 0) * 100) }}%
+
+            </strong>
+
+        </div>
+
+
+        <div class="progress-track">
+
+            <div
+                class="progress-fill"
+                style="
+                    width:
+                    {{ [((cumplimiento or 0) * 100), 100]|min }}%;
+                "
+            ></div>
+
+        </div>
+
+
+        <div class="progress-footer">
+
+            <span>
+
+                Ventas:
+
+                ${{ "{:,.0f}".format(ventas or 0) }}
+
+            </span>
+
+
+            <span>
+
+                {{ tiendas or 0 }} tiendas
+
+            </span>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         GRÁFICAS
+    ====================================================== -->
+
+    <section class="charts-grid">
+
+
+        <!-- TOP VENTAS -->
+
+        <div class="chart-panel">
+
+            <div class="chart-header">
+
+                <div>
+
+                    <span class="section-kicker">
+
+                        COMPETENCIA
+
+                    </span>
+
+                    <h3>
+
+                        Top 10 ventas
+
+                    </h3>
+
+                </div>
+
+                <span class="chart-badge">
+
+                    VENTAS
+
+                </span>
+
+            </div>
+
+
+            <div class="chart-wrapper">
+
+                <canvas id="ventasChart"></canvas>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- TOP CUMPLIMIENTO -->
+
+        <div class="chart-panel">
+
+            <div class="chart-header">
+
+                <div>
+
+                    <span class="section-kicker">
+
+                        PERFORMANCE
+
+                    </span>
+
+                    <h3>
+
+                        Top cumplimiento
+
+                    </h3>
+
+                </div>
+
+                <span class="chart-badge">
+
+                    %
+
+                </span>
+
+            </div>
+
+
+            <div class="chart-wrapper">
+
+                <canvas id="cumplimientoChart"></canvas>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         VENTAS POR LÍNEA GLOBAL
+    ====================================================== -->
+
+    <section class="data-panel">
+        <div class="data-header">
+            <div>
+                <span class="section-kicker">DESEMPEÑO</span>
+                <h3>Ventas por línea (Global)</h3>
+                <p>Comparación 2025 vs 2026</p>
+            </div>
+        </div>
+        <div class="table-container">
+            <table class="futuristic-table">
+                <thead>
+                    <tr><th>LÍNEA</th><th>2025</th><th>2026</th><th>DIF.</th><th>CREC.</th></tr>
+                </thead>
+                <tbody>
+                    {% for linea in evolucion_lineas_global %}
+                    <tr>
+                        <td><strong>{{ linea.linea }}</strong></td>
+                        <td>${{ "{:,.0f}".format(linea.venta_2025) }}</td>
+                        <td>${{ "{:,.0f}".format(linea.venta_2026) }}</td>
+                        <td class="{% if linea.diferencia > 0 %}text-success{% elif linea.diferencia < 0 %}text-danger{% endif %}">
+                            {{ "+" if linea.diferencia > 0 }}{{ "{:,.0f}".format(linea.diferencia) }}
+                        </td>
+                        <td class="{% if linea.crecimiento > 0 %}text-success{% elif linea.crecimiento < 0 %}text-danger{% endif %}">
+                            {{ "+" if linea.crecimiento > 0 }}{{ "%.1f"|format(linea.crecimiento) }}%
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="5" class="text-center py-4 text-muted">No hay datos</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+
+    <!-- =====================================================
+         CIUDAD / CLIMA
+    ====================================================== -->
+
+    <section class="charts-grid">
+        <div class="chart-panel">
+            <div class="chart-header">
+                <div><span class="section-kicker">CIUDAD</span><h3>Ventas por ciudad</h3></div>
+            </div>
+            <div class="chart-wrapper"><canvas id="ciudadesGlobalChart"></canvas></div>
+        </div>
+        <div class="chart-panel">
+            <div class="chart-header">
+                <div><span class="section-kicker">CLIMA</span><h3>Ventas por clima</h3></div>
+            </div>
+            <div class="chart-wrapper"><canvas id="climasGlobalChart"></canvas></div>
+        </div>
+    </section>
+
+
+
+    <!-- =====================================================
+         RANKING TIENDAS
+    ====================================================== -->
+
+    <section class="data-panel">
+
+        <div class="data-header">
+
+            <div>
+
+                <span class="section-kicker">
+
+                    COMPETENCIA
+
+                </span>
+
+                <h3>
+
+                    Ranking de tiendas
+
+                </h3>
+
+                <p>
+
+                    Todas las tiendas ordenadas por cumplimiento.
+
+                </p>
+
+            </div>
+
+
+            <span class="data-count">
+
+                {{ ranking_completo|length }} tiendas
+
+            </span>
+
+        </div>
+
+
+        <div class="table-container">
+
+            <table class="futuristic-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>POS.</th>
+
+                        <th>TIENDA</th>
+
+                        <th>VENTAS</th>
+
+                        <th>CUMPLIMIENTO</th>
+
+                        <th>ESTADO</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for item in ranking_completo %}
+
+                    <tr>
+
+                        <td>
+
+                            {% if loop.index == 1 %}
+
+                                <span class="rank gold-rank">
+                                    🥇
+                                </span>
+
+                            {% elif loop.index == 2 %}
+
+                                <span class="rank silver-rank">
+                                    🥈
+                                </span>
+
+                            {% elif loop.index == 3 %}
+
+                                <span class="rank bronze-rank">
+                                    🥉
+                                </span>
+
+                            {% else %}
+
+                                <span class="rank">
+                                    {{ loop.index }}
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+
+                            <strong>
+
+                                {{ item.nombre }}
+
+                            </strong>
+
+                        </td>
+
+
+                        <td>
+
+                            ${{ "{:,.0f}".format(item.venta_actual or 0) }}
+
+                        </td>
+
+
+                        <td>
+
+                            <strong>
+
+                                {{ "%.2f"|format(
+                                    (item.cumplimiento_pct or 0) * 100
+                                ) }}%
+
+                            </strong>
+
+                        </td>
+
+
+                        <td>
+
+                            {% set cumple = item.cumplimiento_pct or 0 %}
+
+
+                            {% if cumple >= 1 %}
+
+                                <span class="status success">
+
+                                    META SUPERADA
+
+                                </span>
+
+                            {% elif cumple >= 0.9 %}
+
+                                <span class="status warning">
+
+                                    CERCA DE LA META
+
+                                </span>
+
+                            {% elif cumple >= 0.8 %}
+
+                                <span class="status info">
+
+                                    EN PROGRESO
+
+                                </span>
+
+                            {% else %}
+
+                                <span class="status danger">
+
+                                    POR DEBAJO
+
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         RANKING ASESORAS
+    ====================================================== -->
+
+    <section class="data-panel">
+
+        <div class="data-header">
+
+            <div>
+
+                <span class="section-kicker">
+
+                    COMPETENCIA
+
+                </span>
+
+                <h3>
+
+                    Ranking global de asesoras
+
+                </h3>
+
+                <p>
+
+                    Todas las asesoras de todas las tiendas
+                    ordenadas por venta.
+
+                </p>
+
+            </div>
+
+
+            <span class="data-count">
+
+                {{ top_asesoras_global|length }} asesoras
+
+            </span>
+
+        </div>
+
+
+        <div class="table-container">
+
+            <table class="futuristic-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>POS.</th>
+
+                        <th>ASESORA</th>
+
+                        <th>TIENDA</th>
+
+                        <th>VENTAS</th>
+
+                        <th>FACTURAS</th>
+
+                        <th>TICKET</th>
+
+                        <th>UPT</th>
+
+                        <th>CUMPLIMIENTO</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for item in top_asesoras_global %}
+
+                    <tr>
+
+                        <td>
+
+                            {% if loop.index == 1 %}
+
+                                <span class="rank gold-rank">
+                                    🥇
+                                </span>
+
+                            {% elif loop.index == 2 %}
+
+                                <span class="rank silver-rank">
+                                    🥈
+                                </span>
+
+                            {% elif loop.index == 3 %}
+
+                                <span class="rank bronze-rank">
+                                    🥉
+                                </span>
+
+                            {% else %}
+
+                                <span class="rank">
+                                    {{ loop.index }}
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+
+                            <strong>
+
+                                {{ item.asesora }}
+
+                            </strong>
+
+                        </td>
+
+
+                        <td>
+
+                            {{ item.tienda }}
+
+                        </td>
+
+
+                        <td>
+
+                            ${{ "{:,.0f}".format(item.venta or 0) }}
+
+                        </td>
+
+
+                        <td>
+
+                            {{ item.facturas|int }}
+
+                        </td>
+
+
+                        <td>
+
+                            ${{ "{:,.0f}".format(item.ticket or 0) }}
+
+                        </td>
+
+
+                        <td>
+
+                            {{ "%.2f"|format(item.upt or 0) }}
+
+                        </td>
+
+
+                        <td>
+
+                            {{ "%.1f"|format(item.cumplimiento_meta * 100) }}%
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         ALERTAS TIENDAS CRÍTICAS
+    ====================================================== -->
+
+    <section class="data-panel">
+        <div class="data-header">
+            <div><span class="section-kicker">ALERTAS</span><h3>Tiendas críticas</h3><p>Bajo cumplimiento o sin ventas</p></div>
+        </div>
+        <div class="ranking-list">
+            {% for alerta in tiendas_criticas %}
+            <div class="ranking-item">
+                <div class="ranking-position">{{ loop.index }}</div>
+                <div class="ranking-store">
+                    <strong>{{ alerta.nombre }}</strong>
+                    <span>{{ alerta.codigo }}</span>
+                </div>
+                <div class="ranking-value">{{ "%.1f"|format(alerta.cumplimiento*100) }}%</div>
+            </div>
+            {% else %}
+            <div class="no-data">No hay tiendas críticas</div>
+            {% endfor %}
+        </div>
+    </section>
+
+
+
+    <!-- =====================================================
+         TOP VENTAS
+    ====================================================== -->
+
+    <section class="data-panel">
+
+        <div class="data-header">
+
+            <div>
+
+                <span class="section-kicker">
+
+                    RESULTADOS
+
+                </span>
+
+                <h3>
+
+                    Tiendas con mayor venta
+
+                </h3>
+
+                <p>
+
+                    Comparación de las tiendas con mayor
+                    venta acumulada.
+
+                </p>
+
+            </div>
+
+
+            <span class="data-count">
+
+                TOP 10
+
+            </span>
+
+        </div>
+
+
+        <div class="ranking-list">
+
+            {% if top_ventas %}
+
+                {% for item in top_ventas %}
+
+                <div class="ranking-item">
+
+
+                    <div class="ranking-position">
+
+                        {% if loop.index == 1 %}
+
+                            🥇
+
+                        {% elif loop.index == 2 %}
+
+                            🥈
+
+                        {% elif loop.index == 3 %}
+
+                            🥉
+
+                        {% else %}
+
+                            {{ loop.index }}
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="ranking-store">
+
+                        <strong>
+
+                            {{ item.nombre }}
+
+                        </strong>
+
+                        <span>
+
+                            Venta actual
+
+                        </span>
+
+                    </div>
+
+
+                    <div class="ranking-value">
+
+                        ${{ "{:,.0f}".format(
+                            item.venta_actual or 0
+                        ) }}
+
+                    </div>
+
+                </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <div class="no-data">
+
+                    No hay información de ventas disponible.
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         RESUMEN
+    ====================================================== -->
+
+    <section class="summary-grid">
+
+
+        <div class="summary-card">
+
+            <span class="section-kicker">
+
+                RED DE TIENDAS
+
+            </span>
+
+            <strong>
+
+                {{ tiendas or 0 }}
+
+            </strong>
+
+            <span>
+
+                Tiendas registradas
+
+            </span>
+
+        </div>
+
+
+
+        <div class="summary-card">
+
+            <span class="section-kicker">
+
+                VENTAS
+
+            </span>
+
+            <strong>
+
+                ${{ "{:,.0f}".format(ventas or 0) }}
+
+            </strong>
+
+            <span>
+
+                Ventas acumuladas
+
+            </span>
+
+        </div>
+
+
+
+        <div class="summary-card">
+
+            <span class="section-kicker">
+
+                PERFORMANCE
+
+            </span>
+
+            <strong>
+
+                {{ "%.1f"|format(
+                    (cumplimiento or 0) * 100
+                ) }}%
+
+            </strong>
+
+            <span>
+
+                Cumplimiento general
+
+            </span>
+
+        </div>
+
+    </section>
+
+
+    {% endif %}
+
+</div>
+
+
+
+<!-- =========================================================
+     DATOS PARA CHART.JS
+========================================================= -->
+
+<script id="dashboard-data" type="application/json">
+
+{
+
+    "topVentas":
+        {{ top_ventas | default([], true) | tojson }},
+
+    "topCumplimiento":
+        {{ top_cumplimiento | default([], true) | tojson }},
+
+    "rankingCiudades":
+        {{ ranking_ciudades | default([], true) | tojson }},
+
+    "resumenClimas":
+        {{ resumen_climas | default([], true) | tojson }}
+
+}
+
+</script>
+
+
+
+<!-- =========================================================
+     URL PARA VER TIENDA
+========================================================= -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const button = document.getElementById("btnVerTienda");
+    const selector = document.getElementById("selectorTienda");
+
+    if (!button || !selector) {
+        return;
+    }
+
+    button.addEventListener("click", function () {
+        const storeId = selector.value;
+
+        if (!storeId) {
+            selector.classList.add("select-error");
+            setTimeout(function () {
+                selector.classList.remove("select-error");
+            }, 1200);
+            return;
+        }
+
+        /*
+         * URL BASE GENERADA POR FLASK
+         */
+        const baseUrl = "{{ url_for('dashboard.dashboard_tienda_admin', store_id=0) }}";
+
+        const targetUrl = baseUrl.replace(/\/0$/, "/" + storeId);
+
+        /*
+         * CONSERVAR AÑO + MES + DÍA/CORTE
+         */
+        const params = new URLSearchParams(window.location.search);
+
+        const anio = params.get("anio");
+        const mes = params.get("mes");
+        const diaCorte = params.get("dia_corte");
+
+        const finalParams = new URLSearchParams();
+
+        if (anio) {
+            finalParams.set("anio", anio);
+        }
+
+        if (mes) {
+            finalParams.set("mes", mes);
+        }
+
+        if (diaCorte) {
+            finalParams.set("dia_corte", diaCorte);
+        }
+
+        let finalUrl = targetUrl;
+        const query = finalParams.toString();
+
+        if (query) {
+            finalUrl += "?" + query;
+        }
+
+        window.location.href = finalUrl;
+    });
+});
+</script>
+{% endblock %}
+
+
+
+{% block extra_js %}
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const dataElement = document.getElementById("dashboard-data");
+    if (!dataElement) return;
+
+    let dashboardData = {};
+    try {
+        dashboardData = JSON.parse(dataElement.textContent);
+    } catch (e) {
+        console.error("Error parsing dashboard-data", e);
+        return;
+    }
+
+    // =====================================================
+    // GRÁFICA TOP VENTAS
+    // =====================================================
+    const ventasCanvas = document.getElementById("ventasChart");
+    if (ventasCanvas && Array.isArray(dashboardData.topVentas) && dashboardData.topVentas.length > 0) {
+        const labels = dashboardData.topVentas.map(item => item.nombre || "Sin nombre");
+        const valores = dashboardData.topVentas.map(item => Number(item.venta_actual || 0));
+
+        new Chart(ventasCanvas, {
+            type: "bar",
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Ventas",
+                    data: valores,
+                    backgroundColor: "rgba(139, 125, 107, 0.7)",   // taupe
+                    borderColor: "rgba(139, 125, 107, 1)",
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function (ctx) {
+                                return "$" + ctx.parsed.y.toLocaleString();
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function (value) {
+                                return "$" + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // =====================================================
+    // GRÁFICA TOP CUMPLIMIENTO
+    // =====================================================
+    const cumplimientoCanvas = document.getElementById("cumplimientoChart");
+    if (cumplimientoCanvas && Array.isArray(dashboardData.topCumplimiento) && dashboardData.topCumplimiento.length > 0) {
+        const labels = dashboardData.topCumplimiento.map(item => item.nombre || "Sin nombre");
+        const valores = dashboardData.topCumplimiento.map(item => Number(item.cumplimiento_pct || 0) * 100);
+
+        new Chart(cumplimientoCanvas, {
+            type: "bar",
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Cumplimiento (%)",
+                    data: valores,
+                    backgroundColor: "rgba(197, 168, 128, 0.7)",   // dorado suave
+                    borderColor: "rgba(197, 168, 128, 1)",
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function (ctx) {
+                                return ctx.parsed.y.toFixed(1) + "%";
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function (value) {
+                                return value + "%";
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // =====================================================
+    // GRÁFICA CIUDADES
+    // =====================================================
+    const ciudadesCanvas = document.getElementById("ciudadesGlobalChart");
+    if (ciudadesCanvas && Array.isArray(dashboardData.rankingCiudades) && dashboardData.rankingCiudades.length > 0) {
+        const labels = dashboardData.rankingCiudades.map(item => item.ciudad || "Sin ciudad");
+        const valores = dashboardData.rankingCiudades.map(item => Number(item.ventas || 0));
+
+        new Chart(ciudadesCanvas, {
+            type: "bar",
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Ventas",
+                    data: valores,
+                    backgroundColor: "rgba(139, 125, 107, 0.7)",   // taupe
+                    borderColor: "rgba(139, 125, 107, 1)",
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function (ctx) {
+                                return "$" + ctx.parsed.y.toLocaleString();
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function (value) {
+                                return "$" + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // =====================================================
+    // GRÁFICA CLIMAS
+    // =====================================================
+    const climasCanvas = document.getElementById("climasGlobalChart");
+    if (climasCanvas && Array.isArray(dashboardData.resumenClimas) && dashboardData.resumenClimas.length > 0) {
+        const labels = dashboardData.resumenClimas.map(item => item.clima || "Sin clima");
+        const valores = dashboardData.resumenClimas.map(item => Number(item.ventas || 0));
+
+        new Chart(climasCanvas, {
+            type: "doughnut",
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: valores,
+                    backgroundColor: [
+                        "rgba(139, 125, 107, 0.8)",   // taupe
+                        "rgba(197, 168, 128, 0.8)",   // dorado
+                        "rgba(168, 154, 135, 0.8)",   // taupe claro
+                        "rgba(184, 148, 110, 0.8)",   // dorado oscuro
+                        "rgba(122, 158, 126, 0.8)"    // verde apagado
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: "bottom" }
+                }
+            }
+        });
+    }
+});
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

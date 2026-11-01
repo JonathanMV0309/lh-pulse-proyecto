@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block contenido %}
+<div class="container mt-4">
+    {% if store_id %}
+    <div id="retosPagina" data-store="{{ '' if es_tienda_usuario else store_id }}" aria-live="polite">
+        <p class="text-muted">Cargando los retos de la semana…</p>
+    </div>
+    {% else %}
+    <div class="alert alert-light border">
+        Los retos de la semana son de cada tienda. Para ver todas las batallas de la red entra a
+        <a href="/ranking/desempeno/#batallas">Ranking de desempeño › Batallas</a>.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/retos_tienda.js') }}?v=2"></script>
+{% endblock %}

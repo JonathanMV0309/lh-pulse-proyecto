@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<style>
+.sd-page {
+    --sd-ink: #2d2a26;
+    --sd-muted: #746b61;
+    --sd-cream: #fdfbf7;
+    --sd-sand: #f2ebdf;
+    --sd-border: rgba(139, 125, 107, .18);
+    --sd-blue: #0d5c75;
+    --sd-blue-dark: #083e50;
+    --sd-green: #2d6a4f;
+    --sd-red: #b94b3e;
+    --sd-gold: #d7a85f;
+    color: var(--sd-ink);
+    padding-bottom: 3rem;
+}
+.sd-hero {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 2rem 2.2rem;
+    margin-bottom: 1rem;
+    border: 1px solid rgba(13, 92, 117, .18);
+    border-radius: 26px;
+    background: radial-gradient(circle at 85% 20%, rgba(215,168,95,.28), transparent 32%), linear-gradient(135deg, #fdfbf7, #eee5d8 58%, #dfd2c2);
+    box-shadow: 0 18px 46px rgba(45,42,38,.08);
+}
+.sd-hero::after { content: ""; position: absolute; right: -100px; bottom: -170px; width: 270px; height: 270px; border: 30px solid rgba(13,92,117,.08); border-radius: 50%; }
+.sd-eyebrow { color: var(--sd-blue); font-size: .7rem; font-weight: 900; letter-spacing: .13em; text-transform: uppercase; }
+.sd-hero h1 { margin: .35rem 0 .3rem; font-family: Montserrat, system-ui, sans-serif; font-size: clamp(2rem, 3vw, 3rem); font-weight: 950; letter-spacing: -.04em; }
+.sd-hero p { margin: 0; color: var(--sd-muted); }
+.sd-cut-badge { position: relative; z-index: 1; min-width: 220px; padding: 1rem 1.15rem; border: 1px solid rgba(255,255,255,.7); border-radius: 18px; background: rgba(255,255,255,.62); backdrop-filter: blur(12px); }
+.sd-cut-badge span, .sd-cut-badge small { display: block; color: var(--sd-muted); font-size: .7rem; }
+.sd-cut-badge strong { display: block; margin: .18rem 0; color: var(--sd-blue); font-size: 1.25rem; }
+.sd-panel { border: 1px solid var(--sd-border); border-radius: 20px; background: rgba(253,251,247,.96); box-shadow: 0 10px 28px rgba(45,42,38,.055); }
+.sd-filters { display: grid; grid-template-columns: repeat(3, minmax(130px, 1fr)) auto; align-items: end; gap: .75rem; padding: 1rem; margin-bottom: 1rem; }
+.sd-field label { display: block; margin: 0 0 .32rem .08rem; color: var(--sd-muted); font-size: .67rem; font-weight: 850; letter-spacing: .05em; text-transform: uppercase; }
+.sd-field select { width: 100%; min-height: 43px; border: 1px solid var(--sd-border); border-radius: 12px; padding: .55rem .75rem; background: #fff; color: var(--sd-ink); }
+.sd-apply { min-height: 43px; border: 0; border-radius: 12px; padding: .65rem 1.1rem; background: var(--sd-blue); color: #fff; font-weight: 850; }
+.sd-apply:hover { background: var(--sd-blue-dark); }
+.sd-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1rem; }
+.sd-kpi { display: flex; align-items: center; gap: .85rem; padding: 1.05rem; border: 1px solid var(--sd-border); border-radius: 18px; background: var(--sd-cream); box-shadow: 0 8px 22px rgba(45,42,38,.05); }
+.sd-kpi-icon { display: grid; place-items: center; width: 45px; height: 45px; flex: 0 0 45px; border-radius: 14px; background: rgba(13,92,117,.11); color: var(--sd-blue); font-size: 1.2rem; }
+.sd-kpi.alert .sd-kpi-icon { background: rgba(185,75,62,.1); color: var(--sd-red); }
+.sd-kpi.success .sd-kpi-icon { background: rgba(45,106,79,.11); color: var(--sd-green); }
+.sd-kpi span, .sd-kpi small { display: block; color: var(--sd-muted); font-size: .68rem; }
+.sd-kpi strong { display: block; margin: .1rem 0; font-size: 1.45rem; line-height: 1.05; }
+.sd-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .85rem 1rem; margin-bottom: 1rem; }
+.sd-toolbar-left, .sd-toolbar-right { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; }
+.sd-search { display: flex; align-items: center; gap: .45rem; min-width: min(330px, 100%); padding: .55rem .75rem; border: 1px solid var(--sd-border); border-radius: 11px; background: #fff; }
+.sd-search i { color: var(--sd-blue); }
+.sd-search input { width: 100%; border: 0; outline: 0; background: transparent; }
+.sd-state-filter { min-height: 40px; border: 1px solid var(--sd-border); border-radius: 11px; padding: .45rem .65rem; background: #fff; }
+.sd-view-switch { display: flex; padding: .2rem; border-radius: 11px; background: var(--sd-sand); }
+.sd-view-switch button { border: 0; border-radius: 8px; padding: .4rem .62rem; background: transparent; color: var(--sd-muted); }
+.sd-view-switch button.active { background: #fff; color: var(--sd-blue); box-shadow: 0 3px 10px rgba(45,42,38,.08); }
+.sd-count { color: var(--sd-muted); font-size: .75rem; font-weight: 800; }
+.sd-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(315px, 1fr)); gap: 1rem; }
+.sd-card { overflow: hidden; border: 1px solid var(--sd-border); border-radius: 21px; background: var(--sd-cream); box-shadow: 0 8px 25px rgba(45,42,38,.055); transition: transform .2s ease, box-shadow .2s ease; }
+.sd-card:hover { transform: translateY(-4px); box-shadow: 0 17px 36px rgba(45,42,38,.11); }
+.sd-card-media { position: relative; height: 150px; overflow: hidden; background: linear-gradient(135deg, #e7eee9, #eadfce); }
+.sd-card-media img { width: 100%; height: 100%; object-fit: cover; transition: transform .35s ease; }
+.sd-card:hover .sd-card-media img { transform: scale(1.045); }
+.sd-image-fallback { position: absolute; inset: 0; display: grid; place-items: center; color: var(--sd-blue); font-size: 2.4rem; background: radial-gradient(circle, rgba(255,255,255,.85), transparent 70%); }
+.sd-rank { position: absolute; top: .75rem; left: .75rem; z-index: 2; padding: .42rem .62rem; border-radius: 10px; background: rgba(8,62,80,.9); color: #fff; font-size: .73rem; font-weight: 900; backdrop-filter: blur(6px); }
+.sd-status { position: absolute; right: .75rem; bottom: .75rem; z-index: 2; padding: .36rem .58rem; border-radius: 999px; background: rgba(255,255,255,.9); font-size: .65rem; font-weight: 850; }
+.sd-status.success { color: var(--sd-green); }.sd-status.warning { color: #9a6700; }.sd-status.info { color: var(--sd-blue); }.sd-status.danger { color: var(--sd-red); }.sd-status.neutral { color: var(--sd-muted); }
+.sd-card-body { padding: 1rem; }
+.sd-store-code { color: var(--sd-blue); font-size: .66rem; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; }
+.sd-store-name { margin: .16rem 0 .85rem; overflow: hidden; font-size: 1.02rem; font-weight: 900; text-overflow: ellipsis; white-space: nowrap; }
+.sd-sales { display: flex; align-items: flex-end; justify-content: space-between; gap: .7rem; padding: .75rem; border-radius: 14px; background: linear-gradient(135deg, rgba(13,92,117,.08), rgba(13,92,117,.025)); }
+.sd-sales small { display: block; color: var(--sd-muted); font-size: .62rem; font-weight: 800; text-transform: uppercase; }
+.sd-sales strong { display: block; margin-top: .1rem; font-size: 1.2rem; }
+.sd-delta { text-align: right; font-size: .72rem; font-weight: 900; }.sd-up { color: var(--sd-green); }.sd-down { color: var(--sd-red); }.sd-flat { color: var(--sd-muted); }
+.sd-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; margin-top: .75rem; }
+.sd-metric { padding: .65rem; border: 1px solid rgba(139,125,107,.12); border-radius: 12px; background: #fff; }
+.sd-metric span { display: block; color: var(--sd-muted); font-size: .6rem; font-weight: 800; text-transform: uppercase; }.sd-metric strong { font-size: .92rem; }
+.sd-progress { height: 8px; margin: .8rem 0 .35rem; overflow: hidden; border-radius: 99px; background: #e8dfd2; }
+.sd-progress span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--sd-blue), #3c9b95); }
+.sd-progress-label { display: flex; justify-content: space-between; color: var(--sd-muted); font-size: .65rem; }
+.sd-movement { display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin-top: .75rem; padding: .55rem .65rem; border-radius: 11px; font-size: .68rem; font-weight: 850; }
+.sd-movement.subio { background: rgba(45,106,79,.09); color: var(--sd-green); }.sd-movement.bajo { background: rgba(185,75,62,.09); color: var(--sd-red); }.sd-movement.igual { background: rgba(139,125,107,.09); color: var(--sd-muted); }
+.sd-table-view { display: none; overflow: hidden; }
+.sd-table { width: 100%; margin: 0; }
+.sd-table th { padding: .75rem .85rem; border: 0; background: var(--sd-sand); color: var(--sd-muted); font-size: .64rem; letter-spacing: .05em; text-transform: uppercase; white-space: nowrap; }
+.sd-table td { padding: .75rem .85rem; border-color: var(--sd-border); vertical-align: middle; }
+.sd-table-store { display: flex; align-items: center; gap: .55rem; }.sd-table-store i { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 10px; background: rgba(13,92,117,.1); color: var(--sd-blue); }
+.sd-page.table-mode .sd-grid { display: none; }.sd-page.table-mode .sd-table-view { display: block; }
+.sd-empty { display: none; padding: 3rem 1rem; border: 1px dashed var(--sd-border); border-radius: 20px; color: var(--sd-muted); text-align: center; background: var(--sd-cream); }
+.sd-empty i { display: block; margin-bottom: .5rem; color: var(--sd-gold); font-size: 2.5rem; }
+@media (max-width: 1000px) { .sd-kpis { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 760px) {
+    .sd-hero { align-items: flex-start; flex-direction: column; padding: 1.5rem; }.sd-cut-badge { width: 100%; }
+    .sd-filters { grid-template-columns: 1fr; }.sd-kpis { grid-template-columns: 1fr; }
+    .sd-toolbar { align-items: stretch; flex-direction: column; }.sd-toolbar-left, .sd-toolbar-right, .sd-search { width: 100%; }.sd-state-filter { flex: 1; }
+    .sd-grid { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) { .sd-card, .sd-card-media img { transition: none; } }
+</style>
+{% endblock %}
+
+{% block contenido %}
+{% set nombres_meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'] %}
+<div class="sd-page" id="storeDirectory">
+    <section class="sd-hero">
+        <div>
+            <span class="sd-eyebrow"><i class="bi bi-buildings"></i> Directorio comercial</span>
+            <h1>Desempeño de tiendas</h1>
+            <p>Una lectura clara de ventas, cumplimiento y movimiento de la red.</p>
+        </div>
+        <div class="sd-cut-badge">
+            <span>Información mostrada</span>
+            <strong>{{ nombres_meses[mes - 1] if mes else 'Sin período' }} {{ anio or '' }}</strong>
+            <small>{% if dia_corte %}Corte día {{ dia_corte }} · último disponible por defecto{% else %}Sin corte disponible{% endif %}</small>
+            {% if ultima_carga %}<small>Actualizado {{ ultima_carga.strftime('%d/%m/%Y %H:%M') }}</small>{% endif %}
+        </div>
+    </section>
+
+    <form method="GET" class="sd-panel sd-filters">
+        <div class="sd-field">
+            <label for="sdYear">Año</label>
+            <select id="sdYear" name="anio">
+                {% set anios = [] %}
+                {% for periodo in periodos %}{% if periodo.anio not in anios %}{% set _ = anios.append(periodo.anio) %}{% endif %}{% endfor %}
+                {% for valor in anios %}<option value="{{ valor }}" {% if valor == anio %}selected{% endif %}>{{ valor }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="sd-field">
+            <label for="sdMonth">Mes</label>
+            <select id="sdMonth" name="mes">
+                {% for valor in range(1, 13) %}<option value="{{ valor }}" {% if valor == mes %}selected{% endif %}>{{ nombres_meses[valor - 1] }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="sd-field">
+            <label for="sdCut">Corte</label>
+            <select id="sdCut" name="dia_corte">
+                {% for valor in cortes_disponibles %}<option value="{{ valor }}" {% if valor == dia_corte %}selected{% endif %}>Día {{ valor }}</option>{% else %}<option value="">Sin cortes</option>{% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="sd-apply"><i class="bi bi-sliders"></i> Analizar período</button>
+    </form>
+
+    <section class="sd-kpis">
+        <article class="sd-kpi"><div class="sd-kpi-icon"><i class="bi bi-shop"></i></div><div><span>Tiendas con información</span><strong>{{ resumen.tiendas_con_datos }}/{{ resumen.tiendas_activas }}</strong><small>En el corte seleccionado</small></div></article>
+        {% if not es_tienda %}<article class="sd-kpi"><div class="sd-kpi-icon"><i class="bi bi-cash-stack"></i></div><div><span>Venta acumulada de red</span><strong>${{ "{:,.0f}".format(resumen.venta_total or 0) }}</strong><small>Hasta el día {{ dia_corte or '—' }}</small></div></article>{% endif %}
+        <article class="sd-kpi success"><div class="sd-kpi-icon"><i class="bi bi-bullseye"></i></div><div><span>Cumplimiento promedio</span><strong>{{ "{:.1f}".format((resumen.cumplimiento_promedio or 0) * 100) }}%</strong><small>{{ resumen.metas_alcanzadas }} tiendas sobre meta</small></div></article>
+        <article class="sd-kpi alert"><div class="sd-kpi-icon"><i class="bi bi-exclamation-triangle"></i></div><div><span>Requieren atención</span><strong>{{ resumen.requieren_atencion }}</strong><small>Por debajo del 80%</small></div></article>
+    </section>
+
+    <section class="sd-panel sd-toolbar">
+        <div class="sd-toolbar-left">
+            <div class="sd-search"><i class="bi bi-search"></i><input id="sdSearch" type="search" placeholder="Buscar código o nombre de tienda"></div>
+            <select id="sdState" class="sd-state-filter" aria-label="Filtrar por estado">
+                <option value="all">Todos los estados</option><option value="success">Meta superada</option><option value="warning">Cerca de la meta</option><option value="info">En progreso</option><option value="danger">Requiere atención</option><option value="neutral">Sin datos</option>
+            </select>
+        </div>
+        <div class="sd-toolbar-right"><span class="sd-count" id="sdVisibleCount">{{ tiendas|length }} tiendas</span><div class="sd-view-switch"><button type="button" class="active" data-sd-view="cards" title="Tarjetas"><i class="bi bi-grid"></i></button><button type="button" data-sd-view="table" title="Tabla"><i class="bi bi-list-ul"></i></button></div></div>
+    </section>
+
+    <section class="sd-grid" id="sdCards">
+        {% for tienda in tiendas %}
+        <article class="sd-card" data-store-item data-search="{{ tienda.codigo }} {{ tienda.nombre }}" data-state="{{ tienda.estado_clase }}">
+            <div class="sd-card-media">
+                <span class="sd-rank">{% if tienda.posicion_actual %}#{{ tienda.posicion_actual }}{% else %}Sin ranking{% endif %}</span>
+                {% if tienda.imagen %}<img src="{{ url_for('static', filename='img/tiendas/' ~ tienda.imagen) }}" alt="{{ tienda.nombre }}" loading="lazy" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><div class="sd-image-fallback" hidden><i class="bi bi-shop-window"></i></div>{% else %}<div class="sd-image-fallback"><i class="bi bi-shop-window"></i></div>{% endif %}
+                <span class="sd-status {{ tienda.estado_clase }}">{{ tienda.estado }}</span>
+            </div>
+            <div class="sd-card-body">
+                <span class="sd-store-code">{{ tienda.codigo }}</span><div class="sd-store-name" title="{{ tienda.nombre }}">{{ tienda.nombre }}</div>
+                {% if not es_tienda %}
+                <div class="sd-sales"><div><small>Venta al corte</small><strong>${{ "{:,.0f}".format(tienda.venta or 0) }}</strong></div><div class="sd-delta {% if tienda.variacion is none %}sd-flat{% elif tienda.variacion >= 0 %}sd-up{% else %}sd-down{% endif %}"><small>vs. {{ anio - 1 }}</small>{% if tienda.variacion is not none %}<span>{% if tienda.variacion >= 0 %}↑{% else %}↓{% endif %} {{ "%+.1f"|format(tienda.variacion * 100) }}%</span><small>{{ "+" if tienda.diferencia_venta >= 0 else "−" }}${{ "{:,.0f}".format(tienda.diferencia_venta|abs) }}</small>{% else %}<span>Sin base</span>{% endif %}</div></div>
+                {% endif %}
+                <div class="sd-metrics"><div class="sd-metric"><span>Cumplimiento</span><strong>{{ "{:.1f}".format((tienda.cumplimiento or 0) * 100) }}%</strong></div><div class="sd-metric"><span>Posición anterior</span><strong>{% if tienda.posicion_anterior %}#{{ tienda.posicion_anterior }}{% else %}—{% endif %}</strong></div></div>
+                <div class="sd-progress"><span style="width: {{ [tienda.cumplimiento * 100, 100]|min if tienda.cumplimiento > 0 else 0 }}%"></span></div><div class="sd-progress-label"><span>Progreso al corte</span><strong>{{ "{:.1f}".format((tienda.cumplimiento or 0) * 100) }}%</strong></div>
+                <div class="sd-movement {{ tienda.movimiento_tipo }}"><span>{% if tienda.movimiento_tipo == 'subio' %}<i class="bi bi-arrow-up-circle"></i> Subió en el ranking{% elif tienda.movimiento_tipo == 'bajo' %}<i class="bi bi-arrow-down-circle"></i> Bajó en el ranking{% else %}<i class="bi bi-dash-circle"></i> Sin cambio de posición{% endif %}</span><strong>{% if tienda.movimiento > 0 %}+{{ tienda.movimiento }}{% elif tienda.movimiento < 0 %}{{ tienda.movimiento }}{% else %}—{% endif %}</strong></div>
+            </div>
+        </article>
+        {% endfor %}
+    </section>
+
+    <section class="sd-panel sd-table-view">
+        <div class="table-responsive"><table class="table sd-table"><thead><tr><th>Pos.</th><th>Tienda</th>{% if not es_tienda %}<th class="text-end">Venta</th><th class="text-end">Variación</th>{% endif %}<th class="text-end">Cumplimiento</th><th class="text-center">Movimiento</th><th>Estado</th></tr></thead><tbody>
+        {% for tienda in tiendas %}<tr data-store-item data-search="{{ tienda.codigo }} {{ tienda.nombre }}" data-state="{{ tienda.estado_clase }}"><td><strong>{% if tienda.posicion_actual %}#{{ tienda.posicion_actual }}{% else %}—{% endif %}</strong></td><td><div class="sd-table-store"><i class="bi bi-shop"></i><div><strong>{{ tienda.codigo }}</strong><small class="d-block text-muted">{{ tienda.nombre }}</small></div></div></td>{% if not es_tienda %}<td class="text-end fw-bold">${{ "{:,.0f}".format(tienda.venta or 0) }}</td><td class="text-end {% if tienda.variacion is none %}sd-flat{% elif tienda.variacion >= 0 %}sd-up{% else %}sd-down{% endif %}">{% if tienda.variacion is not none %}{{ "%+.1f"|format(tienda.variacion * 100) }}%{% else %}Sin base{% endif %}</td>{% endif %}<td class="text-end fw-bold">{{ "{:.1f}".format((tienda.cumplimiento or 0) * 100) }}%</td><td class="text-center">{% if tienda.movimiento > 0 %}<span class="sd-up">▲ {{ tienda.movimiento }}</span>{% elif tienda.movimiento < 0 %}<span class="sd-down">▼ {{ tienda.movimiento|abs }}</span>{% else %}—{% endif %}</td><td><span class="sd-status {{ tienda.estado_clase }}" style="position:static;display:inline-flex">{{ tienda.estado }}</span></td></tr>{% endfor %}
+        </tbody></table></div>
+    </section>
+
+    <div class="sd-empty" id="sdEmpty"><i class="bi bi-search"></i><strong>No encontramos tiendas con esos filtros</strong><div>Prueba otro nombre o cambia el estado seleccionado.</div></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const page = document.getElementById("storeDirectory");
+    const search = document.getElementById("sdSearch");
+    const state = document.getElementById("sdState");
+    const counter = document.getElementById("sdVisibleCount");
+    const empty = document.getElementById("sdEmpty");
+    if (!page || !search || !state) return;
+
+    function applyFilters() {
+        const query = search.value.toLocaleLowerCase("es").trim();
+        const selectedState = state.value;
+        const cards = Array.from(document.querySelectorAll(".sd-card[data-store-item]"));
+        let visible = 0;
+        cards.forEach(function (card) {
+            const matchesText = (card.dataset.search || "").toLocaleLowerCase("es").includes(query);
+            const matchesState = selectedState === "all" || card.dataset.state === selectedState;
+            const show = matchesText && matchesState;
+            card.hidden = !show;
+            if (show) visible += 1;
+        });
+        document.querySelectorAll(".sd-table tbody tr[data-store-item]").forEach(function (row) {
+            const matchesText = (row.dataset.search || "").toLocaleLowerCase("es").includes(query);
+            const matchesState = selectedState === "all" || row.dataset.state === selectedState;
+            row.hidden = !(matchesText && matchesState);
+        });
+        counter.textContent = visible + (visible === 1 ? " tienda" : " tiendas");
+        empty.style.display = visible ? "none" : "block";
+    }
+    search.addEventListener("input", applyFilters);
+    state.addEventListener("change", applyFilters);
+    document.querySelectorAll("[data-sd-view]").forEach(function (button) {
+        button.addEventListener("click", function () {
+            const tableMode = button.dataset.sdView === "table";
+            page.classList.toggle("table-mode", tableMode);
+            document.querySelectorAll("[data-sd-view]").forEach(function (item) { item.classList.toggle("active", item === button); });
+        });
+    });
+});
+</script>
+{% endblock %}

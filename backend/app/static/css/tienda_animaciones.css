@@ -1,0 +1,193 @@
+/* =========================================================
+   L&H PULSE - Animaciones del dashboard de tienda
+   (números animados, barras, medidor circular, celebración)
+   ========================================================= */
+
+:root {
+    --ta-verde: #2D6A4F;
+    --ta-amarillo: #E0A96D;
+    --ta-rojo: #D95D39;
+    --ta-oro: #C5A880;
+    --ta-oro-claro: #F4E3C1;
+    --ta-texto: #2D2A26;
+    --ta-muted: #6B6259;
+    --ta-pista: #E8DFD0;
+}
+
+/* ---------- Barras de progreso ---------- */
+.progress .progress-bar.ta-barra,
+.progress-track .progress-fill.ta-barra {
+    transition: width 1.2s cubic-bezier(.22, 1, .36, 1);
+}
+
+/* Brillo dorado cuando se supera el 100% */
+.progress .progress-bar.ta-barra-oro {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(90deg, var(--ta-verde), #3E8E68 55%, var(--ta-oro)) !important;
+    box-shadow: 0 0 10px rgba(197, 168, 128, .55);
+}
+.progress .progress-bar.ta-barra-oro::after,
+.progress-track .progress-fill.ta-barra-brillo::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(110deg, transparent 20%, rgba(255, 255, 255, .55) 45%, transparent 70%);
+    transform: translateX(-100%);
+    animation: taBrillo 2.6s ease-in-out 1.3s infinite;
+}
+@keyframes taBrillo {
+    0% { transform: translateX(-100%); }
+    60%, 100% { transform: translateX(100%); }
+}
+
+.progress-track .progress-fill.ta-barra-brillo { position: relative; overflow: hidden; }
+
+/* ---------- Medidor circular de meta ---------- */
+.ta-medidor-wrap {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    padding: 16px 18px;
+    margin-bottom: 18px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #FDFBF7, #F5F0E8);
+    border: 1px solid rgba(139, 125, 107, .18);
+}
+.ta-medidor {
+    position: relative;
+    width: 132px;
+    height: 132px;
+    flex: 0 0 132px;
+}
+.ta-medidor svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ta-medidor .ta-pista { fill: none; stroke: var(--ta-pista); stroke-width: 12; }
+.ta-medidor .ta-arco {
+    fill: none;
+    stroke-width: 12;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1.6s cubic-bezier(.22, 1, .36, 1);
+}
+.ta-medidor.ta-ok .ta-arco { stroke: var(--ta-verde); }
+.ta-medidor.ta-cerca .ta-arco { stroke: var(--ta-amarillo); }
+.ta-medidor.ta-bajo .ta-arco { stroke: var(--ta-rojo); }
+.ta-medidor.ta-superado .ta-arco { stroke: url(#taDegradadoOro); filter: drop-shadow(0 0 6px rgba(197, 168, 128, .8)); }
+
+.ta-medidor-centro {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+.ta-medidor-valor {
+    font-size: 28px;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--ta-texto);
+    font-family: 'Montserrat', sans-serif;
+}
+.ta-medidor-etiqueta {
+    font-size: 10px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--ta-muted);
+    margin-top: 4px;
+}
+.ta-medidor.ta-superado .ta-medidor-valor { color: var(--ta-verde); }
+
+.ta-medidor-info { flex: 1; min-width: 0; }
+.ta-medidor-info .ta-titulo { font-weight: 800; color: var(--ta-texto); font-size: 15px; margin-bottom: 8px; }
+.ta-dato { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ta-muted); margin-bottom: 6px; }
+.ta-dato i { color: var(--ta-oro); font-size: 15px; }
+.ta-dato strong { color: var(--ta-texto); }
+.ta-dias {
+    height: 6px;
+    border-radius: 6px;
+    background: var(--ta-pista);
+    overflow: hidden;
+    margin-top: 10px;
+}
+.ta-dias > span {
+    display: block;
+    height: 100%;
+    width: 0;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #8B7D6B, var(--ta-oro));
+    transition: width 1.4s cubic-bezier(.22, 1, .36, 1) .3s;
+}
+
+@media (max-width: 576px) {
+    .ta-medidor-wrap { flex-direction: column; text-align: center; }
+    .ta-dato { justify-content: center; }
+}
+
+/* ---------- Insignias de asesoras ---------- */
+.ta-insignias { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.ta-insignia {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+    background: var(--ta-oro-claro);
+    color: #7A5C2E;
+    border: 1px solid rgba(197, 168, 128, .6);
+    opacity: 0;
+    transform: translateY(4px) scale(.9);
+    animation: taInsignia .5s cubic-bezier(.22, 1, .36, 1) forwards;
+}
+.ta-insignia.ta-ticket { background: rgba(13, 92, 117, .1); color: #0D5C75; border-color: rgba(13, 92, 117, .3); }
+.ta-insignia.ta-upt { background: rgba(27, 54, 93, .1); color: #1B365D; border-color: rgba(27, 54, 93, .3); }
+@keyframes taInsignia {
+    to { opacity: 1; transform: none; }
+}
+
+/* ---------- Celebración ---------- */
+#taConfeti {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 3000;
+}
+.ta-aviso {
+    position: fixed;
+    top: 90px;
+    left: 50%;
+    transform: translate(-50%, -20px);
+    z-index: 3001;
+    padding: 14px 26px;
+    border-radius: 40px;
+    background: linear-gradient(135deg, #2D2A26, #4A433C);
+    color: #FFF;
+    font-weight: 800;
+    font-size: 15px;
+    box-shadow: 0 12px 35px rgba(45, 42, 38, .35);
+    border: 1px solid var(--ta-oro);
+    opacity: 0;
+    transition: opacity .4s ease, transform .4s ease;
+    pointer-events: none;
+    text-align: center;
+    max-width: calc(100% - 32px);
+}
+.ta-aviso.ta-visible { opacity: 1; transform: translate(-50%, 0); }
+.ta-aviso small { display: block; font-weight: 500; color: var(--ta-oro-claro); font-size: 12px; margin-top: 2px; }
+
+/* ---------- Accesibilidad: sin animaciones si el equipo lo pide ---------- */
+/* Desactivado: las animaciones se muestran siempre. */
+@media (prefers-reduced-motion: reduce) and (max-width: 0px) {
+    .progress .progress-bar.ta-barra,
+    .progress-track .progress-fill.ta-barra,
+    .ta-medidor .ta-arco,
+    .ta-dias > span { transition: none; }
+    .progress .progress-bar.ta-barra-oro::after,
+.progress-track .progress-fill.ta-barra-brillo::after { animation: none; }
+    .ta-insignia { animation: none; opacity: 1; transform: none; }
+}

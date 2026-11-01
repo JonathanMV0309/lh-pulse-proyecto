@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ranking_desempeno.css', v='20261002-1') }}">
+{% endblock %}
+
+{% block contenido %}
+{% set nombres_meses = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"] %}
+{% set anios = [] %}
+{% for periodo in periodos %}{% if periodo[0] not in anios %}{% set _ = anios.append(periodo[0]) %}{% endif %}{% endfor %}
+{% set asesoras_con_meta = ranking_asesoras|rejectattr('sin_meta')|list %}
+{% set tiendas_meta = ranking_tiendas|selectattr('cumplimiento', 'ge', 1)|list|length %}
+{% set asesoras_meta = asesoras_con_meta|selectattr('cumplimiento', 'ge', 1)|list|length %}
+{% set asesoras_sin_meta = ranking_asesoras|length - asesoras_con_meta|length %}
+{% set mi_tienda = (ranking_tiendas|selectattr('store_id', 'equalto', mi_store_id)|first) if mi_store_id else none %}
+
+{%- macro estado(item) -%}
+  {%- if item.sin_meta -%}sinmeta{%- elif item.cumplimiento >= 1 -%}meta{%- elif item.cumplimiento >= 0.9 -%}cerca{%- else -%}progreso{%- endif -%}
+{%- endmacro -%}
+{%- macro pill_estado(item) -%}
+  {%- set e = estado(item) -%}
+  <span class="status-pill {{ {'meta':'success','cerca':'near','progreso':'risk','sinmeta':'none'}[e] }}">{{ {'meta':'En meta','cerca':'Muy cerca','progreso':'En progreso','sinmeta':'Sin meta'}[e] }}</span>
+{%- endmacro -%}
+{%- macro iniciales(nombre) -%}
+  {%- set partes = (nombre or '?').split() -%}{{ (partes[0][0] ~ (partes[1][0] if partes|length > 1 else ''))|upper }}
+{%- endmacro -%}
+{%- macro para_meta(item) -%}
+  {%- if item.sin_meta -%}<span class="rk-gap none">Sin meta asignada</span>
+  {%- elif es_tienda -%}
+    {%- set pts = (item.cumplimiento - 1) * 100 -%}
+    <span class="rk-gap {{ 'ok' if pts >= 0 else 'due' }}">{{ ('Superó por ' if pts >= 0 else 'Faltan ') ~ ("%.1f"|format(pts|abs)) }} pts</span>
+  {%- else -%}
+    {%- set diferencia = item.venta - item.meta_corte -%}
+    <span class="rk-gap {{ 'ok' if diferencia >= 0 else 'due' }}">{{ 'Superó por ' if diferencia >= 0 else 'Faltan ' }}${{ "{:,.0f}".format(diferencia|abs) }}</span>
+  {%- endif -%}
+{%- endmacro -%}
+{%- macro barra(item) -%}
+  <div class="score-cell"><div class="score-track"><span class="{{ estado(item) }}" style="--w:{{ '%.3f'|format([item.cumplimiento, 1]|min) }}"></span></div><b>{% if item.sin_meta %}—{% else %}{{ "%.1f"|format(item.cumplimiento * 100) }}%{% endif %}</b></div>
+{%- endmacro -%}
+{%- macro chips(lista, prefijo, con_sin_meta) -%}
+  {%- set n_meta = lista|selectattr('cumplimiento', 'ge', 1)|rejectattr('sin_meta')|list|length -%}
+  {%- set n_cerca = lista|rejectattr('sin_meta')|selectattr('cumplimiento', 'ge', 0.9)|selectattr('cumplimiento', 'lt', 1)|list|length -%}
+  {%- set n_sin = lista|selectattr('sin_meta')|list|length -%}
+  <div class="rk-chips" role="group" aria-label="Filtrar por estado">
+    <button type="button" class="on" data-filter="todas" aria-pressed="true">Todas <b>{{ lista|length }}</b></button>
+    <button type="button" data-filter="meta" aria-pressed="false"><i class="dot meta"></i>En meta <b>{{ n_meta }}</b></button>
+    <button type="button" data-filter="cerca" aria-pressed="false"><i class="dot cerca"></i>Muy cerca <b>{{ n_cerca }}</b></button>
+    <button type="button" data-filter="progreso" aria-pressed="false"><i class="dot progreso"></i>En progreso <b>{{ lista|length - n_meta - n_cerca - n_sin }}</b></button>
+    {% if con_sin_meta or n_sin %}<button type="button" data-filter="sinmeta" aria-pressed="false"><i class="dot sinmeta"></i>Sin meta <b>{{ n_sin }}</b></button>{% endif %}
+  </div>
+{%- endmacro -%}
+
+<section class="performance-page" id="rankingPage">
+  <header class="performance-hero">
+    <div>
+      <span class="performance-eyebrow"><i class="bi bi-stars"></i> L&H PULSE · COMPETITIVIDAD</span>
+      <h1>Ranking de desempeño</h1>
+      <p>Tiendas y asesoras comparadas con el mismo período y corte.</p>
+    </div>
+    <div class="performance-period">
+      <span>Período analizado</span>
+      <strong>{{ nombres_meses[mes-1] if mes else 'Sin período' }} {{ anio or '' }}</strong>
+      <small>{% if dia_corte %}Corte al día {{ dia_corte }}{% else %}Sin corte disponible{% endif %}</small>
+    </div>
+  </header>
+
+  <form class="performance-filters" method="get" action="{{ url_for('ranking_desempeno.index') }}">
+    <div class="filter-intro"><i class="bi bi-sliders2"></i><div><strong>¿Qué deseas consultar?</strong><small>Selecciona el período y presiona Analizar.</small></div></div>
+    <label><span>Año</span><select name="anio" class="form-select">
+      {% for valor in anios|sort(reverse=true) %}<option value="{{ valor }}" {% if valor == anio %}selected{% endif %}>{{ valor }}</option>{% endfor %}
+    </select></label>
+    <label><span>Mes</span><select name="mes" class="form-select">
+      {% for valor in range(1,13) %}<option value="{{ valor }}" {% if valor == mes %}selected{% endif %}>{{ nombres_meses[valor-1] }}</option>{% endfor %}
+    </select></label>
+    <label><span>Corte</span><select name="dia_corte" class="form-select">
+      {% for valor in dias_corte %}<option value="{{ valor }}" {% if valor == dia_corte %}selected{% endif %}>Día {{ valor }}</option>{% else %}<option value="">Sin cortes</option>{% endfor %}
+    </select></label>
+    <label class="filter-store"><span>Tienda de asesoras</span><select name="store_id" class="form-select">
+      <option value="">Todas las tiendas</option>
+      {% for tienda in tiendas_disponibles %}<option value="{{ tienda.id }}" {% if tienda.id == store_id %}selected{% endif %}>{{ tienda.codigo }} · {{ tienda.nombre }}</option>{% endfor %}
+    </select></label>
+    <label class="filter-search"><span>Buscar</span><div class="filter-search-box"><i class="bi bi-search"></i><input name="buscar" value="{{ buscar }}" class="form-control" placeholder="Tienda, código o asesora"></div></label>
+    <button type="submit" class="performance-button"><i class="bi bi-bar-chart-fill"></i> Analizar</button>
+  </form>
+
+  <div class="performance-summary">
+    <article class="rk-rv"><i class="bi bi-shop"></i><div><span>Tiendas evaluadas</span><strong data-count>{{ ranking_tiendas|length }}</strong><small>{{ tiendas_meta }} alcanzan la meta</small></div></article>
+    <article class="rk-rv"><i class="bi bi-people"></i><div><span>Asesoras evaluadas</span><strong data-count>{{ ranking_asesoras|length }}</strong><small>{{ asesoras_meta }} alcanzan la meta al corte{% if asesoras_sin_meta %} · {{ asesoras_sin_meta }} sin meta{% endif %}</small></div></article>
+    <article class="rk-rv"><i class="bi bi-calendar-check"></i><div><span>Corte comparable</span><strong>Día {{ dia_corte or '—' }}</strong><small>Mismo corte para ambos rankings</small></div></article>
+  </div>
+
+  {% if mi_tienda %}
+  <div class="rk-mine-banner rk-rv">
+    <span class="rk-avatar">{{ iniciales(mi_tienda.nombre) }}</span>
+    <div><small>Tu tienda</small><strong>{{ mi_tienda.nombre }} va en el puesto {{ mi_tienda.posicion }} de {{ ranking_tiendas|length }}</strong></div>
+    <div class="rk-mine-pct"><b>{{ "%.1f"|format(mi_tienda.cumplimiento * 100) }}%</b>{{ para_meta(mi_tienda) }}</div>
+  </div>
+  {% endif %}
+
+  <div class="rk-tabs" role="tablist" aria-label="Ranking">
+    <button type="button" role="tab" id="rkTab-tiendas" aria-controls="rkPanel-tiendas" aria-selected="true" data-tab="tiendas"><i class="bi bi-shop"></i> Tiendas <span>{{ ranking_tiendas|length }}</span></button>
+    <button type="button" role="tab" id="rkTab-asesoras" aria-controls="rkPanel-asesoras" aria-selected="false" tabindex="-1" data-tab="asesoras"><i class="bi bi-people"></i> Asesoras <span>{{ ranking_asesoras|length }}</span></button>
+  </div>
+
+  {# ======================= TIENDAS ======================= #}
+  <div class="rk-panel" id="rkPanel-tiendas" role="tabpanel" aria-labelledby="rkTab-tiendas" data-panel="tiendas">
+    <div class="performance-dual">
+      <article class="performance-panel rk-rv">
+        <div class="panel-heading"><div><span>TOP 3</span><h2>Tiendas líderes</h2><p>Ordenadas por cumplimiento y ventas.</p></div><i class="bi bi-building-check"></i></div>
+        <div class="rk-podium">
+          {% for item in ranking_tiendas[:3] %}
+          <div class="rk-step rk-p{{ item.posicion }}">
+            <div class="rk-card">
+              {% if item.posicion == 1 %}<span class="rk-crown" aria-hidden="true">👑</span>{% endif %}
+              <span class="rk-avatar">{{ iniciales(item.nombre) }}</span>
+              <strong>{{ item.nombre }}</strong><small>{{ item.codigo }}</small>
+              <b class="rk-pct" data-pct="{{ item.cumplimiento * 100 }}">{{ "%.1f"|format(item.cumplimiento * 100) }}%</b>
+            </div>
+            <div class="rk-block"><span>{{ item.posicion }}</span></div>
+          </div>
+          {% else %}<p class="empty-ranking">No hay tiendas para este corte.</p>{% endfor %}
+        </div>
+      </article>
+      <article class="performance-panel rk-rv">
+        <div class="panel-heading"><div><span>DISTRIBUCIÓN</span><h2>¿Dónde está cada tienda?</h2><p>Cada punto es una tienda. Pasa el mouse para ver cuál es.</p></div><i class="bi bi-distribute-horizontal"></i></div>
+        <div class="rk-dist" data-dist="tiendas" role="img" aria-label="Distribución de tiendas por cumplimiento"></div>
+      </article>
+    </div>
+
+    <article class="performance-panel ranking-table-panel rk-rv">
+      <div class="panel-heading"><div><span>CLASIFICACIÓN GENERAL</span><h2>Ranking de tiendas</h2><p>{{ ranking_tiendas|length }} resultados para el corte seleccionado.</p></div></div>
+      <div class="rk-toolbar">
+        {{ chips(ranking_tiendas, 'tiendas', false) }}
+        <label class="rk-search"><i class="bi bi-search" aria-hidden="true"></i><input type="search" placeholder="Buscar tienda o código" aria-label="Buscar tienda o código" data-search-input></label>
+      </div>
+      <div class="table-responsive"><table class="performance-table" data-rk-table="tiendas"><thead><tr>
+        <th data-sort="num" data-first="asc">Pos.</th><th data-sort="text">Tienda</th>{% if not es_tienda %}<th data-sort="num">Ventas</th>{% endif %}<th data-sort="num">Cumplimiento</th><th data-sort="num">Para la meta</th><th data-sort="num">Vs año anterior</th><th>Estado</th>{% if not es_tienda %}<th data-sort="num">Ticket promedio</th>{% endif %}
+      </tr></thead><tbody>
+        {% for item in ranking_tiendas %}
+        {% set crece = ((item.venta / item.venta_anterior - 1) * 100) if item.venta_anterior > 0 else none %}
+        <tr data-estado="{{ estado(item) }}" data-search="{{ (item.nombre ~ ' ' ~ item.codigo)|lower }}" data-key="{{ item.store_id }}" {% if item.store_id == mi_store_id %}class="rk-mine"{% endif %}>
+          <td data-v="{{ item.posicion }}"><span class="rank-number rank-{{ item.posicion }}">{% if item.posicion <= 3 %}{{ ['🥇','🥈','🥉'][item.posicion-1] }}{% else %}{{ item.posicion }}{% endif %}</span></td>
+          <td data-v="{{ item.nombre }}"><strong>{{ item.nombre }}{% if item.store_id == mi_store_id %} <span class="rk-you">Tu tienda</span>{% endif %}</strong><small>{{ item.codigo }}</small></td>
+          {% if not es_tienda %}<td data-v="{{ item.venta }}"><strong>${{ "{:,.0f}".format(item.venta) }}</strong></td>{% endif %}
+          <td data-v="{{ item.cumplimiento }}">{{ barra(item) }}</td>
+          <td data-v="{{ item.cumplimiento }}">{{ para_meta(item) }}</td>
+          <td data-v="{{ crece if crece is not none else '' }}">{% if crece is none %}<span class="rk-muted">Sin base</span>{% else %}<span class="rk-trend {{ 'up' if crece >= 0 else 'down' }}"><i class="bi bi-arrow-{{ 'up' if crece >= 0 else 'down' }}-right" aria-hidden="true"></i>{{ "%.1f"|format(crece|abs) }}%</span>{% endif %}</td>
+          <td>{{ pill_estado(item) }}</td>
+          {% if not es_tienda %}<td data-v="{{ item.ticket }}">{% if item.ticket %}${{ "{:,.0f}".format(item.ticket) }}{% else %}—{% endif %}</td>{% endif %}
+        </tr>
+        {% else %}<tr><td colspan="8" class="empty-ranking">No hay resultados.</td></tr>{% endfor %}
+      </tbody></table></div>
+      <div class="rk-more"><span data-more-info></span><button type="button" class="rk-more-btn" data-more hidden>Ver 25 más</button></div>
+    </article>
+  </div>
+
+  {# ======================= ASESORAS ======================= #}
+  <div class="rk-panel" id="rkPanel-asesoras" role="tabpanel" aria-labelledby="rkTab-asesoras" data-panel="asesoras" hidden>
+    <div class="performance-dual">
+      <article class="performance-panel rk-rv">
+        <div class="panel-heading"><div><span>TOP 3</span><h2>Asesoras líderes</h2><p>Cumplimiento individual al corte.</p></div><i class="bi bi-person-check"></i></div>
+        <div class="rk-podium">
+          {% for item in asesoras_con_meta[:3] %}
+          <div class="rk-step rk-p{{ item.posicion }}">
+            <div class="rk-card">
+              {% if item.posicion == 1 %}<span class="rk-crown" aria-hidden="true">👑</span>{% endif %}
+              <span class="rk-avatar">{{ iniciales(item.asesora) }}</span>
+              <strong>{{ item.asesora }}</strong><small>{{ item.codigo_tienda }} · {{ item.tienda }}</small>
+              <b class="rk-pct" data-pct="{{ item.cumplimiento * 100 }}">{{ "%.1f"|format(item.cumplimiento * 100) }}%</b>
+            </div>
+            <div class="rk-block"><span>{{ item.posicion }}</span></div>
+          </div>
+          {% else %}<p class="empty-ranking">No hay asesoras con meta para este corte.</p>{% endfor %}
+        </div>
+      </article>
+      <article class="performance-panel rk-rv">
+        <div class="panel-heading"><div><span>DISTRIBUCIÓN</span><h2>¿Dónde está cada asesora?</h2><p>Cada punto es una asesora con meta. Haz clic para ver su ficha.</p></div><i class="bi bi-distribute-horizontal"></i></div>
+        <div class="rk-dist" data-dist="asesoras" role="img" aria-label="Distribución de asesoras por cumplimiento"></div>
+      </article>
+    </div>
+
+    <article class="performance-panel ranking-table-panel rk-rv">
+      <div class="panel-heading"><div><span>TALENTO COMERCIAL</span><h2>Ranking de asesoras</h2><p>{{ ranking_asesoras|length }} resultados. La tienda del filtro solo afecta esta tabla. Toca un nombre para ver su ficha.</p></div></div>
+      <div class="rk-toolbar">
+        {{ chips(ranking_asesoras, 'asesoras', true) }}
+        <label class="rk-search"><i class="bi bi-search" aria-hidden="true"></i><input type="search" placeholder="Buscar asesora o tienda" aria-label="Buscar asesora o tienda" data-search-input></label>
+      </div>
+      <div class="table-responsive"><table class="performance-table" data-rk-table="asesoras"><thead><tr>
+        <th data-sort="num" data-first="asc">Pos.</th><th data-sort="text">Asesora</th><th data-sort="text">Tienda</th>{% if not es_tienda %}<th data-sort="num">Ventas</th>{% endif %}<th data-sort="num">Meta al corte</th><th data-sort="num">Cumplimiento</th><th data-sort="num">Para la meta</th><th data-sort="num">Facturas</th>{% if not es_tienda %}<th data-sort="num">Ticket</th>{% endif %}<th data-sort="num">UPT</th><th>Estado</th>
+      </tr></thead><tbody>
+        {% for item in ranking_asesoras %}
+        <tr data-estado="{{ estado(item) }}" data-search="{{ (item.asesora ~ ' ' ~ item.codigo_tienda ~ ' ' ~ item.tienda)|lower }}" data-key="{{ item.advisor_id }}-{{ item.store_id }}" {% if item.store_id == mi_store_id %}class="rk-mine"{% endif %}>
+          <td data-v="{{ item.posicion if item.posicion is not none else '' }}"><span class="rank-number rank-{{ item.posicion }}">{% if item.posicion is none %}—{% elif item.posicion <= 3 %}{{ ['🥇','🥈','🥉'][item.posicion-1] }}{% else %}{{ item.posicion }}{% endif %}</span></td>
+          <td data-v="{{ item.asesora }}"><button type="button" class="rk-name" data-ficha="{{ item.advisor_id }}-{{ item.store_id }}">{{ item.asesora }}</button>{% for nv in item.novedades|default([], true) %}<small class="nv-chip" title="Novedad de Talento Humano: su meta cuenta solo los días que estuvo en la tienda" style="display:inline-block;margin:2px 0 0 6px;padding:1px 8px;border-radius:999px;background:#fef3c7;color:#92400e;font-size:10.5px;font-weight:700;white-space:nowrap;">{{ nv }}</small>{% endfor %}</td>
+          <td data-v="{{ item.codigo_tienda }}"><strong>{{ item.codigo_tienda }}</strong><small>{{ item.tienda }}</small></td>
+          {% if not es_tienda %}<td data-v="{{ item.venta }}"><strong>${{ "{:,.0f}".format(item.venta) }}</strong></td>{% endif %}
+          <td data-v="{{ item.meta_corte }}">{% if item.sin_meta %}<span class="rk-muted">Sin meta</span>{% else %}${{ "{:,.0f}".format(item.meta_corte) }}{% endif %}</td>
+          <td data-v="{{ '' if item.sin_meta else item.cumplimiento }}">{{ barra(item) }}</td>
+          <td data-v="{{ '' if item.sin_meta else item.cumplimiento }}">{{ para_meta(item) }}</td>
+          <td data-v="{{ item.facturas }}">{{ "{:,.0f}".format(item.facturas) }}</td>
+          {% if not es_tienda %}<td data-v="{{ item.ticket }}">${{ "{:,.0f}".format(item.ticket) }}</td>{% endif %}
+          <td data-v="{{ item.upt }}">{{ "%.2f"|format(item.upt) }}</td>
+          <td>{{ pill_estado(item) }}</td>
+        </tr>
+        {% else %}<tr><td colspan="11" class="empty-ranking">No hay resultados.</td></tr>{% endfor %}
+      </tbody></table></div>
+      <div class="rk-more"><span data-more-info></span><button type="button" class="rk-more-btn" data-more hidden>Ver 25 más</button></div>
+    </article>
+  </div>
+
+  <dialog class="rk-ficha" id="rkFicha" aria-labelledby="rkFichaTitulo">
+    <div class="rk-ficha-body" id="rkFichaBody"></div>
+    <form method="dialog"><button class="rk-ficha-close" aria-label="Cerrar ficha"><i class="bi bi-x-lg"></i></button></form>
+  </dialog>
+</section>
+
+<script id="performanceRankingData" type="application/json">{
+  "esTienda": {{ es_tienda|tojson }},
+  "tiendasDist": [{% for t in ranking_tiendas|rejectattr('sin_meta') %}{"k": {{ t.store_id|tojson }}, "n": {{ t.nombre|tojson }}, "c": {{ t.cumplimiento|tojson }}, "p": {{ t.posicion|tojson }}, "mia": {{ (t.store_id == mi_store_id)|tojson }}}{{ "," if not loop.last }}{% endfor %}],
+  "asesoras": [{% for a in ranking_asesoras %}{"k": {{ (a.advisor_id ~ '-' ~ a.store_id)|tojson }}, "n": {{ a.asesora|tojson }}, "t": {{ a.tienda|tojson }}, "ct": {{ a.codigo_tienda|tojson }}, "s": {{ a.store_id|tojson }}, "c": {{ a.cumplimiento|tojson }}, "p": {{ a.posicion|tojson }}, "sm": {{ a.sin_meta|tojson }}, "m": {{ a.meta_corte|tojson }}, "f": {{ a.facturas|tojson }}, "u": {{ a.unidades|tojson }}, "upt": {{ a.upt|tojson }}{% if not es_tienda %}, "v": {{ a.venta|tojson }}, "tk": {{ a.ticket|tojson }}{% endif %}, "mia": {{ (a.store_id == mi_store_id)|tojson }}}{{ "," if not loop.last }}{% endfor %}]
+}</script>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/ranking_desempeno.js', v='20261002-1') }}"></script>
+<script src="{{ url_for('static', filename='js/retos_ranking.js') }}?v=1"></script>
+{% endblock %}

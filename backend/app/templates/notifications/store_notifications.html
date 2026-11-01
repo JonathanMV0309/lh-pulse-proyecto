@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block contenido %}
+<div class="container py-4">
+    <h1 class="fw-bold mb-4">Mis notificaciones</h1>
+
+    <div class="card border-0 shadow-sm p-4">
+        {% if notificaciones %}
+            <div class="list-group list-group-flush">
+                {% for n in notificaciones %}
+                <div class="list-group-item d-flex justify-content-between align-items-start {% if not n.leida %}bg-light{% endif %}">
+                    <div>
+                        <h5 class="mb-1 {% if not n.leida %}fw-bold{% endif %}">{{ n.titulo }}</h5>
+                        <p class="mb-1">{{ n.mensaje }}</p>
+                        <small class="text-muted">{{ n.fecha.strftime("%d/%m/%Y %H:%M") }}</small>
+                        {% if n.global %}
+                            <span class="badge bg-info ms-2">Global</span>
+                        {% endif %}
+                    </div>
+                    {% if not n.leida %}
+                        <button class="btn btn-sm btn-outline-primary" onclick="markRead({{ n.id }}, this)">Marcar leída</button>
+                    {% else %}
+                        <span class="badge bg-success">Leída</span>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-muted text-center">No tienes notificaciones.</p>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function markRead(id, btn) {
+    fetch(`/notificaciones/api/leer/${id}`, { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        });
+}
+</script>
+{% endblock %}

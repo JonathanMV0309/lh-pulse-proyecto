@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+<h2>
+Gestión de Asesoras
+</h2>
+
+
+<table class="table">
+
+<thead>
+
+<tr>
+
+<th>Nombre</th>
+<th>Tienda</th>
+<th>Estado</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for asesora in asesoras %}
+
+<tr>
+
+<td>
+{{ asesora.nombre }}
+</td>
+
+
+<td>
+
+{% if asesora.store %}
+{{ asesora.store.nombre }}
+{% else %}
+Sin tienda
+{% endif %}
+
+</td>
+
+
+<td>
+{{ asesora.estado }}
+</td>
+
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+
+</table>
+
+
+</div>
+
+
+{% endblock %}

@@ -1,0 +1,315 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_geografico_v2.css', v='20261002-1') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/mapa_plus.css') }}?v=2">
+{% endblock %}
+
+{% block contenido %}
+<div class="geo-v2-page">
+    <!-- =====================================================
+         HERO
+    ====================================================== -->
+    <section class="geo-v2-hero">
+        <div class="geo-v2-hero-content">
+            <div>
+                <h1 class="geo-v2-hero-title">
+                    <i class="bi bi-globe-americas"></i>
+                    Dashboard Geográfico de Inteligencia Comercial
+                </h1>
+                <p class="geo-v2-hero-subtitle">
+                    Desempeño de tiendas, contexto geográfico, clima, movilidad y oportunidades
+                </p>
+            </div>
+            <div class="geo-v2-period">
+                <i class="bi bi-calendar3"></i>
+                <strong>{{ periodo_label }}</strong>
+            </div>
+        </div>
+    </section>
+
+    <!-- =====================================================
+         FILTROS
+    ====================================================== -->
+    {%- set _url = 'dashboard_geografico_v2.dashboard_geografico_v2' -%}
+    <section class="mp-chips" aria-label="Filtros">
+        <div class="mp-chip-fila">
+            <span class="mp-chip-tit"><i class="bi bi-geo-alt" aria-hidden="true"></i> Ciudad</span>
+            <a class="mp-chip {{ 'on' if not ciudad_seleccionada }}" href="{{ url_for(_url, clima=clima_seleccionado or None, periodo=periodo_seleccionado or None) }}">Todas</a>
+            {% for c in ciudades_disponibles %}<a class="mp-chip {{ 'on' if ciudad_seleccionada == c }}" href="{{ url_for(_url, ciudad=c, clima=clima_seleccionado or None, periodo=periodo_seleccionado or None) }}">{{ c }}</a>{% endfor %}
+        </div>
+        <div class="mp-chip-fila">
+            <span class="mp-chip-tit"><i class="bi bi-cloud-sun" aria-hidden="true"></i> Clima</span>
+            <a class="mp-chip {{ 'on' if not clima_seleccionado }}" href="{{ url_for(_url, ciudad=ciudad_seleccionada or None, periodo=periodo_seleccionado or None) }}">Todos</a>
+            {% for cl in climas_disponibles %}<a class="mp-chip {{ 'on' if clima_seleccionado == cl }}" href="{{ url_for(_url, ciudad=ciudad_seleccionada or None, clima=cl, periodo=periodo_seleccionado or None) }}">{{ cl }}</a>{% endfor %}
+            <form method="GET" action="{{ url_for(_url) }}" class="mp-periodo">
+                {% if ciudad_seleccionada %}<input type="hidden" name="ciudad" value="{{ ciudad_seleccionada }}">{% endif %}
+                {% if clima_seleccionado %}<input type="hidden" name="clima" value="{{ clima_seleccionado }}">{% endif %}
+                <label for="filtroPeriodoV2"><i class="bi bi-calendar3" aria-hidden="true"></i> Período</label>
+                <select name="periodo" id="filtroPeriodoV2" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="" {% if not periodo_seleccionado %}selected{% endif %}>Último corte activo</option>
+                    {% for p in periodos_disponibles %}
+                    <option value="{{ p.valor }}" {% if periodo_seleccionado == p.valor %}selected{% endif %}>{{ p.label }}</option>
+                    {% endfor %}
+                </select>
+                <noscript><button type="submit" class="btn btn-sm geo-v2-filter-btn">Ver</button></noscript>
+            </form>
+            {% if ciudad_seleccionada or clima_seleccionado %}<a class="mp-chip mp-limpiar" href="{{ url_for(_url, periodo=periodo_seleccionado or None) }}"><i class="bi bi-x" aria-hidden="true"></i> Quitar filtros</a>{% endif %}
+        </div>
+    </section>
+    <p class="geo-v2-data-note">{{ fuente_kpis }} · Cumplimiento: promedio de tiendas con datos.
+      {% if tiendas_sin_datos %}{{ tiendas_sin_datos }} tienda(s) sin datos en este corte.{% endif %}
+      {% if diferencia_total|abs > 0.01 %}La fila TOTAL difiere de la suma de tiendas en ${{ "{:,.0f}".format(diferencia_total) }}; los rankings se calculan por tienda.{% endif %}
+    </p>
+
+    <!-- =====================================================
+         RESUMEN: lo esencial del corte y cada región con sus ciudades
+    ====================================================== -->
+    <section class="mp-resumen">
+        <div class="mp-kpis geo-v2-kpi-grid">
+            <div class="mp-kpi"><span>Ventas</span><b class="geo-v2-kpi-value">${{ "{:,.0f}".format(ventas) }}</b>
+                <small>{% if not base_comparable %}Sin base comparable{% elif variacion >= 0 %}<em class="sube">↑ {{ "%.1f"|format(variacion) }}%</em> vs año anterior{% else %}<em class="baja">↓ {{ "%.1f"|format(variacion|abs) }}%</em> vs año anterior{% endif %}</small></div>
+            <div class="mp-kpi"><span>Cumplimiento</span><b class="geo-v2-kpi-value">{{ "%.1f"|format(cumplimiento * 100) }}%</b><small>Promedio de {{ tiendas }} tiendas</small></div>
+            <div class="mp-kpi"><span>Conversión</span><b class="geo-v2-kpi-value">{{ "%.1f"|format(conversion) }}%</b><small>{{ "{:,.0f}".format(facturas) }} facturas de {{ "{:,.0f}".format(trafico) }} visitas</small></div>
+            <div class="mp-kpi mp-kpi-hilo"><span>En el hilo dorado</span><b id="mpKpiHilo">—</b><small id="mpKpiHiloNota">Tiendas que pasaron su meta</small></div>
+        </div>
+        <div class="mp-hilo-dice" id="mpHiloDice" aria-live="polite" hidden></div>
+        <div class="mp-regiones" id="mpRegiones" aria-label="Regiones y ciudades"></div>
+    </section>
+
+    {%- macro nivel_cumpl(v) -%}{%- if v is none -%}na{%- elif v >= 1 -%}ok{%- elif v >= 0.9 -%}mid{%- elif v >= 0.8 -%}low{%- else -%}bad{%- endif -%}{%- endmacro -%}
+    {%- macro nivel_score(v) -%}{%- if v >= 75 -%}ok{%- elif v >= 50 -%}mid{%- elif v >= 30 -%}low{%- else -%}bad{%- endif -%}{%- endmacro -%}
+    {%- macro pill_variacion(v) -%}{%- if v is none -%}<span class="geo-pill na">Sin base</span>{%- else -%}<span class="geo-pill {{ 'ok' if v >= 0 else 'bad' }}"><i class="bi bi-arrow-{{ 'up' if v >= 0 else 'down' }}-right" aria-hidden="true"></i>{{ "%.1f"|format(v|abs) }}%</span>{%- endif -%}{%- endmacro -%}
+    {%- macro barra(v, maximo) -%}<div class="geo-cbar"><span style="--w:{{ '%.3f'|format(v / maximo if maximo else 0) }}"></span><em>${{ "{:,.0f}".format(v) }}</em></div>{%- endmacro -%}
+
+    <!-- =====================================================
+         MAPA Y PANEL DE CONTEXTO
+    ====================================================== -->
+    <section class="geo-v2-main-grid">
+        <div class="geo-v2-map-card geo-rv" id="mapCard">
+            <div class="geo-v2-card-header">
+                <h3><i class="bi bi-map"></i> Mapa de tiendas</h3>
+                <div class="geo-seg" id="mapMetric" role="group" aria-label="Color de los puntos">
+                    <button type="button" class="on" data-m="cumplimiento" aria-pressed="true">Cumplimiento</button>
+                    <button type="button" data-m="ventas" aria-pressed="false">Ventas</button>
+                    <button type="button" data-m="conversion" aria-pressed="false">Conversión</button>
+                    <button type="button" data-m="score" aria-pressed="false">Score</button>
+                    <button type="button" data-m="red" aria-pressed="false" title="Las tiendas que pasaron su meta, unidas por un hilo dorado">🧵 Hilo de la red</button>
+                    <button type="button" data-m="duelos" aria-pressed="false" title="Las batallas de la semana: tiendas de meta parecida, frente a frente">Batallas</button>
+                    <button type="button" data-m="asesoras" aria-pressed="false" title="Cuántas asesoras de cada tienda ya pasaron su meta">Asesoras</button>
+                </div>
+            </div>
+            <div class="mp-barra" id="mpBarra" role="toolbar" aria-label="Herramientas del mapa">
+                <div class="mp-grupo">
+                    <button type="button" data-capa="cambios" aria-pressed="false"><i class="bi bi-arrow-down-up" aria-hidden="true"></i> Cambios</button>
+                    <button type="button" data-capa="alertas" aria-pressed="false"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i> Alertas</button>
+                    <button type="button" data-capa="clima" aria-pressed="false"><i class="bi bi-cloud-sun" aria-hidden="true"></i> Clima hoy</button>
+                    <button type="button" data-capa="pulso" aria-pressed="false"><i class="bi bi-activity" aria-hidden="true"></i> Pulso</button>
+                </div>
+                <div class="mp-grupo">
+                    <button type="button" data-accion="comparar"><i class="bi bi-layout-split" aria-hidden="true"></i> Comparar meses</button>
+                    <button type="button" data-accion="ruta"><i class="bi bi-signpost-split" aria-hidden="true"></i> Ruta</button>
+                    <button type="button" data-accion="foto"><i class="bi bi-camera" aria-hidden="true"></i> Foto del mes</button>
+                    <button type="button" data-accion="oficina"><i class="bi bi-tv" aria-hidden="true"></i> Modo oficina</button>
+                    <button type="button" data-accion="completa" aria-label="Pantalla completa" title="Pantalla completa"><i class="bi bi-arrows-fullscreen" aria-hidden="true"></i></button>
+                </div>
+            </div>
+            <span id="mapLoading" class="text-muted geo-map-loading">Cargando...</span>
+            <div id="mapContainer" class="geo-map"></div>
+            <div class="geo-v2-map-legend" id="mapLegend"></div>
+            <p class="geo-v2-data-note" id="mapSummary" aria-live="polite"></p>
+            <div class="geo-map-tools">
+                <label class="visually-hidden" for="mapStoreSelect">Consultar tienda</label>
+                <select id="mapStoreSelect" class="form-select"><option value="">Selecciona una tienda</option></select>
+                <button type="button" class="btn btn-sm btn-outline-secondary" id="mapVerTodas"><i class="bi bi-arrows-fullscreen"></i> Ver todas</button>
+            </div>
+            <p class="geo-v2-data-note">Toca una tienda para ver su ficha: cuánto le falta, su cierre proyectado, sus asesoras y sus tiendas gemelas. El tamaño del punto es la venta; el halo rojo, cumplimiento menor a 80 %. La tienda virtual no tiene ubicación física: aparece en la tarjeta 🌐 de la esquina del mapa.</p>
+        </div>
+        <div class="geo-v2-context-panel geo-rv" id="contextPanel">
+            <div class="geo-v2-card-header">
+                <h3><i class="bi bi-info-circle"></i> Contexto de tienda</h3>
+                <button class="btn btn-sm btn-outline-secondary" id="closeContext" aria-label="Cerrar contexto"><i class="bi bi-x"></i></button>
+            </div>
+            <div id="contextContent" aria-live="polite" aria-busy="false">
+                <p class="text-muted">Selecciona una tienda en el mapa para ver su contexto.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- =====================================================
+         OPORTUNIDADES Y ALERTAS
+    ====================================================== -->
+    <section class="geo-v2-grid-2col">
+        <div class="geo-v2-card geo-rv">
+            <div class="geo-v2-card-header">
+                <h3><i class="bi bi-lightbulb"></i> Oportunidades</h3>
+                <span class="badge bg-success" id="oppCount"></span>
+            </div>
+            <div id="oportunidadesList" class="geo-v2-list"></div>
+        </div>
+        <div class="geo-v2-card geo-rv">
+            <div class="geo-v2-card-header">
+                <h3><i class="bi bi-exclamation-triangle"></i> Alertas</h3>
+                <span class="badge bg-danger" id="alertCount"></span>
+            </div>
+            <div id="alertasList" class="geo-v2-list"></div>
+        </div>
+    </section>
+
+    <!-- =====================================================
+         RESULTADOS POR CIUDAD Y POR CLIMA (gráfica o tabla)
+    ====================================================== -->
+    {% set max_ciudad = (ranking_ciudades|map(attribute='ventas')|list|max) if ranking_ciudades else 0 %}
+    {% set max_clima = (resumen_climas|map(attribute='ventas')|list|max) if resumen_climas else 0 %}
+    <section class="geo-v2-grid-2col geo-grid-wide">
+        <div class="geo-v2-card geo-rv" id="ciudadCard">
+            <div class="geo-v2-card-header">
+                <h3><i class="bi bi-geo-alt"></i> Resultados por ciudad</h3>
+                <div class="geo-tools">
+                    <div class="geo-seg" id="ciudadMetric" role="group" aria-label="Indicador por ciudad">
+                        <button type="button" class="on" data-m="ventas" aria-pressed="true">Ventas</button>
+                        <button type="button" data-m="cumplimiento" aria-pressed="false">Cumplimiento</button>
+                        <button type="button" data-m="conversion" aria-pressed="false">Conversión</button>
+                    </div>
+                    <div class="geo-seg" data-view-toggle role="group" aria-label="Ver como">
+                        <button type="button" class="on" data-v="g" aria-pressed="true" title="Gráfica" aria-label="Ver gráfica"><i class="bi bi-bar-chart"></i></button>
+                        <button type="button" data-v="t" aria-pressed="false" title="Tabla" aria-label="Ver tabla"><i class="bi bi-table"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="geo-view on" data-view="g">
+                <div class="geo-v2-chart-container" id="ciudadChartBox"><canvas id="ciudadChart" role="img" aria-label="Resultados por ciudad"></canvas></div>
+            </div>
+            <div class="geo-view" data-view="t">
+                <div class="geo-v2-table-responsive">
+                    <table class="table geo-v2-table" data-sortable>
+                        <thead>
+                            <tr>
+                                <th data-sort="num" data-first="asc">#</th><th data-sort="text">Ciudad</th><th data-sort="num" class="num">Tiendas</th><th data-sort="num">Ventas</th><th data-sort="num" class="num">Venta por tienda</th><th data-sort="num" class="num">Participación</th><th data-sort="num" class="num">Variación</th><th data-sort="num" class="num">Cumplimiento</th><th data-sort="num" class="num">Tráfico</th><th data-sort="num" class="num">Conversión</th><th data-sort="num" class="num">Ticket</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in ranking_ciudades %}
+                            <tr>
+                                <td data-v="{{ item.posicion }}"><span class="geo-pos">{{ item.posicion }}</span></td>
+                                <td data-v="{{ item.ciudad }}"><strong>{{ item.ciudad }}</strong></td>
+                                <td class="num" data-v="{{ item.tiendas }}">{{ item.tiendas }}{% if item.muestra_pequena %}<small class="d-block">Muestra pequeña</small>{% endif %}</td>
+                                <td data-v="{{ item.ventas }}">{{ barra(item.ventas, max_ciudad) }}</td>
+                                <td class="num" data-v="{{ item.venta_promedio }}">${{ "{:,.0f}".format(item.venta_promedio) }}</td>
+                                <td class="num" data-v="{{ item.participacion }}">{{ "%.1f"|format(item.participacion) }}%</td>
+                                <td class="num" data-v="{{ item.variacion if item.base_comparable else '' }}">{{ pill_variacion(item.variacion if item.base_comparable else none) }}</td>
+                                <td class="num" data-v="{{ item.cumplimiento }}"><span class="geo-pill {{ nivel_cumpl(item.cumplimiento) }}">{{ "%.1f"|format(item.cumplimiento * 100) }}%</span></td>
+                                <td class="num" data-v="{{ item.trafico }}">{{ "{:,.0f}".format(item.trafico) }}</td>
+                                <td class="num" data-v="{{ item.conversion }}" data-conv><span class="geo-pill na">{{ "%.1f"|format(item.conversion) }}%</span></td>
+                                <td class="num" data-v="{{ item.ticket_promedio }}">${{ "{:,.0f}".format(item.ticket_promedio) }}</td>
+                            </tr>
+                            {% else %}<tr><td colspan="11">No hay datos para esta selección.</td></tr>{% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="geo-v2-card geo-rv" id="climaCard">
+            <div class="geo-v2-card-header">
+                <h3><i class="bi bi-cloud-sun"></i> Resultados por clima de zona</h3>
+                <div class="geo-seg" data-view-toggle role="group" aria-label="Ver como">
+                    <button type="button" class="on" data-v="g" aria-pressed="true" title="Gráfica" aria-label="Ver gráfica"><i class="bi bi-bar-chart"></i></button>
+                    <button type="button" data-v="t" aria-pressed="false" title="Tabla" aria-label="Ver tabla"><i class="bi bi-table"></i></button>
+                </div>
+            </div>
+            <div class="geo-view on" data-view="g">
+                <div class="geo-v2-chart-container"><canvas id="climaVentasChart" role="img" aria-label="Ventas por clima de zona"></canvas></div>
+            </div>
+            <div class="geo-view" data-view="t">
+                <div class="geo-v2-table-responsive">
+                    <table class="table geo-v2-table" data-sortable>
+                        <thead><tr><th data-sort="text">Clima</th><th data-sort="num" class="num">Tiendas</th><th data-sort="num">Ventas</th><th data-sort="num" class="num">Tráfico</th><th data-sort="num" class="num">Facturas</th><th data-sort="num" class="num">Conversión</th><th data-sort="num" class="num">Cumplimiento</th></tr></thead>
+                        <tbody>
+                            {% for item in resumen_climas %}
+                            <tr>
+                                <td data-v="{{ item.clima }}"><strong>{{ item.clima }}</strong></td>
+                                <td class="num" data-v="{{ item.tiendas }}">{{ item.tiendas }}</td>
+                                <td data-v="{{ item.ventas }}">{{ barra(item.ventas, max_clima) }}</td>
+                                <td class="num" data-v="{{ item.trafico }}">{{ "{:,.0f}".format(item.trafico) }}</td>
+                                <td class="num" data-v="{{ item.facturas }}">{{ "{:,.0f}".format(item.facturas) }}</td>
+                                <td class="num" data-v="{{ item.conversion }}" data-conv><span class="geo-pill na">{{ "%.1f"|format(item.conversion) }}%</span></td>
+                                <td class="num" data-v="{{ item.cumplimiento }}"><span class="geo-pill {{ nivel_cumpl(item.cumplimiento) }}">{{ "%.1f"|format(item.cumplimiento * 100) }}%</span></td>
+                            </tr>
+                            {% else %}<tr><td colspan="7">No hay datos para esta selección.</td></tr>{% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+    <p class="geo-v2-data-note">Clima de zona: clasificación registrada de cada tienda. Tráfico comercial: visitas a tienda, distinto de la movilidad vial. Estos gráficos no prueban causalidad.</p>
+
+    <!-- =====================================================
+         TRÁFICO VS VENTAS Y COMPARACIÓN
+    ====================================================== -->
+    <section class="geo-v2-grid-2col">
+        <div class="geo-v2-card geo-rv">
+            <div class="geo-v2-card-header">
+                <h3><i class="bi bi-diagram-3"></i> Tráfico vs ventas</h3>
+            </div>
+            <div class="geo-v2-chart-container geo-chart-scatter">
+                <canvas id="traficoVentasChart" role="img" aria-label="Tráfico frente a ventas por tienda"></canvas>
+            </div>
+            <p class="geo-v2-data-note">Las líneas punteadas son la mediana de las tiendas mostradas. Abajo a la derecha: mucho tráfico y poca venta. Haz clic en un punto para abrir la tienda.</p>
+        </div>
+        <div class="geo-v2-card geo-rv">
+            <div class="geo-v2-card-header">
+                <h3><i class="bi bi-arrow-left-right"></i> Comparar tiendas</h3>
+            </div>
+            <div class="geo-cmp-sel">
+                <label class="visually-hidden" for="compareA">Tienda A</label>
+                <select id="compareA" class="form-select">
+                    {% for item in ranking_tiendas %}<option value="{{ item.id }}">{{ item.nombre }}</option>{% endfor %}
+                </select>
+                <span class="geo-vs">VS</span>
+                <label class="visually-hidden" for="compareB">Tienda B</label>
+                <select id="compareB" class="form-select">
+                    {% for item in ranking_tiendas %}<option value="{{ item.id }}" {% if loop.index == 2 %}selected{% endif %}>{{ item.nombre }}</option>{% endfor %}
+                </select>
+            </div>
+            <div id="compareResults" aria-live="polite"></div>
+        </div>
+    </section>
+
+    <!-- =====================================================
+         RADAR DE CONTEXTO (para tienda seleccionada)
+    ====================================================== -->
+    <section class="geo-v2-card" id="radarSection" style="display:none;">
+        <div class="geo-v2-card-header">
+            <h3><i class="bi bi-bullseye"></i> Radar de contexto</h3>
+        </div>
+        <div class="geo-v2-chart-container" style="height: 350px;">
+            <canvas id="radarChart"></canvas>
+        </div>
+    </section>
+
+    <!-- =====================================================
+         LO QUE ESTÁ EN OTRAS PESTAÑAS: accesos
+    ====================================================== -->
+    <section class="mp-accesos" aria-label="Más información en otras pestañas">
+        <a href="/ranking/desempeno/"><i class="bi bi-trophy" aria-hidden="true"></i><span><b>Ranking de tiendas y asesoras</b><small>Posiciones, podio y distribución</small></span><i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+        <a href="/dashboard"><i class="bi bi-graph-up" aria-hidden="true"></i><span><b>Resumen general de ventas</b><small>Ventas por línea frente al año anterior</small></span><i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+        <a href="/ventas-por-dia"><i class="bi bi-calendar3" aria-hidden="true"></i><span><b>Ventas por día</b><small>Cada día del mes, tienda por tienda</small></span><i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+    </section>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script id="geoV2Config" type="application/json">{{ {
+  "filtros": {"ciudad": ciudad_seleccionada, "clima": clima_seleccionado, "tienda": tienda_seleccionada, "periodo": periodo_seleccionado},
+  "ciudades": ranking_ciudades, "climas": resumen_climas, "lineas": evolucion_lineas,
+  "anio": periodo_anio, "anioAnterior": anio_anterior,
+  "urls": {"tiendas": url_for('dashboard_geografico_v2.api_tiendas'), "contexto": url_for('dashboard_geografico_v2.api_contexto', store_id=0), "oportunidades": url_for('dashboard_geografico_v2.api_oportunidades'), "alertas": url_for('dashboard_geografico_v2.api_alertas'), "clima": url_for('dashboard_geografico_v2.api_clima_ventas'), "trafico": url_for('dashboard_geografico_v2.api_trafico_ventas'), "comparacion": url_for('dashboard_geografico_v2.api_comparacion')}
+}|tojson }}</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="{{ url_for('static', filename='js/dashboard_geografico_v2.js', v='20261014-1') }}"></script>
+<script src="{{ url_for('static', filename='hilo3d/hilo_red.js') }}?v=3"></script>
+<script src="{{ url_for('static', filename='js/mapa_plus.js') }}?v=3"></script>
+{% endblock %}

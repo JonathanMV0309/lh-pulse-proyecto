@@ -1,0 +1,396 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ventas_por_dia_v2.css') }}">
+{% endblock %}
+
+{% block contenido %}
+{% set nombre_mes = meses[mes - 1] if mes and 1 <= mes <= 12 else 'Período' %}
+{% set venta_visible = tiendas.total_venta if tiendas.hay_datos else datos.total_venta_2026 %}
+
+<div class="vd-page">
+    <section class="vd-hero">
+        <div>
+            <span class="vd-eyebrow"><i class="bi bi-stars"></i> Inteligencia comercial diaria</span>
+            <h1>Ventas diarias</h1>
+            <p>{{ nombre_mes }} {{ anio }} · ventas, unidades y comportamiento por tienda.</p>
+        </div>
+        <div class="vd-hero-status">
+            <span>Información consultada</span>
+            <strong>{% if dia_corte %}Corte día {{ dia_corte }}{% else %}Sin corte disponible{% endif %}</strong>
+            <small>{{ tiendas.tiendas }} tienda{% if tiendas.tiendas != 1 %}s{% endif %} con detalle</small>
+        </div>
+    </section>
+
+    <section class="vd-filter-card">
+        <form method="GET" action="{{ url_for('app_pages.ventas_por_dia') }}" class="vd-filter-grid">
+            <div>
+                <label for="vdAnio">Año</label>
+                <select id="vdAnio" name="anio" class="form-select">
+                    {% set anios = [] %}
+                    {% for periodo in periodos %}
+                        {% if periodo.anio not in anios %}{% set _ = anios.append(periodo.anio) %}{% endif %}
+                    {% endfor %}
+                    {% if not anios %}{% set anios = [anio] %}{% endif %}
+                    {% for valor in anios %}
+                        <option value="{{ valor }}" {% if valor == anio %}selected{% endif %}>{{ valor }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="vdMes">Mes</label>
+                <select id="vdMes" name="mes" class="form-select">
+                    {% for valor in range(1, 13) %}
+                        <option value="{{ valor }}" {% if valor == mes %}selected{% endif %}>{{ meses[valor - 1] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="vdCorte">Corte</label>
+                <select id="vdCorte" name="dia_corte" class="form-select">
+                    {% if cortes_disponibles %}
+                        {% for valor in cortes_disponibles %}
+                            <option value="{{ valor }}" {% if valor == dia_corte %}selected{% endif %}>Día {{ valor }}</option>
+                        {% endfor %}
+                    {% else %}
+                        <option value="">Sin cortes</option>
+                    {% endif %}
+                </select>
+            </div>
+            <button type="submit" class="vd-button vd-button-primary">
+                <i class="bi bi-sliders"></i> Analizar
+            </button>
+        </form>
+    </section>
+
+    {% if datos.ventas_diarias or tiendas.hay_datos %}
+    <section class="vd-kpi-grid">
+        <article class="vd-kpi vd-kpi-main">
+            <div class="vd-kpi-icon"><i class="bi bi-cash-stack"></i></div>
+            <div>
+                <span>Venta acumulada</span>
+                <strong>${{ "{:,.0f}".format(venta_visible) }}</strong>
+                <small>Hasta el día {{ dia_corte or '—' }}</small>
+            </div>
+        </article>
+        <article class="vd-kpi">
+            <div class="vd-kpi-icon vd-icon-terracotta"><i class="bi bi-box-seam"></i></div>
+            <div>
+                <span>Unidades vendidas</span>
+                <strong>{{ "{:,.0f}".format(tiendas.total_unidades) if tiendas.hay_datos else '—' }}</strong>
+                <small>Detalle de X DIA X TIENDA</small>
+            </div>
+        </article>
+        <article class="vd-kpi">
+            <div class="vd-kpi-icon vd-icon-gold"><i class="bi bi-tag"></i></div>
+            <div>
+                <span>Venta por unidad</span>
+                <strong>{% if tiendas.hay_datos %}${{ "{:,.0f}".format(tiendas.valor_unidad) }}{% else %}—{% endif %}</strong>
+                <small>Venta ÷ unidades</small>
+            </div>
+        </article>
+        <article class="vd-kpi">
+            <div class="vd-kpi-icon {% if datos.total_incremento < 0 %}vd-icon-red{% endif %}">
+                <i class="bi bi-graph-up-arrow"></i>
+            </div>
+            <div>
+                <span>Crecimiento global</span>
+                <strong class="{% if datos.total_incremento >= 0 %}vd-positive{% else %}vd-negative{% endif %}">
+                    {{ "%+.1f"|format(datos.total_incremento) }}%
+                </strong>
+                <small>Comparación 2025 vs. 2026</small>
+            </div>
+        </article>
+    </section>
+
+    {% if not tiendas.hay_datos %}
+    <div class="vd-data-note">
+        <i class="bi bi-info-circle"></i>
+        <div>
+            <strong>El comparativo global está disponible.</strong>
+            <span>Para ver unidades, ranking y mapa de calor, vuelve a importar un archivo que incluya la hoja X DIA X TIENDA.</span>
+        </div>
+    </div>
+    {% endif %}
+
+    <nav class="vd-section-nav" aria-label="Secciones de ventas diarias">
+        <button type="button" class="active" data-vd-panel="resumen"><i class="bi bi-activity"></i> Resumen</button>
+        <button type="button" data-vd-panel="tiendas"><i class="bi bi-shop"></i> Tiendas</button>
+        <button type="button" data-vd-panel="calor"><i class="bi bi-grid-3x3-gap"></i> Mapa de calor</button>
+        <button type="button" data-vd-panel="detalle"><i class="bi bi-table"></i> Detalle</button>
+    </nav>
+
+    <section class="vd-panel active" data-vd-content="resumen">
+        <div class="vd-grid-2">
+            <article class="vd-card">
+                <div class="vd-card-header">
+                    <div>
+                        <span class="vd-card-kicker">Ritmo comercial</span>
+                        <h2>Venta y unidades por día</h2>
+                    </div>
+                    <div class="vd-metric-switch" role="group" aria-label="Métrica">
+                        <button type="button" class="active" data-vd-metric="venta">Ventas</button>
+                        <button type="button" data-vd-metric="unidades">Unidades</button>
+                    </div>
+                </div>
+                <div class="vd-chart"><canvas id="vdRitmoChart"></canvas></div>
+            </article>
+
+            {% if not es_tienda %}
+            <article class="vd-card">
+                <div class="vd-card-header">
+                    <div>
+                        <span class="vd-card-kicker">Comparación anual</span>
+                        <h2>{{ anio - 1 }} frente a {{ anio }}</h2>
+                    </div>
+                    <span class="vd-pill">{{ nombre_mes }}</span>
+                </div>
+                <div class="vd-chart"><canvas id="vdComparativoChart"></canvas></div>
+            </article>
+            {% else %}
+            <article class="vd-card vd-percentage-card">
+                <div class="vd-card-header">
+                    <div>
+                        <span class="vd-card-kicker">Comparación global protegida</span>
+                        <h2>Crecimiento diario de la red</h2>
+                    </div>
+                    <span class="vd-pill">Solo porcentaje</span>
+                </div>
+                <div class="vd-percentage-highlight {% if datos.total_incremento >= 0 %}positive{% else %}negative{% endif %}">
+                    <i class="bi {% if datos.total_incremento >= 0 %}bi-arrow-up-right-circle{% else %}bi-arrow-down-right-circle{% endif %}"></i>
+                    <strong>{{ "%+.1f"|format(datos.total_incremento) }}%</strong>
+                    <span>Variación acumulada frente al año anterior</span>
+                </div>
+            </article>
+            {% endif %}
+        </div>
+
+        <div class="vd-grid-2 vd-ranking-days">
+            <article class="vd-card vd-list-card">
+                <div class="vd-list-title vd-positive"><i class="bi bi-arrow-up-right-circle"></i> Días con mejor crecimiento</div>
+                {% for item in datos.mejores_dias %}
+                <div class="vd-day-row">
+                    <span><strong>{{ item.dia }} de {{ nombre_mes|lower }}</strong><small>{{ item.dia_semana_2026 }}</small></span>
+                    <b class="vd-positive">{{ "%+.1f"|format(item.incremento) }}%</b>
+                </div>
+                {% else %}<p class="vd-empty-small">Sin comparación disponible.</p>{% endfor %}
+            </article>
+            <article class="vd-card vd-list-card">
+                <div class="vd-list-title vd-negative"><i class="bi bi-arrow-down-right-circle"></i> Días que requieren atención</div>
+                {% for item in datos.peores_dias %}
+                <div class="vd-day-row">
+                    <span><strong>{{ item.dia }} de {{ nombre_mes|lower }}</strong><small>{{ item.dia_semana_2026 }}</small></span>
+                    <b class="{% if item.incremento >= 0 %}vd-positive{% else %}vd-negative{% endif %}">{{ "%+.1f"|format(item.incremento) }}%</b>
+                </div>
+                {% else %}<p class="vd-empty-small">Sin comparación disponible.</p>{% endfor %}
+            </article>
+        </div>
+
+        <article class="vd-card vd-global-table-card">
+            <div class="vd-card-header">
+                <div>
+                    <span class="vd-card-kicker">Fuente X DIA</span>
+                    <h2>Comparación global día por día</h2>
+                </div>
+                <span class="vd-pill">{{ nombre_mes }} {{ anio }}</span>
+            </div>
+            <div class="vd-comparison-note">
+                <i class="bi bi-shield-check"></i>
+                <span>{% if es_tienda %}Por privacidad comercial, la tienda visualiza únicamente el porcentaje de variación global.{% else %}Consolidado completo de la hoja X DIA para toda la red.{% endif %}</span>
+            </div>
+            <div class="table-responsive vd-global-table-wrap">
+                <table class="table vd-table">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th><th>Día {{ anio - 1 }}</th><th>Día {{ anio }}</th>
+                            {% if not es_tienda %}<th class="text-end">Venta {{ anio - 1 }}</th><th class="text-end">Venta {{ anio }}</th><th class="text-end">Diferencia</th>{% endif %}
+                            <th class="text-end">Crecimiento</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for item in datos.ventas_diarias %}
+                        <tr>
+                            <td><strong>{{ item.dia }} {{ nombre_mes|lower }}</strong></td>
+                            <td><span class="vd-weekday previous">{{ item.dia_semana_2025 }}</span></td>
+                            <td><span class="vd-weekday current">{{ item.dia_semana_2026 }}</span></td>
+                            {% if not es_tienda %}
+                            <td class="text-end">${{ "{:,.0f}".format(item.venta_2025) }}</td>
+                            <td class="text-end fw-bold">{% if item.venta_2026 is not none %}${{ "{:,.0f}".format(item.venta_2026) }}{% else %}<span class="vd-no-data">Sin dato</span>{% endif %}</td>
+                            <td class="text-end">{% if item.diferencia is not none %}<strong class="{% if item.diferencia >= 0 %}vd-positive{% else %}vd-negative{% endif %}">{{ "+" if item.diferencia >= 0 else "−" }}${{ "{:,.0f}".format(item.diferencia|abs) }}</strong>{% else %}<span class="vd-no-data">—</span>{% endif %}</td>
+                            {% endif %}
+                            <td class="text-end">{% if item.incremento is not none %}<span class="vd-trend {% if item.incremento >= 0 %}positive{% else %}negative{% endif %}"><i class="bi {% if item.incremento >= 0 %}bi-arrow-up-right{% else %}bi-arrow-down-right{% endif %}"></i>{{ "%+.1f"|format(item.incremento) }}%</span>{% else %}<span class="vd-no-data">Sin dato</span>{% endif %}</td>
+                        </tr>
+                    {% else %}<tr><td colspan="7" class="vd-empty-cell">No hay información global para este período.</td></tr>{% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </article>
+    </section>
+
+    <section class="vd-panel" data-vd-content="tiendas">
+        <article class="vd-card">
+            <div class="vd-card-header">
+                <div>
+                    <span class="vd-card-kicker">Desempeño de la red</span>
+                    <h2>Ranking por venta acumulada</h2>
+                </div>
+                <span class="vd-pill">{{ tiendas.tiendas }} tiendas</span>
+            </div>
+            <div class="vd-comparison-note">
+                <i class="bi bi-calendar2-range"></i>
+                <span>Comparación acumulada al mismo día entre <strong>{{ tiendas.anio_anterior }}</strong> y <strong>{{ anio }}</strong>. Si no existe histórico de la tienda, se muestra “Sin dato”.</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table vd-table">
+                    <thead><tr><th>Pos.</th><th>Tienda</th><th>Ciudad</th><th class="text-end">Venta {{ tiendas.anio_anterior }}</th><th class="text-end">Venta {{ anio }}</th><th class="text-end">Diferencia</th><th class="text-end">Crecimiento</th><th class="text-end">Unidades</th><th class="text-end">Venta/unidad</th><th>Participación</th><th>Mejor día</th></tr></thead>
+                    <tbody>
+                    {% for item in tiendas.ranking %}
+                        <tr>
+                            <td><span class="vd-position {% if item.posicion <= 3 %}top{% endif %}">{{ item.posicion }}</span></td>
+                            <td><strong>{{ item.codigo }}</strong><small>{{ item.nombre }}</small></td>
+                            <td>{{ item.ciudad }}</td>
+                            <td class="text-end">
+                                {% if item.comparacion_completa %}<strong>${{ "{:,.0f}".format(item.venta_anterior) }}</strong>{% else %}<span class="vd-no-data">Sin dato</span>{% endif %}
+                            </td>
+                            <td class="text-end fw-bold">${{ "{:,.0f}".format(item.venta) }}</td>
+                            <td class="text-end">
+                                {% if item.diferencia is not none %}<strong class="{% if item.diferencia >= 0 %}vd-positive{% else %}vd-negative{% endif %}">{{ "+" if item.diferencia >= 0 else "−" }}${{ "{:,.0f}".format(item.diferencia|abs) }}</strong>{% else %}<span class="vd-no-data">—</span>{% endif %}
+                            </td>
+                            <td class="text-end">
+                                {% if item.crecimiento is not none %}<span class="vd-trend {% if item.crecimiento >= 0 %}positive{% else %}negative{% endif %}"><i class="bi {% if item.crecimiento >= 0 %}bi-arrow-up-right{% else %}bi-arrow-down-right{% endif %}"></i>{{ "%+.1f"|format(item.crecimiento) }}%</span>{% elif item.comparacion_completa %}<span class="vd-no-data">No calculable</span>{% else %}<span class="vd-no-data">Sin dato</span>{% endif %}
+                            </td>
+                            <td class="text-end">{{ "{:,.0f}".format(item.unidades) }}</td>
+                            <td class="text-end">${{ "{:,.0f}".format(item.valor_unidad) }}</td>
+                            <td><div class="vd-share"><span style="width: {{ [item.participacion, 100]|min }}%"></span></div><small>{{ "%.1f"|format(item.participacion) }}%</small></td>
+                            <td>Día {{ item.mejor_dia or '—' }}</td>
+                        </tr>
+                    {% else %}
+                        <tr><td colspan="11" class="vd-empty-cell">No hay detalle por tienda para este corte.</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </article>
+    </section>
+
+    <section class="vd-panel" data-vd-content="calor">
+        <article class="vd-card">
+            <div class="vd-card-header">
+                <div>
+                    <span class="vd-card-kicker">Intensidad de venta</span>
+                    <h2>Mapa de calor por tienda y día</h2>
+                </div>
+                <div class="vd-legend"><span>Bajo</span><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i><span>Alto</span></div>
+            </div>
+            <div class="vd-heatmap-wrap">
+                <table class="vd-heatmap">
+                    <thead><tr><th>Tienda</th>{% for dia in tiendas.dias_disponibles %}<th>{{ dia }}</th>{% endfor %}</tr></thead>
+                    <tbody>
+                    {% for fila in tiendas.matriz %}
+                        <tr><th><strong>{{ fila.codigo }}</strong><span>{{ fila.nombre }}</span></th>
+                        {% for celda in fila.celdas %}
+                            <td class="level-{{ celda.nivel }}" title="Día {{ celda.dia }} · ${{ '{:,.0f}'.format(celda.venta) }} · {{ celda.unidades }} unidades">
+                                <span>${{ "{:,.0f}".format(celda.venta / 1000000) }}M</span>
+                            </td>
+                        {% endfor %}</tr>
+                    {% else %}<tr><td class="vd-empty-cell">Sin información por tienda.</td></tr>{% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </article>
+    </section>
+
+    <section class="vd-panel" data-vd-content="detalle">
+        <article class="vd-card">
+            <div class="vd-card-header vd-search-header">
+                <div><span class="vd-card-kicker">Consulta operativa</span><h2>{% if store_id_actual %}Detalle diario de tienda{% else %}Detalle global de la red{% endif %}</h2></div>
+                <div class="vd-detail-tools">
+                    {% if not es_tienda %}
+                    <form method="GET" action="{{ url_for('app_pages.ventas_por_dia') }}" class="vd-store-filter">
+                        <input type="hidden" name="anio" value="{{ anio }}">
+                        <input type="hidden" name="mes" value="{{ mes }}">
+                        <input type="hidden" name="dia_corte" value="{{ dia_corte or '' }}">
+                        <input type="hidden" name="seccion" value="detalle">
+                        <label for="vdDetailStore">Información a consultar</label>
+                        <select id="vdDetailStore" name="store_id" class="form-select" onchange="this.form.submit()">
+                            <option value="">Global · Hoja X DIA</option>
+                            {% for tienda in tiendas_disponibles %}
+                            <option value="{{ tienda.id }}" {% if tienda.id == store_id_actual %}selected{% endif %}>{{ tienda.codigo }} · {{ tienda.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </form>
+                    {% else %}
+                    <div class="vd-store-locked"><i class="bi bi-shop"></i><span>Mi tienda</span><strong>{% if usuario.store %}{{ usuario.store.codigo }} · {{ usuario.store.nombre }}{% else %}Tienda asignada{% endif %}</strong></div>
+                    {% endif %}
+                    <div class="vd-search"><i class="bi bi-search"></i><input id="vdTableSearch" type="search" placeholder="Buscar fecha o información"></div>
+                </div>
+            </div>
+            <div class="vd-comparison-note">
+                <i class="bi bi-info-circle"></i>
+                <span>{% if store_id_actual %}Comparación de la tienda seleccionada entre <strong>{{ anio - 1 }}</strong> y <strong>{{ anio }}</strong>.{% else %}Vista global proveniente de la hoja <strong>X DIA</strong>. Selecciona una tienda para consultar su detalle individual.{% endif %}</span>
+            </div>
+            <div class="table-responsive vd-detail-table-wrap">
+                <table class="table vd-table" id="vdDetailTable">
+                    {% if store_id_actual %}
+                    <thead><tr><th>Fecha</th><th>Día {{ anio - 1 }}</th><th>Día {{ anio }}</th><th>Código</th><th>Tienda</th><th>Ciudad</th><th class="text-end">Venta {{ anio - 1 }}</th><th class="text-end">Venta {{ anio }}</th><th class="text-end">Diferencia</th><th class="text-end">Crecimiento</th><th class="text-end">Unidades</th><th class="text-end">Venta/unidad</th></tr></thead>
+                    <tbody>
+                    {# El año anterior se ve hasta fin de mes; los días sin venta actual quedan "Pendiente" #}
+                    {% for item in (detalle_tienda.detalle_completo or detalle_tienda.detalle) %}
+                        <tr{% if item.pendiente %} style="background: rgba(139, 125, 107, .05);"{% endif %}>
+                            <td><strong>{{ item.dia }} {{ nombre_mes|lower }}</strong></td>
+                            <td><span class="vd-weekday previous">{{ item.dia_semana_anterior }}</span></td>
+                            <td><span class="vd-weekday current">{{ item.dia_semana_actual }}</span></td>
+                            <td><strong>{{ item.codigo }}</strong></td><td>{{ item.tienda }}</td><td>{{ item.ciudad }}</td>
+                            <td class="text-end">{% if item.venta_anterior is not none %}${{ "{:,.0f}".format(item.venta_anterior) }}{% else %}<span class="vd-no-data">Sin dato</span>{% endif %}</td>
+                            <td class="text-end fw-bold">{% if item.venta is none %}<span class="vd-no-data">Pendiente</span>{% else %}${{ "{:,.0f}".format(item.venta) }}{% endif %}</td>
+                            <td class="text-end">{% if item.diferencia is not none %}<strong class="{% if item.diferencia >= 0 %}vd-positive{% else %}vd-negative{% endif %}">{{ "+" if item.diferencia >= 0 else "−" }}${{ "{:,.0f}".format(item.diferencia|abs) }}</strong>{% else %}<span class="vd-no-data">—</span>{% endif %}</td>
+                            <td class="text-end">{% if item.crecimiento is not none %}<span class="vd-trend {% if item.crecimiento >= 0 %}positive{% else %}negative{% endif %}"><i class="bi {% if item.crecimiento >= 0 %}bi-arrow-up-right{% else %}bi-arrow-down-right{% endif %}"></i>{{ "%+.1f"|format(item.crecimiento) }}%</span>{% elif item.pendiente %}<span class="vd-no-data">—</span>{% elif item.venta_anterior is not none %}<span class="vd-no-data">No calculable</span>{% else %}<span class="vd-no-data">Sin dato</span>{% endif %}</td>
+                            <td class="text-end">{% if item.unidades is none %}<span class="vd-no-data">—</span>{% else %}{{ item.unidades }}{% endif %}</td><td class="text-end">{% if item.valor_unidad is none %}<span class="vd-no-data">—</span>{% else %}${{ "{:,.0f}".format(item.valor_unidad) }}{% endif %}</td>
+                        </tr>
+                    {% else %}<tr><td colspan="12" class="vd-empty-cell">No hay detalle por tienda para este período.</td></tr>{% endfor %}
+                    </tbody>
+                    {% else %}
+                    <thead><tr><th>Fecha</th><th>Día {{ anio - 1 }}</th><th>Día {{ anio }}</th>{% if not es_tienda %}<th class="text-end">Venta {{ anio - 1 }}</th><th class="text-end">Venta {{ anio }}</th><th class="text-end">Diferencia</th>{% endif %}<th class="text-end">Crecimiento</th></tr></thead>
+                    <tbody>
+                    {% for item in datos.ventas_diarias %}
+                        <tr>
+                            <td><strong>{{ item.dia }} {{ nombre_mes|lower }}</strong></td>
+                            <td><span class="vd-weekday previous">{{ item.dia_semana_2025 }}</span></td>
+                            <td><span class="vd-weekday current">{{ item.dia_semana_2026 }}</span></td>
+                            {% if not es_tienda %}
+                            <td class="text-end">${{ "{:,.0f}".format(item.venta_2025) }}</td>
+                            <td class="text-end fw-bold">{% if item.venta_2026 is not none %}${{ "{:,.0f}".format(item.venta_2026) }}{% else %}<span class="vd-no-data">Sin dato</span>{% endif %}</td>
+                            <td class="text-end">{% if item.diferencia is not none %}<strong class="{% if item.diferencia >= 0 %}vd-positive{% else %}vd-negative{% endif %}">{{ "+" if item.diferencia >= 0 else "−" }}${{ "{:,.0f}".format(item.diferencia|abs) }}</strong>{% else %}<span class="vd-no-data">—</span>{% endif %}</td>
+                            {% endif %}
+                            <td class="text-end">{% if item.incremento is not none %}<span class="vd-trend {% if item.incremento >= 0 %}positive{% else %}negative{% endif %}">{{ "%+.1f"|format(item.incremento) }}%</span>{% else %}<span class="vd-no-data">Sin dato</span>{% endif %}</td>
+                        </tr>
+                    {% else %}<tr><td colspan="7" class="vd-empty-cell">No hay información global para este período.</td></tr>{% endfor %}
+                    </tbody>
+                    {% endif %}
+                </table>
+            </div>
+        </article>
+    </section>
+    {% else %}
+    <section class="vd-empty-state">
+        <i class="bi bi-calendar2-x"></i>
+        <h2>No hay información para {{ nombre_mes }} {{ anio }}</h2>
+        <p>Selecciona otro período o importa el archivo administrativo correspondiente.</p>
+    </section>
+    {% endif %}
+</div>
+
+<script>
+window.ventasDiariasV2 = {{ {
+    "diasTienda": tiendas.dias,
+    "diasGlobal": datos.ventas_diarias if not es_tienda else [],
+    "nombreMes": nombre_mes,
+    "anio": anio,
+    "panelInicial": request.args.get("seccion", "resumen")
+}|tojson }};
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/ventas_por_dia_v2.js') }}"></script>
+{% endblock %}

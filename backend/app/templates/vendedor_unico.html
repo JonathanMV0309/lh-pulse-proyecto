@@ -1,0 +1,512 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+
+<style>
+
+    .vu-card {
+        border: 0;
+        border-radius: 18px;
+        box-shadow: 0 8px 30px rgba(15, 23, 42, .06);
+    }
+
+    .vu-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .vu-title {
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .vu-subtitle {
+        color: #6b7280;
+        font-size: 13px;
+        margin-top: 4px;
+    }
+
+    .vu-badge {
+        background: #f1f5f9;
+        color: #475569;
+        border-radius: 20px;
+        padding: 7px 14px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .vu-table th {
+        background: #f8fafc;
+        color: #475569;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: .4px;
+    }
+
+    .vu-table td {
+        vertical-align: middle;
+    }
+
+    .vu-name {
+        font-weight: 600;
+    }
+
+    .vu-store {
+        font-weight: 600;
+        color: #0b5ed7;
+    }
+
+    .vu-no-meta {
+        background: #f1f5f9;
+        color: #64748b;
+        border-radius: 20px;
+        padding: 6px 12px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .vu-kpi {
+        background: #f8fafc;
+        border-radius: 14px;
+        padding: 16px;
+    }
+
+    .vu-kpi-label {
+        font-size: 11px;
+        color: #64748b;
+        text-transform: uppercase;
+        font-weight: 600;
+    }
+
+    .vu-kpi-value {
+        font-size: 20px;
+        font-weight: 700;
+        margin-top: 4px;
+    }
+
+</style>
+
+{% endblock %}
+
+
+{% block contenido %}
+
+<div class="container-fluid">
+
+    <!-- =====================================================
+         ENCABEZADO
+    ====================================================== -->
+
+    <div class="card vu-card mb-4">
+
+        <div class="card-body p-4">
+
+            <div class="vu-header">
+
+                <div>
+
+                    <h4 class="vu-title">
+
+                        <i class="bi bi-person-badge me-2"></i>
+
+                        Vendedor Único
+
+                    </h4>
+
+                    <div class="vu-subtitle">
+
+                        Seguimiento de ventas sin asignación de meta individual
+
+                    </div>
+
+                </div>
+
+                <span class="vu-badge">
+
+                    <i class="bi bi-calendar3 me-1"></i>
+
+                    {{ anio_actual }} / {{ "%02d"|format(mes_actual) }}
+
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         FILTROS
+    ====================================================== -->
+
+    <div class="card vu-card mb-4">
+
+        <div class="card-body p-4">
+
+            <form
+                method="GET"
+                action="{{ url_for('app_pages.vendedor_unico') }}"
+                class="row g-3 align-items-end"
+            >
+
+                <div class="col-md-3">
+
+                    <label class="form-label fw-semibold">
+                        Año
+                    </label>
+
+                    <select
+                        name="anio"
+                        class="form-select"
+                    >
+
+                        {% for y in [2024, 2025, 2026, 2027] %}
+
+                            <option
+                                value="{{ y }}"
+                                {% if y == anio %}selected{% endif %}
+                            >
+                                {{ y }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <div class="col-md-3">
+
+                    <label class="form-label fw-semibold">
+                        Mes
+                    </label>
+
+                    {% set meses = [
+                        "Enero",
+                        "Febrero",
+                        "Marzo",
+                        "Abril",
+                        "Mayo",
+                        "Junio",
+                        "Julio",
+                        "Agosto",
+                        "Septiembre",
+                        "Octubre",
+                        "Noviembre",
+                        "Diciembre"
+                    ] %}
+
+                    <select
+                        name="mes"
+                        class="form-select"
+                    >
+
+                        {% for m in range(1, 13) %}
+
+                            <option
+                                value="{{ m }}"
+                                {% if m == mes %}selected{% endif %}
+                            >
+                                {{ meses[m-1] }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <label class="form-label fw-semibold">
+                        Buscar tienda
+                    </label>
+
+                    <input
+                        type="text"
+                        name="buscar"
+                        class="form-control"
+                        placeholder="Código o nombre de tienda..."
+                        value="{{ busqueda or '' }}"
+                    >
+
+                </div>
+
+
+                <div class="col-md-2">
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary w-100"
+                    >
+
+                        <i class="bi bi-search me-1"></i>
+
+                        Buscar
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         RESUMEN
+    ====================================================== -->
+
+    {% set venta_total = vendedores | sum(attribute='venta') %}
+    {% set unidades_total = vendedores | sum(attribute='unidades') %}
+    {% set facturas_total = vendedores | sum(attribute='facturas') %}
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-4">
+
+            <div class="vu-kpi">
+
+                <div class="vu-kpi-label">
+                    Venta total
+                </div>
+
+                <div class="vu-kpi-value">
+
+                    ${{ "{:,.0f}".format(venta_total) }}
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-4">
+
+            <div class="vu-kpi">
+
+                <div class="vu-kpi-label">
+                    Facturas
+                </div>
+
+                <div class="vu-kpi-value">
+
+                    {{ "{:,.0f}".format(facturas_total) }}
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-4">
+
+            <div class="vu-kpi">
+
+                <div class="vu-kpi-label">
+                    Unidades
+                </div>
+
+                <div class="vu-kpi-value">
+
+                    {{ "{:,.0f}".format(unidades_total) }}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         TABLA
+    ====================================================== -->
+
+    <div class="card vu-card">
+
+        <div class="card-body p-4">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+
+                <h5 class="mb-0">
+                    Vendedores únicos
+                </h5>
+
+                <span class="badge bg-light text-dark">
+
+                    {{ vendedores|length }} registros
+
+                </span>
+
+            </div>
+
+
+            <div class="table-responsive">
+
+                <table class="table table-hover vu-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Tienda</th>
+
+                            <th>Vendedor</th>
+
+                            <th class="text-end">
+                                Venta
+                            </th>
+
+                            <th class="text-end">
+                                Unidades
+                            </th>
+
+                            <th class="text-end">
+                                Facturas
+                            </th>
+
+                            <th class="text-end">
+                                Ticket
+                            </th>
+
+                            <th class="text-end">
+                                UPT
+                            </th>
+
+                            <th>
+                                Meta
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for vendedor in vendedores %}
+
+                        <tr>
+
+                            <td>
+
+                                <div class="vu-store">
+
+                                    {{ vendedor.codigo_tienda }}
+
+                                </div>
+
+                                <small class="text-muted">
+
+                                    {{ vendedor.tienda }}
+
+                                </small>
+
+                            </td>
+
+
+                            <td>
+
+                                <span class="vu-name">
+
+                                    {{ vendedor.asesora }}
+
+                                </span>
+
+                            </td>
+
+
+                            <td class="text-end fw-semibold">
+
+                                ${{ "{:,.0f}".format(vendedor.venta) }}
+
+                            </td>
+
+
+                            <td class="text-end">
+
+                                {{ "{:,.0f}".format(vendedor.unidades) }}
+
+                            </td>
+
+
+                            <td class="text-end">
+
+                                {{ "{:,.0f}".format(vendedor.facturas) }}
+
+                            </td>
+
+
+                            <td class="text-end">
+
+                                ${{ "{:,.0f}".format(vendedor.ticket) }}
+
+                            </td>
+
+
+                            <td class="text-end">
+
+                                {{ "%.2f"|format(vendedor.upt) }}
+
+                            </td>
+
+
+                            <td>
+
+                                <span class="vu-no-meta">
+
+                                    <i class="bi bi-dash-circle me-1"></i>
+
+                                    Sin meta
+
+                                </span>
+
+                            </td>
+
+                        </tr>
+
+                        {% else %}
+
+                        <tr>
+
+                            <td
+                                colspan="8"
+                                class="text-center py-5 text-muted"
+                            >
+
+                                <i class="bi bi-person-x fs-1 d-block mb-3"></i>
+
+                                No hay registros de VENDEDOR ÚNICO
+                                para este período.
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

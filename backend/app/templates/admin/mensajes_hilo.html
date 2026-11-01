@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<style>
+.mh-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 18px; align-items: start; margin-bottom: 18px; }
+@media (max-width: 991px) { .mh-grid { grid-template-columns: 1fr; } }
+.mh-card { padding: 20px; border-radius: 16px; background: #FFFDF8; border: 1px solid #E8DFD0; }
+.mh-card h3 { font-size: 16px; font-weight: 700; margin: 0 0 14px; color: #2D2A26; }
+.mh-campo { margin-bottom: 16px; }
+.mh-campo > label, .mh-campo > .mh-etiqueta { display: block; font-size: 13px; font-weight: 600; color: #4A4038; margin-bottom: 6px; }
+.mh-campo textarea { resize: vertical; min-height: 96px; }
+.mh-contador { display: block; text-align: right; font-size: 12px; color: #8B7D6B; margin-top: 4px; font-variant-numeric: tabular-nums; }
+.mh-tonos { display: flex; flex-wrap: wrap; gap: 8px; }
+.mh-tonos label { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border: 1px solid #E8DFD0; border-radius: 999px; font-size: 13px; cursor: pointer; background: #fff; }
+.mh-tonos input:checked + span { font-weight: 700; color: #2D2A26; }
+.mh-tonos label:has(input:checked) { border-color: #C5A880; background: #F6EFE3; }
+.mh-tiendas { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; max-height: 220px; overflow: auto; padding: 10px; border: 1px solid #E8DFD0; border-radius: 12px; background: #fff; }
+.mh-tiendas label { display: flex; gap: 6px; align-items: center; font-size: 13px; }
+.mh-tiendas-acciones { display: flex; gap: 12px; margin-top: 6px; font-size: 12.5px; }
+.mh-fechas { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.mh-enviar { background: #2D2A26; border-color: #2D2A26; color: #fff; font-weight: 600; padding: 10px 18px; }
+.mh-enviar:hover { background: #45403A; border-color: #45403A; color: #fff; }
+.mh-vista { display: flex; align-items: flex-end; gap: 10px; min-height: 180px; padding: 18px; border-radius: 14px; background: linear-gradient(180deg, #FAF6EF, #F1E9DC); }
+.mh-vista-burbuja { flex: 1; padding: 12px 14px; border-radius: 16px 16px 4px 16px; background: #fff; border: 1px solid rgba(197, 168, 128, .45); box-shadow: 0 12px 28px rgba(45, 42, 38, .1); font-size: 13.5px; line-height: 1.45; color: #2D2A26; white-space: pre-wrap; overflow-wrap: anywhere; }
+.mh-vista-burbuja small { display: block; margin-bottom: 4px; color: #8B7D6B; font-weight: 600; font-size: 11.5px; text-transform: uppercase; letter-spacing: .04em; }
+.mh-vista-hilo { width: 64px; height: 84px; flex: none; border-radius: 12px; background: linear-gradient(#C98A55, #C98A55) top / 100% 12px no-repeat, linear-gradient(#C98A55, #C98A55) bottom / 100% 12px no-repeat, repeating-linear-gradient(0deg, #EFCA9B 0 3px, #E5BC88 3px 5px) center / 80% 100% no-repeat; position: relative; }
+.mh-vista-hilo::before, .mh-vista-hilo::after { content: ""; position: absolute; top: 34px; width: 9px; height: 12px; border-radius: 50%; background: #2B1F17; }
+.mh-vista-hilo::before { left: 20px; } .mh-vista-hilo::after { right: 20px; }
+.mh-ayuda { font-size: 12.5px; color: #6B6259; margin: 10px 0 0; }
+.mh-tabla { width: 100%; font-size: 14px; }
+.mh-tabla th { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: #6B6259; font-weight: 700; border-bottom: 1px solid #E8DFD0; padding: 10px 12px; white-space: nowrap; }
+.mh-tabla td { padding: 12px; border-bottom: 1px solid #F1EBE0; vertical-align: top; }
+.mh-tabla td.mh-texto { max-width: 420px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.mh-tabla small { color: #8B7D6B; }
+.mh-chip { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+.mh-chip.activo { background: #E6F2EA; color: #2E6B45; }
+.mh-chip.programado { background: #EEF0FA; color: #3F4C8C; }
+.mh-chip.vencido, .mh-chip.retirado { background: #F1EBE0; color: #6B6259; }
+.mh-barra { width: 110px; height: 6px; border-radius: 3px; background: #F1EBE0; overflow: hidden; margin-top: 4px; }
+.mh-barra span { display: block; height: 100%; background: #C5A880; }
+.mh-flash { padding: 12px 16px; border-radius: 12px; margin-bottom: 16px; font-size: 14px; }
+.mh-flash.success { background: #E6F2EA; color: #2E6B45; border: 1px solid #BFDCC8; }
+.mh-flash.warning { background: #FBEDE7; color: #A9472F; border: 1px solid #E9C3B5; }
+.mh-vacio { padding: 36px 12px; text-align: center; color: #8B7D6B; }
+</style>
+{% endblock %}
+
+{% block contenido %}
+<div class="page-shell">
+
+    <div class="page-header">
+        <div>
+            <span class="page-kicker">COMUNICACIÓN</span>
+            <h1><i class="bi bi-chat-heart"></i> Mensajes con Hilo</h1>
+            <p>Escribe un mensaje y Hilo se lo dirá a las tiendas cuando entren a la página. Cada persona lo ve una sola vez.</p>
+        </div>
+    </div>
+
+    {% for categoria, texto in get_flashed_messages(with_categories=true) %}
+    <div class="mh-flash {{ categoria }}" role="status">{{ texto }}</div>
+    {% endfor %}
+
+    <div class="mh-grid">
+        <form method="POST" class="mh-card" id="mhForm">
+            <h3>Nuevo mensaje</h3>
+
+            <div class="mh-campo">
+                <label for="mhTexto">Mensaje</label>
+                <textarea id="mhTexto" name="texto" class="form-control" maxlength="{{ largo_maximo }}" required
+                          placeholder="Ej: ¡Este fin de semana empieza la temporada! Revisen la vitrina y el inventario de abrigos.">{{ form.get('texto', '') }}</textarea>
+                <span class="mh-contador" id="mhContador">0 / {{ largo_maximo }}</span>
+            </div>
+
+            <div class="mh-campo">
+                <span class="mh-etiqueta">¿Cómo lo dice Hilo?</span>
+                <div class="mh-tonos">
+                    {% for clave, nombre in tonos.items() %}
+                    <label><input type="radio" name="tono" value="{{ clave }}" {% if form.get('tono', 'anima') == clave %}checked{% endif %}> <span>{{ nombre }}</span></label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="mh-campo">
+                <label for="mhDestino">¿A quién?</label>
+                <select id="mhDestino" name="destino" class="form-select">
+                    {% for clave, nombre in destinos.items() %}
+                    <option value="{{ clave }}" {% if form.get('destino', 'todas') == clave %}selected{% endif %}>{{ nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mh-campo" id="mhTiendasCampo" {% if form.get('destino') != 'seleccion' %}hidden{% endif %}>
+                <span class="mh-etiqueta">Tiendas</span>
+                <div class="mh-tiendas">
+                    {% for t in tiendas %}
+                    <label><input type="checkbox" name="tiendas" value="{{ t.id }}" {% if form and (t.id|string) in form.getlist('tiendas') %}checked{% endif %}> {{ t.codigo }} · {{ t.nombre }}</label>
+                    {% endfor %}
+                </div>
+                <div class="mh-tiendas-acciones">
+                    <a href="#" data-marcar="1">Marcar todas</a><a href="#" data-marcar="0">Quitar todas</a>
+                </div>
+            </div>
+
+            <div class="mh-campo mh-fechas">
+                <div>
+                    <label for="mhDesde">Desde</label>
+                    <input id="mhDesde" type="date" name="desde" class="form-control" value="{{ form.get('desde', hoy.isoformat()) }}" required>
+                </div>
+                <div>
+                    <label for="mhHasta">Hasta</label>
+                    <input id="mhHasta" type="date" name="hasta" class="form-control" value="{{ form.get('hasta', en_una_semana.isoformat()) }}" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn mh-enviar"><i class="bi bi-send"></i> Enviar con Hilo</button>
+        </form>
+
+        <div class="mh-card">
+            <h3>Así lo verán</h3>
+            <div class="mh-vista">
+                <div class="mh-vista-burbuja"><small>Mensaje de la administración</small><span id="mhVista">Escribe tu mensaje…</span></div>
+                <div class="mh-vista-hilo" aria-hidden="true"></div>
+            </div>
+            <p class="mh-ayuda">Aparece cuando entran al dashboard. Si alguien entra varias veces, lo ve solo la primera. Después de la fecha final o si lo retiras, Hilo deja de decirlo.</p>
+        </div>
+    </div>
+
+    <div class="glass-panel">
+        <h3 class="mb-3" style="font-size:16px;font-weight:700;">Mensajes enviados</h3>
+        <div class="table-responsive">
+            <table class="mh-tabla">
+                <thead><tr><th>Mensaje</th><th>Para</th><th>Fechas</th><th>Estado</th><th>Lo vieron</th><th></th></tr></thead>
+                <tbody>
+                {% for f in filas %}
+                    <tr>
+                        <td class="mh-texto">{{ f.m.texto }}<br><small>{{ tonos.get(f.m.tono, f.m.tono) }} · {{ f.m.autor.nombre if f.m.autor else '—' }}, {{ f.m.creado.strftime('%d/%m/%Y %I:%M %p') }}</small></td>
+                        <td><small>{{ f.para }}</small></td>
+                        <td style="white-space:nowrap;"><small>{{ f.m.desde.strftime('%d/%m') }} – {{ f.m.hasta.strftime('%d/%m/%Y') }}</small></td>
+                        <td><span class="mh-chip {{ f.estado }}">{{ f.estado|capitalize }}</span></td>
+                        <td style="white-space:nowrap;">
+                            <strong>{{ f.vistos }}</strong> <small>de {{ f.total }}</small>
+                            <div class="mh-barra"><span style="width: {{ ((f.vistos / f.total * 100) if f.total else 0)|round|int }}%;"></span></div>
+                        </td>
+                        <td>
+                            {% if f.estado in ['activo', 'programado'] %}
+                            <form method="POST" action="{{ url_for('mensajes_hilo.retirar', mensaje_id=f.m.id) }}" onsubmit="return confirm('¿Retirar este mensaje? Hilo dejará de decirlo.');">
+                                <button type="submit" class="btn btn-sm btn-outline-secondary">Retirar</button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="6" class="mh-vacio"><i class="bi bi-chat-heart fs-2 d-block mb-2"></i>Todavía no has enviado mensajes con Hilo.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    var texto = document.getElementById("mhTexto"), contador = document.getElementById("mhContador"), vista = document.getElementById("mhVista");
+    var destino = document.getElementById("mhDestino"), campo = document.getElementById("mhTiendasCampo");
+    function actualizar() {
+        contador.textContent = texto.value.length + " / " + texto.maxLength;
+        vista.textContent = texto.value.trim() || "Escribe tu mensaje…";
+    }
+    texto.addEventListener("input", actualizar);
+    destino.addEventListener("change", function () { campo.hidden = destino.value !== "seleccion"; });
+    document.querySelectorAll("[data-marcar]").forEach(function (a) {
+        a.addEventListener("click", function (e) {
+            e.preventDefault();
+            campo.querySelectorAll('input[type="checkbox"]').forEach(function (c) { c.checked = a.dataset.marcar === "1"; });
+        });
+    });
+    actualizar();
+})();
+</script>
+{% endblock %}

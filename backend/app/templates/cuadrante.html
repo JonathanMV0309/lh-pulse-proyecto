@@ -1,0 +1,820 @@
+{% extends "base.html" %}
+
+{% block contenido %}
+<div class="cuadrante-page">
+    <!-- HEADER -->
+    <header class="cuadrante-header">
+        <div class="header-title">
+            <div class="header-icon">
+                <i class="bi bi-calendar3"></i>
+            </div>
+            <div>
+                <h1>Horarios</h1>
+                <p>Gestión semanal del personal</p>
+            </div>
+        </div>
+
+        <div class="week-navigation">
+            <button class="nav-btn" id="btnSemanaAnterior" type="button" aria-label="Semana anterior">
+                <i class="bi bi-chevron-left"></i>
+                <span>Anterior</span>
+            </button>
+            <button class="today-btn" id="btnSemanaActual" type="button">Hoy</button>
+            <button class="nav-btn" id="btnSemanaSiguiente" type="button" aria-label="Semana siguiente">
+                <span>Siguiente</span>
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+
+        <div class="save-area">
+            <div class="save-status" id="estadoGuardado">
+                <span class="status-dot"></span>
+                <span>Sin cambios</span>
+            </div>
+            <button class="save-btn" id="btnGuardarCuadrante" type="button">
+                <i class="bi bi-check2"></i>
+                <span>Guardar cuadrante</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- RESUMEN -->
+    <section class="summary-grid" aria-label="Resumen del cuadrante">
+        <div class="summary-card">
+            <div class="summary-icon people"><i class="bi bi-people"></i></div>
+            <div>
+                <span class="summary-label">PERSONAS</span>
+                <strong id="kpiPersonas">0</strong>
+                <small>disponibles</small>
+            </div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-icon calendar"><i class="bi bi-calendar-week"></i></div>
+            <div>
+                <span class="summary-label">SEMANA</span>
+                <strong id="kpiSemana">7</strong>
+                <small>días</small>
+            </div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-icon assigned"><i class="bi bi-person-check"></i></div>
+            <div>
+                <span class="summary-label">ASIGNACIONES</span>
+                <strong id="kpiAsignaciones">0</strong>
+                <small>esta semana</small>
+            </div>
+        </div>
+
+        <div class="summary-card week-range-card">
+            <div class="summary-icon range"><i class="bi bi-calendar2-range"></i></div>
+            <div>
+                <span class="summary-label">PERIODO</span>
+                <strong id="rangoSemana">—</strong>
+                <small>semana actual</small>
+            </div>
+        </div>
+    </section>
+
+    <!-- CONTENIDO -->
+    <div class="schedule-layout">
+        <!-- PERSONAS -->
+        <aside class="people-panel">
+            <div class="people-panel-header">
+                <div>
+                    <span class="section-kicker">EQUIPO</span>
+                    <h2>Personas disponibles</h2>
+                </div>
+                <span class="people-count" id="contadorPersonas">0</span>
+            </div>
+
+            <div class="people-help">
+                <i class="bi bi-hand-index-thumb"></i>
+                <span>Arrastra una persona hacia un turno para asignarla.</span>
+            </div>
+
+            <div id="panelPersonas" class="people-list"></div>
+        </aside>
+
+        <!-- CALENDARIO -->
+        <main class="calendar-area">
+            <div class="calendar-topbar">
+                <div>
+                    <span class="section-kicker">CUADRANTE SEMANAL</span>
+                    <h2 id="tituloSemana">Semana</h2>
+                </div>
+                <div class="legend">
+                    <span><i class="legend-dot apertura"></i>Apertura</span>
+                    <span><i class="legend-dot cierre"></i>Cierre</span>
+                    <span><i class="legend-dot descanso"></i>Descanso</span>
+                </div>
+            </div>
+
+            <div class="calendar-scroll">
+                <div class="calendar-grid" id="contenedorDias"></div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<style>
+    :root {
+        --schedule-primary: #2563eb;
+        --schedule-primary-dark: #1d4ed8;
+        --schedule-primary-soft: #eff6ff;
+        --schedule-text: #172033;
+        --schedule-muted: #6b7280;
+        --schedule-border: #e5e7eb;
+        --schedule-bg: #f5f7fb;
+        --schedule-card: #ffffff;
+        --schedule-green: #16a34a;
+        --schedule-orange: #ea8a17;
+        --schedule-red: #dc2626;
+        --schedule-shadow: 0 8px 30px rgba(15, 23, 42, .06);
+    }
+
+    .cuadrante-page {
+        min-height: calc(100vh - 30px);
+        padding: 28px 30px 40px;
+        background:
+            radial-gradient(circle at 90% 0%, rgba(37, 99, 235, .06), transparent 28%),
+            var(--schedule-bg);
+        color: var(--schedule-text);
+    }
+
+    .cuadrante-header {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        gap: 24px;
+        margin-bottom: 24px;
+    }
+
+    .header-title,
+    .week-navigation,
+    .save-area {
+        display: flex;
+        align-items: center;
+    }
+
+    .header-title { gap: 14px; }
+
+    .header-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 14px;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(135deg, var(--schedule-primary), #4f8df7);
+        color: #fff;
+        font-size: 23px;
+        box-shadow: 0 8px 18px rgba(37, 99, 235, .22);
+    }
+
+    .header-title h1 {
+        margin: 0;
+        font-size: 27px;
+        font-weight: 750;
+        letter-spacing: -.5px;
+    }
+
+    .header-title p {
+        margin: 2px 0 0;
+        color: var(--schedule-muted);
+        font-size: 13px;
+    }
+
+    .week-navigation {
+        gap: 7px;
+        padding: 4px;
+        border: 1px solid var(--schedule-border);
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 3px 12px rgba(15, 23, 42, .04);
+    }
+
+    .nav-btn,
+    .today-btn {
+        border: 0;
+        background: transparent;
+        color: #4b5563;
+        min-height: 36px;
+        padding: 0 12px;
+        border-radius: 8px;
+        font-size: 13px;
+        transition: .2s ease;
+    }
+
+    .nav-btn:hover { background: #f3f4f6; color: var(--schedule-text); }
+    .today-btn { background: var(--schedule-primary-soft); color: var(--schedule-primary); font-weight: 700; }
+    .today-btn:hover { background: #dbeafe; }
+
+    .save-area {
+        justify-content: flex-end;
+        gap: 13px;
+    }
+
+    .save-status {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        color: #6b7280;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    .status-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #9ca3af;
+    }
+
+    .save-status.unsaved { color: #b45309; }
+    .save-status.unsaved .status-dot { background: #f59e0b; box-shadow: 0 0 0 4px rgba(245,158,11,.12); }
+    .save-status.saved { color: var(--schedule-green); }
+    .save-status.saved .status-dot { background: var(--schedule-green); }
+
+    .save-btn {
+        border: 0;
+        color: #fff;
+        background: linear-gradient(135deg, var(--schedule-primary), var(--schedule-primary-dark));
+        padding: 11px 17px;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 13px;
+        box-shadow: 0 7px 17px rgba(37, 99, 235, .22);
+        transition: transform .18s ease, box-shadow .18s ease;
+    }
+
+    .save-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 22px rgba(37, 99, 235, .28);
+    }
+
+    .save-btn:active { transform: translateY(0); }
+    .save-btn:disabled { opacity: .65; cursor: wait; transform: none; }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+        margin-bottom: 22px;
+    }
+
+    .summary-card {
+        min-height: 84px;
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        background: var(--schedule-card);
+        border: 1px solid var(--schedule-border);
+        border-radius: 14px;
+        padding: 14px 16px;
+        box-shadow: var(--schedule-shadow);
+    }
+
+    .summary-icon {
+        width: 42px;
+        height: 42px;
+        flex: 0 0 42px;
+        display: grid;
+        place-items: center;
+        border-radius: 11px;
+        font-size: 19px;
+    }
+
+    .summary-icon.people { background: #eff6ff; color: #2563eb; }
+    .summary-icon.calendar { background: #f5f3ff; color: #7c3aed; }
+    .summary-icon.assigned { background: #ecfdf5; color: #16a34a; }
+    .summary-icon.range { background: #fff7ed; color: #ea8a17; }
+
+    .summary-label {
+        display: block;
+        color: #9ca3af;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: .7px;
+    }
+
+    .summary-card strong {
+        display: inline-block;
+        margin-right: 5px;
+        font-size: 21px;
+        line-height: 1.2;
+    }
+
+    .summary-card small {
+        color: var(--schedule-muted);
+        font-size: 11px;
+    }
+
+    .week-range-card strong {
+        font-size: 15px;
+    }
+
+    .schedule-layout {
+        display: grid;
+        grid-template-columns: 270px minmax(0, 1fr);
+        gap: 18px;
+        align-items: start;
+    }
+
+    .people-panel,
+    .calendar-area {
+        background: var(--schedule-card);
+        border: 1px solid var(--schedule-border);
+        border-radius: 16px;
+        box-shadow: var(--schedule-shadow);
+    }
+
+    .people-panel {
+        padding: 18px;
+        position: sticky;
+        top: 18px;
+    }
+
+    .people-panel-header,
+    .calendar-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .section-kicker {
+        color: #9ca3af;
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: 1.2px;
+    }
+
+    .people-panel h2,
+    .calendar-topbar h2 {
+        margin: 3px 0 0;
+        font-size: 16px;
+        font-weight: 750;
+    }
+
+    .people-count {
+        min-width: 28px;
+        height: 28px;
+        display: grid;
+        place-items: center;
+        border-radius: 9px;
+        background: #f1f5f9;
+        color: #475569;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .people-help {
+        display: flex;
+        gap: 8px;
+        align-items: flex-start;
+        margin: 16px 0;
+        padding: 10px;
+        border-radius: 10px;
+        background: #f8fafc;
+        color: #64748b;
+        font-size: 11px;
+        line-height: 1.45;
+    }
+
+    .people-help i {
+        color: var(--schedule-primary);
+        font-size: 14px;
+        margin-top: 1px;
+    }
+
+    .people-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .persona-disponible {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-height: 58px;
+        margin: 0 !important;
+        padding: 9px 10px !important;
+        border: 1px solid var(--schedule-border) !important;
+        border-radius: 11px !important;
+        background: #fff;
+        cursor: grab;
+        transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
+        user-select: none;
+    }
+
+    .persona-disponible:hover {
+        transform: translateY(-2px);
+        border-color: #bfdbfe !important;
+        box-shadow: 0 7px 18px rgba(15, 23, 42, .08);
+    }
+
+    .persona-disponible:active { cursor: grabbing; }
+
+    .persona-avatar,
+    .chip-avatar {
+        width: 34px;
+        height: 34px;
+        flex: 0 0 34px;
+        display: grid;
+        place-items: center;
+        border-radius: 10px;
+        background: #eff6ff;
+        color: var(--schedule-primary);
+        font-size: 11px;
+        font-weight: 800;
+    }
+
+    .persona-info {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .persona-name {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .persona-type {
+        display: block;
+        margin-top: 2px;
+        color: #94a3b8;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: .35px;
+    }
+
+    .drag-indicator {
+        color: #cbd5e1;
+        font-size: 14px;
+    }
+
+    .calendar-area { padding: 18px; min-width: 0; }
+
+    .calendar-topbar {
+        margin-bottom: 15px;
+    }
+
+    .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        color: #64748b;
+        font-size: 10px;
+        font-weight: 600;
+    }
+
+    .legend span {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .legend-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+    }
+
+    .legend-dot.apertura { background: #22c55e; }
+    .legend-dot.cierre { background: #3b82f6; }
+    .legend-dot.descanso { background: #f59e0b; }
+
+    .calendar-scroll {
+        overflow-x: auto;
+        padding-bottom: 5px;
+    }
+
+    .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(170px, 1fr));
+        gap: 10px;
+        min-width: 1190px;
+    }
+
+    .day-card {
+        min-height: 515px;
+        overflow: hidden;
+        border: 1px solid var(--schedule-border);
+        border-radius: 13px;
+        background: #fff;
+        transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+    }
+
+    .day-card:hover {
+        border-color: #d5dbea;
+        box-shadow: 0 8px 22px rgba(15, 23, 42, .06);
+    }
+
+    .day-card.is-today {
+        border-color: #93c5fd;
+        box-shadow: 0 0 0 2px rgba(37, 99, 235, .08), 0 9px 24px rgba(37, 99, 235, .08);
+    }
+
+    .day-header {
+        padding: 12px 12px 11px;
+        border-bottom: 1px solid var(--schedule-border);
+        background: #fafbfc;
+    }
+
+    .day-card.is-today .day-header {
+        background: linear-gradient(135deg, #eff6ff, #f8fbff);
+    }
+
+    .day-name {
+        color: #64748b;
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .8px;
+    }
+
+    .day-number {
+        margin-top: 2px;
+        font-size: 18px;
+        font-weight: 800;
+        line-height: 1.1;
+    }
+
+    .today-badge {
+        display: inline-flex;
+        margin-top: 6px;
+        padding: 3px 7px;
+        border-radius: 999px;
+        background: var(--schedule-primary);
+        color: #fff;
+        font-size: 8px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .6px;
+    }
+
+    .day-body { padding: 12px; }
+
+    .turno-block { margin-bottom: 16px; }
+    .turno-block:last-child { margin-bottom: 0; }
+
+    .turno-title {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 7px;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: .55px;
+        text-transform: uppercase;
+    }
+
+    .turno-title::before {
+        content: "";
+        width: 3px;
+        height: 13px;
+        border-radius: 3px;
+        background: #94a3b8;
+    }
+
+    .turno-title.apertura::before { background: #22c55e; }
+    .turno-title.cierre::before { background: #3b82f6; }
+    .turno-title.descanso::before { background: #f59e0b; }
+
+    .zona-asignacion {
+        min-height: 62px;
+        padding: 6px !important;
+        border: 1px dashed #d9dee8 !important;
+        border-radius: 10px !important;
+        background: #fbfcfe;
+        transition: background .2s ease, border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+    }
+
+    .zona-asignacion:empty {
+        display: grid;
+        place-items: center;
+    }
+
+    .zona-destino {
+        background: #eff6ff !important;
+        border-color: #60a5fa !important;
+        box-shadow: inset 0 0 0 1px rgba(37,99,235,.08);
+        transform: scale(1.01);
+    }
+
+    .texto-zona-vacia {
+        width: 100%;
+        padding: 10px 5px !important;
+        color: #a1aaba !important;
+        font-style: normal !important;
+        font-size: 10px;
+        text-align: center;
+    }
+
+    .texto-zona-vacia::before {
+        content: "+";
+        display: block;
+        margin-bottom: 1px;
+        color: #94a3b8;
+        font-size: 16px;
+        font-weight: 300;
+    }
+
+    .chip-asignacion {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        min-height: 44px;
+        margin: 0 0 5px !important;
+        padding: 5px 6px !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 9px !important;
+        background: #fff;
+        cursor: grab;
+        transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+
+    .chip-asignacion:last-child { margin-bottom: 0 !important; }
+
+    .chip-asignacion:hover {
+        transform: translateY(-1px);
+        border-color: #bfdbfe !important;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, .07);
+    }
+
+    .chip-asignacion:active { cursor: grabbing; }
+
+    .chip-avatar {
+        width: 27px;
+        height: 27px;
+        flex-basis: 27px;
+        border-radius: 8px;
+        font-size: 8px;
+    }
+
+    .nombre-persona {
+        min-width: 0;
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 11px;
+        font-weight: 650;
+    }
+
+    .btn-eliminar-asignacion {
+        width: 24px;
+        height: 24px;
+        display: grid;
+        place-items: center;
+        flex: 0 0 24px;
+        border: 0;
+        border-radius: 7px;
+        background: transparent;
+        color: #94a3b8;
+        font-size: 16px;
+        line-height: 1;
+        transition: .18s ease;
+    }
+
+    .btn-eliminar-asignacion:hover {
+        background: #fef2f2;
+        color: var(--schedule-red);
+    }
+
+    .arrastrando {
+        transform: scale(1.04) rotate(1deg) !important;
+        box-shadow: 0 18px 35px rgba(15,23,42,.18) !important;
+        border-color: #93c5fd !important;
+        background: #fff !important;
+        z-index: 9999;
+    }
+
+    .toast-notificacion {
+        position: fixed;
+        right: 24px;
+        bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        max-width: 360px;
+        padding: 12px 15px;
+        border: 1px solid #bbf7d0;
+        border-radius: 11px;
+        background: #f0fdf4;
+        color: #166534;
+        box-shadow: 0 14px 35px rgba(15,23,42,.14);
+        font-size: 12px;
+        font-weight: 650;
+        z-index: 99999;
+        animation: fadeInUp .25s ease;
+    }
+
+    .toast-notificacion::before {
+        content: "✓";
+        width: 22px;
+        height: 22px;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        background: #dcfce7;
+        font-weight: 900;
+    }
+
+    .empty-people {
+        padding: 28px 10px;
+        color: #94a3b8;
+        text-align: center;
+        font-size: 12px;
+    }
+
+    .empty-people i {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 25px;
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 1100px) {
+        .cuadrante-header {
+            grid-template-columns: 1fr;
+        }
+
+        .week-navigation,
+        .save-area {
+            justify-content: flex-start;
+        }
+
+        .summary-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .schedule-layout {
+            grid-template-columns: 230px minmax(0, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .cuadrante-page { padding: 18px 14px 30px; }
+
+        .summary-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .schedule-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .people-panel {
+            position: static;
+        }
+
+        .people-list {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .calendar-topbar {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .week-navigation {
+            width: 100%;
+            justify-content: space-between;
+        }
+
+        .save-area {
+            width: 100%;
+            justify-content: space-between;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .summary-grid { grid-template-columns: 1fr; }
+        .people-list { grid-template-columns: 1fr; }
+
+        .header-title h1 { font-size: 23px; }
+        .header-icon { width: 44px; height: 44px; }
+
+        .save-status { display: none; }
+        .save-btn { width: 100%; }
+        .save-area { display: block; }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/cuadrante.js') }}"></script>
+<script src="{{ url_for('static', filename='js/cuadrante_planilla.js') }}?v=4"></script>
+{% endblock %}

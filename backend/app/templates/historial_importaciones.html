@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+{% endblock %}
+
+{% block contenido %}
+
+<div class="page-shell">
+
+    <div class="page-header">
+
+        <div>
+
+            <span class="page-kicker">
+                DATOS
+            </span>
+
+            <h1>
+                <i class="bi bi-clock-history"></i>
+                Historial de importaciones
+            </h1>
+
+            <p>
+                Consulta los archivos que han sido procesados por L&H SCORE.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="glass-panel ranking-panel">
+
+        <div class="ranking-heading">
+
+            <div>
+
+                <span class="page-kicker">
+                    ARCHIVOS
+                </span>
+
+                <h3>
+                    Registro de cargas
+                </h3>
+
+            </div>
+
+            <a
+                href="{{ url_for('import_excel.pagina_importar') }}"
+                class="btn btn-neon">
+
+                <i class="bi bi-upload"></i>
+                Importar nuevo
+
+            </a>
+
+        </div>
+
+
+        <div class="table-responsive">
+
+            <table class="table futuristic-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>ARCHIVO</th>
+                        <th>PERÍODO</th>
+                        <th>CORTE</th>
+                        <th>TIPO</th>
+                        <th>FECHA DE CARGA</th>
+                        <th>REGISTROS</th>
+                        <th>ESTADO</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for item in registros %}
+
+                    <tr>
+
+                        <td>
+
+                            <div class="file-name">
+
+                                <i class="bi bi-file-earmark-excel"></i>
+
+                                <strong>
+                                    {{ item.nombre_archivo }}
+                                </strong>
+
+                            </div>
+
+                        </td>
+
+
+                        <td>
+
+                            {{ item.mes }}/{{ item.anio }}
+
+                        </td>
+
+
+                        <td>
+
+                            Día {{ item.dia_corte or "-" }}
+
+                        </td>
+
+
+                        <td>
+
+                            {% if item.es_cierre %}
+
+                                <span class="status-pill success">
+                                    CIERRE
+                                </span>
+
+                            {% else %}
+
+                                <span class="status-pill info">
+                                    PARCIAL
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+
+                            {% if item.fecha_carga %}
+
+                                {{ item.fecha_carga.strftime("%d/%m/%Y %H:%M") }}
+
+                            {% else %}
+
+                                -
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+
+                            {{ item.registros }}
+
+                        </td>
+
+
+                        <td>
+
+                            <span class="status-pill success">
+
+                                <i class="bi bi-check-circle"></i>
+                                Procesado
+
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+
+                        <td colspan="7">
+
+                            <div class="empty-page">
+
+                                <i class="bi bi-file-earmark-x"></i>
+
+                                <h4>
+                                    No hay importaciones registradas
+                                </h4>
+
+                                <p>
+                                    Cuando se procese un Excel aparecerá aquí.
+                                </p>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

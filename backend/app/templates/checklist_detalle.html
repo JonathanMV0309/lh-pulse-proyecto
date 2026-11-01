@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block contenido %}
+<div class="container-fluid">
+    <h2 class="mb-4"><i class="bi bi-clipboard-check me-2"></i>Detalle del Checklist</h2>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5>Información</h5>
+            <p><strong>Fecha:</strong> {{ checklist.fecha_visita.strftime('%d/%m/%Y') }}</p>
+            <p><strong>Tienda:</strong> {{ tienda.codigo }} - {{ tienda.nombre }}</p>
+            <p><strong>Supervisor:</strong> {{ checklist.supervisor_email }}</p>
+            <p><strong>Cumplimiento:</strong> {{ "%.1f"|format(checklist.cumplimiento_pct) }}%</p>
+            <p><strong>Ítems "No":</strong> {{ checklist.items_no }}</p>
+
+            <button id="btnVerDatos" class="btn btn-primary mt-3">
+                <i class="bi bi-eye"></i> Ver datos
+            </button>
+        </div>
+    </div>
+
+    <div id="datosAdicionales" class="mt-4"></div>
+
+    <div class="card">
+        <div class="card-body">
+            <h5>Respuestas del checklist</h5>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Categoría</th>
+                        <th>Ítem</th>
+                        <th>Cumple</th>
+                        <th>Observaciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for categoria, items in checklist.respuestas.items() %}
+                        {% for item, datos in items.items() %}
+                        <tr>
+                            <td>{{ categoria }}</td>
+                            <td>{{ item }}</td>
+                            <td>
+                                {% if datos.cumple == 'si' %}
+                                    <span class="badge bg-success">Sí</span>
+                                {% else %}
+                                    <span class="badge bg-danger">No</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ datos.obs }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const btnVerDatos = document.getElementById("btnVerDatos");
+    const contenedorDatos = document.getElementById("datosAdicionales");
+
+    btnVerDatos.addEventListener("click", function() {
+        const checklistId = "{{ checklist.id }}";
+        fetch(`/checklist/api/datos_historial/${checklistId}`)
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error("Error al obtener datos");
+                }
+                return res.json();
+            })
+            .then(data => {
+                renderDatos(data);
+            })
+            .catch(error => {
+                contenedorDatos.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
+            });
+    });
+
+    function renderDatos(data) {
+        let html = '';
+
+        // Sección A
+        html += `<h4>A. Venta total y cumplimiento de cuota</h4>`;
+        html += `<table class="table table-bordered"><tbody>`;
+        html += `<tr><td>Venta 2025</td><td>$${data.seccion_a.venta_2025.toFixed(2)}</td></tr>`;
+        html += `<tr><td>Venta 2026</td><td>$${data.seccion_a.venta_2026.toFixed(2)}</td></tr>`;
+        html += `<tr><td>Diferencia</td><td>$${data.seccion_a.diferencia.toFixed(2)}</td></tr>`;
+        html += `<tr><td>Variación %</td><td>${data.seccion_a.variacion.toFixed(1)}%</td></tr>`;
+        html += `<tr><td>Cuota mensual</td><td>$${data.seccion_a.cuota_total.toFixed(2)}</td></tr>`;
+        html += `<tr><td>Cuota proporcional</td><td>$${data.seccion_a.cuota_proporcional.toFixed(2)}</td></tr>`;
+        html += `<tr><td>Cumplimiento proporcional</td><td>${data.seccion_a.cumplimiento_proporcional.toFixed(1)}%</td></tr>`;
+        html += `<tr><td>Falta para cuota total</td><td>$${data.seccion_a.falta_cuota_total.toFixed(2)}</td></tr>`;
+        html += `<tr><td>Meta promedio día restante</td><td>$${data.seccion_a.meta_promedio_dia.toFixed(2)}</td></tr>`;
+        html += `</tbody></table>`;
+
+        // Sección B
+        html += `<h4>B. Tráfico, facturación y conversión</h4>`;
+        html += `<table class="table table-bordered"><tbody>`;
+        html += `<tr><td>Tráfico 2025</td><td>${data.seccion_b.trafico_2025}</td></tr>`;
+        html += `<tr><td>Tráfico 2026</td><td>${data.seccion_b.trafico_2026}</td></tr>`;
+        html += `<tr><td>Facturas 2025</td><td>${data.seccion_b.facturas_2025}</td></tr>`;
+        html += `<tr><td>Facturas 2026</td><td>${data.seccion_b.facturas_2026}</td></tr>`;
+        html += `<tr><td>Conversión</td><td>${data.seccion_b.conversion.toFixed(1)}%</td></tr>`;
+        html += `</tbody></table>`;
+
+        // Sección C
+        html += `<h4>C. Ticket promedio</h4>`;
+        html += `<table class="table table-bordered"><tbody>`;
+        html += `<tr><td>Unidades 2025</td><td>${data.seccion_c.unidades_2025}</td></tr>`;
+        html += `<tr><td>Unidades 2026</td><td>${data.seccion_c.unidades_2026}</td></tr>`;
+        html += `<tr><td>Ticket $</td><td>$${data.seccion_c.ticket_promedio.toFixed(2)}</td></tr>`;
+        html += `<tr><td>Ticket unidades</td><td>${data.seccion_c.ticket_unidades.toFixed(2)}</td></tr>`;
+        html += `</tbody></table>`;
+
+        // Sección D
+        html += `<h4>D. Ventas por categoría</h4>`;
+        html += `<table class="table table-bordered"><thead><tr><th>Categoría</th><th>Venta 2025</th><th>Venta 2026</th><th>Diferencia</th><th>Variación %</th><th>Meta</th><th>Cumplimiento %</th></tr></thead><tbody>`;
+        data.seccion_d.forEach(cat => {
+            html += `<tr><td>${cat.nombre}</td><td>$${cat.venta_2025.toFixed(2)}</td><td>$${cat.venta_2026.toFixed(2)}</td><td>$${cat.diferencia.toFixed(2)}</td><td>${cat.variacion.toFixed(1)}%</td><td>$${cat.meta.toFixed(2)}</td><td>${cat.cumplimiento.toFixed(1)}%</td></tr>`;
+        });
+        html += `</tbody></table>`;
+
+        // Sección E
+        html += `<h4>E. Ranking de asesoras</h4>`;
+        html += `<table class="table table-bordered"><thead><tr><th>Asesor</th><th>Venta 2026</th><th>Unidades</th><th>Facturas</th><th>Ticket</th><th>Participación</th><th>Cumplimiento</th></tr></thead><tbody>`;
+        data.seccion_e.forEach(asesor => {
+            html += `<tr><td>${asesor.nombre}</td><td>$${asesor.venta.toFixed(2)}</td><td>${asesor.unidades}</td><td>${asesor.facturas}</td><td>$${asesor.ticket.toFixed(2)}</td><td>${asesor.participacion.toFixed(1)}%</td><td>${asesor.cumplimiento.toFixed(1)}%</td></tr>`;
+        });
+        html += `</tbody></table>`;
+
+        contenedorDatos.innerHTML = html;
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Modo TV · L&H PULSE</title>
+    <link rel="icon" href="{{ url_for('static', filename='img/logo/logo.jpg') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --crema: #FFFDF8; --beige: #F5F0E8; --arena: #E8DFD0; --oro: #C5A880; --oro-o: #B98A3E;
+            --cafe: #8B7D6B; --tinta: #2D2A26; --gris: #6B6259; --rojo: #A9472F; --verde: #3F7F55; --naranja: #C77A1F;
+            --curva: cubic-bezier(.23, 1, .32, 1);
+        }
+        * { box-sizing: border-box; }
+        html, body { height: 100%; margin: 0; }
+        body {
+            overflow: hidden;
+            background: radial-gradient(1200px 700px at 85% 110%, rgba(197, 168, 128, .28), transparent 60%),
+                        linear-gradient(160deg, #FDFBF7 0%, var(--beige) 55%, var(--arena) 100%);
+            color: var(--tinta);
+            font-family: Inter, "Segoe UI", Arial, sans-serif;
+            font-size: clamp(14px, 1.35vw, 26px);
+        }
+        .tv { display: grid; grid-template-rows: auto 1fr auto; height: 100vh; padding: 2.4vh 3vw 2vh; gap: 2vh; }
+        .tv-cab { display: flex; align-items: center; gap: 1.2vw; }
+        .tv-cab img { width: 3.6vw; min-width: 44px; aspect-ratio: 1; border-radius: 14px; object-fit: cover; }
+        .tv-cab h1 { margin: 0; font: 700 2.1em/1.05 "Playfair Display", Georgia, serif; letter-spacing: -.01em; }
+        .tv-cab small { display: block; color: var(--gris); font-size: .72em; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+        .tv-cab .tv-reloj { margin-left: auto; text-align: right; }
+        .tv-cab .tv-reloj b { display: block; font-size: 1.9em; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+        .tv-cab .tv-reloj span { color: var(--gris); font-size: .8em; }
+        .tv-escena { position: relative; min-height: 0; }
+        .tv-lamina { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; padding-right: 22vw; opacity: 0; transform: translateY(2vh); transition: opacity .7s var(--curva), transform .9s var(--curva); pointer-events: none; }
+        .tv-lamina.activa { opacity: 1; transform: none; pointer-events: auto; }
+        .tv-etiqueta { color: var(--cafe); font-size: .9em; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+        .tv-titulo { margin: .3em 0 .5em; font: 700 2.3em/1.1 "Playfair Display", Georgia, serif; }
+        .tv-gigante { font-size: 6.2em; font-weight: 800; line-height: .95; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+        .tv-sub { margin-top: .4em; color: var(--gris); font-size: 1.15em; }
+        .tv-barra { position: relative; height: 1.1em; margin: 1.2em 0 .6em; border-radius: 99px; background: rgba(139, 125, 107, .18); }
+        .tv-barra span { position: absolute; inset: 0 auto 0 0; border-radius: 99px; background: var(--oro-o); transition: width 1.4s var(--curva); }
+        .tv-barra span.ok { background: var(--verde); } .tv-barra span.medio { background: var(--naranja); } .tv-barra span.alto { background: var(--rojo); }
+        .tv-barra i { position: absolute; top: -.35em; bottom: -.35em; width: 4px; margin-left: -2px; border-radius: 3px; background: var(--tinta); }
+        .tv-datos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.2vw; margin-top: 1.6em; }
+        .tv-dato { padding: 1em 1.1em; border: 1px solid rgba(197, 168, 128, .45); border-radius: 18px; background: rgba(255, 255, 255, .72); }
+        .tv-dato span { display: block; color: var(--gris); font-size: .8em; font-weight: 600; }
+        .tv-dato b { display: block; margin-top: .2em; font-size: 1.55em; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+        .tv-lista { display: grid; gap: .55em; margin: 0; padding: 0; list-style: none; }
+        .tv-lista li { display: grid; grid-template-columns: 2.2em 1fr auto; align-items: center; gap: 1em; padding: .65em 1em; border-radius: 16px; background: rgba(255, 255, 255, .72); border: 1px solid rgba(197, 168, 128, .35); }
+        .tv-lista li.mia { background: var(--tinta); color: var(--crema); border-color: var(--tinta); }
+        .tv-lista .pos { font-weight: 800; color: var(--oro-o); font-size: 1.2em; text-align: center; }
+        .tv-lista .nom { font-weight: 700; font-size: 1.15em; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+        .tv-lista .nom small { display: block; color: var(--gris); font-size: .72em; font-weight: 500; }
+        .tv-lista li.mia .nom small { color: var(--arena); }
+        .tv-lista .val { font-weight: 800; font-size: 1.3em; font-variant-numeric: tabular-nums; }
+        .tv-lista .val.ok { color: var(--verde); }
+        .tv-reto { display: inline-flex; align-items: center; gap: .6em; padding: .8em 1.2em; border-radius: 20px; background: var(--tinta); color: var(--crema); font-size: 2.2em; font-weight: 800; }
+        .tv-reto i { color: var(--oro); }
+        .tv-pie { display: flex; align-items: center; gap: 1vw; color: var(--gris); font-size: .8em; }
+        .tv-puntos { display: flex; gap: .5em; }
+        .tv-puntos i { width: .7em; height: .7em; border-radius: 50%; background: rgba(139, 125, 107, .3); transition: background .3s; }
+        .tv-puntos i.activo { background: var(--oro-o); }
+        .tv-pie .tv-salir { margin-left: auto; color: var(--gris); text-decoration: none; }
+        .tv-hilo { position: fixed; right: 2vw; bottom: 6vh; width: 22vw; max-width: 420px; aspect-ratio: 176 / 164; pointer-events: none; }
+        .tv-hilo canvas { width: 100%; height: 100%; display: block; }
+        .tv-globo { position: fixed; right: 2vw; bottom: calc(6vh + 20vw * 164 / 176); max-width: 20vw; padding: .8em 1.1em; border-radius: 20px 20px 4px 20px; background: #fff; border: 1px solid rgba(197, 168, 128, .5); box-shadow: 0 16px 36px rgba(45, 42, 38, .12); font-size: 1.05em; font-weight: 600; line-height: 1.35; opacity: 0; transform: translateY(8px); transition: opacity .4s ease-out, transform .5s var(--curva); }
+        .tv-globo.visible { opacity: 1; transform: none; }
+        .tv-elegir { max-width: 520px; margin: 18vh auto; padding: 28px; border-radius: 20px; background: rgba(255, 255, 255, .8); border: 1px solid rgba(197, 168, 128, .45); font-size: 16px; }
+        .tv-elegir h1 { margin: 0 0 6px; font: 700 28px/1.1 "Playfair Display", Georgia, serif; }
+        .tv-elegir p { color: var(--gris); }
+        .tv-elegir select, .tv-elegir button { width: 100%; height: 46px; margin-top: 10px; padding: 0 12px; border-radius: 12px; border: 1px solid #E2D6C2; font: 600 15px Inter, sans-serif; }
+        .tv-elegir button { background: var(--tinta); color: var(--crema); border: 0; cursor: pointer; }
+        .tv-vacio { color: var(--gris); font-size: 1.3em; }
+        @media (prefers-reduced-motion: reduce) { .tv-lamina, .tv-barra span, .tv-globo { transition: opacity .3s linear; transform: none; } }
+    </style>
+</head>
+<body>
+{% if not tienda %}
+    <form class="tv-elegir" method="get">
+        <h1>Modo TV</h1>
+        <p>Elige la tienda que se verá en la pantalla.</p>
+        <label for="tvTienda" class="tv-etiqueta">Tienda</label>
+        <select id="tvTienda" name="store_id" required>
+            {% for t in tiendas %}<option value="{{ t.id }}">{{ t.codigo }} · {{ t.nombre }}</option>{% endfor %}
+        </select>
+        <button type="submit">Abrir Modo TV</button>
+    </form>
+{% else %}
+    <main class="tv" id="tv" data-store="{{ tienda.id if es_admin else '' }}">
+        <header class="tv-cab">
+            <img src="{{ url_for('static', filename='img/logo/logo.jpg') }}" alt="L&H PULSE">
+            <div>
+                <small>L&H Pulse · Modo TV</small>
+                <h1>{{ tienda.nombre }}</h1>
+            </div>
+            <div class="tv-reloj"><b id="tvHora">--:--</b><span id="tvFecha"></span></div>
+        </header>
+        <section class="tv-escena" id="tvEscena" aria-live="polite">
+            <div class="tv-lamina activa"><p class="tv-vacio">Cargando resultados…</p></div>
+        </section>
+        <footer class="tv-pie">
+            <div class="tv-puntos" id="tvPuntos"></div>
+            <span id="tvCorte"></span>
+            <a class="tv-salir" href="{{ url_for('dashboard.dashboard') }}"><i class="bi bi-box-arrow-left"></i> Salir del Modo TV</a>
+        </footer>
+    </main>
+    <div class="tv-hilo" id="tvHilo" aria-hidden="true"></div>
+    <div class="tv-globo" id="tvGlobo" role="status"></div>
+    <script type="module" src="{{ url_for('static', filename='hilo3d/hilo_tv.js') }}?v=2"></script>
+{% endif %}
+</body>
+</html>

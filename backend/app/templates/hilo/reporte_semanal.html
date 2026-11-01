@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Informe semanal · L&H PULSE</title>
+    <link rel="icon" href="{{ url_for('static', filename='img/logo/logo.jpg') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --tinta: #2D2A26; --gris: #6B6259; --cafe: #8B7D6B; --oro: #C5A880; --crema: #FFFDF8; --beige: #F6EFE3; --rojo: #A9472F; --verde: #3F7F55; --linea: #EADFCB; }
+        * { box-sizing: border-box; }
+        body { margin: 0; background: #F5F0E8; color: var(--tinta); font: 13px/1.45 Inter, "Segoe UI", Arial, sans-serif; }
+        .hoja { max-width: 1040px; margin: 24px auto; padding: 36px 40px; background: var(--crema); border: 1px solid var(--linea); border-radius: 16px; }
+        .barra-acciones { max-width: 1040px; margin: 24px auto 0; display: flex; gap: 8px; justify-content: flex-end; padding: 0 4px; }
+        .barra-acciones a, .barra-acciones button { display: inline-flex; align-items: center; gap: 6px; padding: 9px 14px; border-radius: 10px; border: 1px solid #E2D6C2; background: #fff; color: var(--tinta); font: 600 13px Inter, sans-serif; text-decoration: none; cursor: pointer; }
+        .barra-acciones button { background: var(--tinta); color: var(--crema); border-color: var(--tinta); }
+        header { display: flex; align-items: center; gap: 16px; padding-bottom: 18px; border-bottom: 2px solid var(--tinta); }
+        header img { width: 54px; height: 54px; border-radius: 12px; object-fit: cover; }
+        header h1 { margin: 0; font: 700 26px/1.1 "Playfair Display", Georgia, serif; }
+        header p { margin: 2px 0 0; color: var(--gris); }
+        header .gen { margin-left: auto; text-align: right; color: var(--gris); font-size: 12px; }
+        h2 { margin: 26px 0 10px; font: 700 17px/1.2 "Playfair Display", Georgia, serif; }
+        .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-top: 18px; }
+        .kpi { padding: 12px 14px; border: 1px solid var(--linea); border-radius: 12px; background: #fff; }
+        .kpi span { display: block; color: var(--gris); font-size: 11.5px; font-weight: 600; }
+        .kpi b { display: block; margin-top: 2px; font-size: 20px; font-weight: 800; font-variant-numeric: tabular-nums; }
+        .kpi small { color: var(--gris); }
+        table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+        th { padding: 7px 8px; border-bottom: 1px solid var(--tinta); color: var(--gris); font-size: 10.5px; text-transform: uppercase; letter-spacing: .04em; text-align: left; white-space: nowrap; }
+        td { padding: 6px 8px; border-bottom: 1px solid #F0E8DA; }
+        td.n, th.n { text-align: right; }
+        .malo { color: var(--rojo); font-weight: 700; }
+        .bueno { color: var(--verde); font-weight: 700; }
+        .nota { color: var(--gris); font-size: 12px; }
+        .dos { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+        .aviso { padding: 8px 10px; margin-bottom: 6px; border-left: 3px solid var(--oro); background: #fff; border-radius: 0 8px 8px 0; }
+        .aviso.alto { border-color: var(--rojo); } .aviso.medio { border-color: #C77A1F; }
+        .aviso b { display: block; } .aviso small { color: var(--gris); }
+        footer { margin-top: 28px; padding-top: 12px; border-top: 1px solid var(--linea); color: var(--gris); font-size: 11px; }
+        @media print {
+            body { background: #fff; }
+            .barra-acciones { display: none; }
+            .hoja { margin: 0; padding: 0; border: 0; max-width: none; }
+            h2 { break-after: avoid; }
+            table, .aviso { break-inside: avoid; }
+            @page { size: A4; margin: 14mm; }
+        }
+        @media (max-width: 760px) { .kpis { grid-template-columns: 1fr 1fr; } .dos { grid-template-columns: 1fr; } .hoja { padding: 22px 16px; } }
+    </style>
+</head>
+<body>
+{% set c = d.corte %}{% set r = d.red %}
+<div class="barra-acciones">
+    <a href="{{ url_for('hilo_inteligente.reporte_semanal_excel', anio=c.anio, mes=c.mes, dia_corte=c.dia) }}">Descargar Excel</a>
+    <button type="button" onclick="window.print()">Imprimir o guardar PDF</button>
+</div>
+<article class="hoja">
+    <header>
+        <img src="{{ url_for('static', filename='img/logo/logo.jpg') }}" alt="">
+        <div>
+            <h1>Informe semanal de ventas</h1>
+            <p>{{ c.nombre_mes|capitalize }} {{ c.anio }} · datos al corte del día {{ c.dia }}{% if d.semana.desde %} · semana del {{ d.semana.desde }} al {{ d.semana.hasta }}{% endif %}</p>
+        </div>
+        <div class="gen">L&H Pulse<br>Generado el {{ generado }}</div>
+    </header>
+
+    <div class="kpis">
+        <div class="kpi"><span>Cumplimiento de la red</span><b>{{ pct(r.cump) }}</b><small>{{ r.al_dia }} de {{ r.tiendas }} tiendas al día</small></div>
+        <div class="kpi"><span>Venta del mes</span><b>${{ '{:,.0f}'.format(r.venta) }}</b><small>Año anterior: ${{ '{:,.0f}'.format(r.venta_anterior) }} ({{ signo(r.crecimiento) }})</small></div>
+        <div class="kpi"><span>{{ 'Cierre del mes' if r.cerrado else 'Cierre proyectado' }}</span><b>{{ pct(r.proy_pct) }}</b><small>${{ '{:,.0f}'.format(r.proyeccion) }} de ${{ '{:,.0f}'.format(r.cuota_total) }}</small></div>
+        {% if d.red_tejida %}<div class="kpi"><span>Red tejida (pasaron su meta)</span><b>{{ d.red_tejida.unidas }} de {{ d.red_tejida.total }}</b><small>{% if d.red_tejida.hace_una_semana is not none %}Hace una semana: {{ d.red_tejida.hace_una_semana }}{% else %}tiendas en el hilo{% endif %}</small></div>{% endif %}
+        <div class="kpi"><span>Últimos 7 días</span><b>${{ '{:,.0f}'.format(d.semana.actual or 0) }}</b><small>Frente a la semana anterior: {{ signo(d.semana.variacion) }}</small></div>
+    </div>
+
+    <h2>Tiendas</h2>
+    <table>
+        <thead><tr><th>Tienda</th><th class="n">Venta</th><th class="n">Crec.</th><th class="n">Cumpl.</th><th class="n">Proyección</th><th class="n">Necesita/día</th><th class="n">Últ. 7 días</th></tr></thead>
+        <tbody>
+        {% set semana = {} %}{% for s in d.semana.tiendas %}{% set _ = semana.update({s.codigo: s}) %}{% endfor %}
+        {% for t in d.tiendas %}
+            <tr>
+                <td><b>{{ t.codigo }}</b> {{ t.nombre }}</td>
+                <td class="n">${{ '{:,.0f}'.format(t.venta) }}</td>
+                <td class="n {{ 'malo' if t.crecimiento is not none and t.crecimiento < 0 else 'bueno' }}">{{ signo(t.crecimiento) }}</td>
+                <td class="n {{ 'bueno' if t.cump >= 1 else ('malo' if t.cump < 0.9 else '') }}">{{ pct(t.cump) }}</td>
+                <td class="n">{{ pct(t.proy_pct) }}</td>
+                <td class="n">{% if t.necesita_dia %}${{ '{:,.0f}'.format(t.necesita_dia) }}{% else %}—{% endif %}</td>
+                <td class="n">{% if semana.get(t.codigo) %}{{ signo(semana[t.codigo].variacion) }}{% else %}—{% endif %}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <p class="nota">Proyección: cierre esperado si cada tienda sigue a su ritmo, respetando cómo vende cada día de la semana. Últ. 7 días: frente a los 7 días anteriores.</p>
+
+    <div class="dos">
+        <section>
+            <h2>¿Por qué bajan? (frente al año anterior)</h2>
+            {% set nombres = {'trafico': 'Tráfico', 'conversion': 'Conversión', 'ticket': 'Tiquete'} %}
+            <table>
+                <thead><tr><th>Tienda</th><th class="n">Crec.</th><th class="n">Tráfico</th><th class="n">Conv.</th><th class="n">Tiquete</th></tr></thead>
+                <tbody>
+                {% for x in d.diagnostico if x.crecimiento < 0 %}
+                    <tr>
+                        <td>{{ x.nombre }}<br><small class="nota">{{ ('Causa: ' ~ nombres[x.causa]) if x.causa else 'Sin tráfico del año anterior' }}</small></td>
+                        <td class="n malo">{{ signo(x.crecimiento) }}</td>
+                        <td class="n {{ 'malo' if x.trafico is defined and x.trafico < 0 else '' }}">{{ signo(x.trafico) if x.trafico is defined else '—' }}</td>
+                        <td class="n {{ 'malo' if x.conversion is defined and x.conversion < 0 else '' }}">{{ signo(x.conversion) if x.conversion is defined else '—' }}</td>
+                        <td class="n {{ 'malo' if x.ticket is defined and x.ticket < 0 else '' }}">{{ signo(x.ticket) if x.ticket is defined else '—' }}</td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="5" class="nota">Todas las tiendas venden más que el año anterior.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </section>
+        <section>
+            <h2>Calidad de los datos</h2>
+            {% for a in d.calidad %}
+                <div class="aviso {{ a.nivel }}"><b>{{ a.titulo }}</b><small>{{ a.detalle }}{% if a.tiendas %} · {{ a.tiendas|join(', ') }}{% endif %}</small></div>
+            {% else %}
+                <p class="nota">Todo en orden: cargas al día, metas completas y sin días raros.</p>
+            {% endfor %}
+
+            <h2>Uso de L&H Pulse</h2>
+            {% if d.sin_uso.tiendas %}
+                {% for t in d.sin_uso.tiendas %}
+                    <div class="aviso {{ 'alto' if t.dias is none or t.dias >= 7 else 'medio' }}"><b>{{ t.codigo }} · {{ t.nombre }}</b><small>{{ 'No ha entrado desde que empezó el registro (' ~ d.sin_uso.desde ~ ')' if t.dias is none else 'Último ingreso hace ' ~ t.dias ~ ' días (' ~ t.ultimo ~ ')' }}</small></div>
+                {% endfor %}
+            {% elif d.sin_uso.activo %}
+                <p class="nota">Todas las tiendas entraron en los últimos 3 días.</p>
+            {% else %}
+                <p class="nota">El registro de accesos todavía no tiene datos.</p>
+            {% endif %}
+        </section>
+    </div>
+
+    {% if d.v3 %}
+    <h2>Pronóstico V3 frente al ritmo actual</h2>
+    <p class="nota">Corrida del {{ d.v3.corrida }}. V3 esperaba ${{ '{:,.0f}'.format(d.v3.p50) }} para la red; al ritmo de hoy van para ${{ '{:,.0f}'.format(d.v3.proyeccion) }} ({{ signo(d.v3.diferencia) }}).</p>
+    <table>
+        <thead><tr><th>Tienda</th><th class="n">V3 (P50)</th><th class="n">Al ritmo actual</th><th class="n">Diferencia</th></tr></thead>
+        <tbody>
+        {% for x in d.v3.tiendas %}
+            <tr><td>{{ x.codigo }} {{ x.nombre }}</td><td class="n">${{ '{:,.0f}'.format(x.p50) }}</td><td class="n">${{ '{:,.0f}'.format(x.proyeccion) }}</td><td class="n {{ 'malo' if x.diferencia < 0 else 'bueno' }}">{{ signo(x.diferencia) }}</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    {% if d.cambios %}
+    <h2>Cambios bruscos del último día</h2>
+    <table>
+        <thead><tr><th>Tienda</th><th>Día</th><th class="n">Venta</th><th class="n">Mismo día normal</th><th class="n">Variación</th></tr></thead>
+        <tbody>
+        {% for x in d.cambios %}
+            <tr><td>{{ x.codigo }} {{ x.nombre }}</td><td>{{ x.nombre_dia }} {{ x.dia }}</td><td class="n">${{ '{:,.0f}'.format(x.venta) }}</td><td class="n">${{ '{:,.0f}'.format(x.promedio) }}</td><td class="n {{ 'malo' if x.variacion < 0 else 'bueno' }}">{{ signo(x.variacion) }}</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    {% if d.felicitar.mejoras or d.felicitar.arriba %}
+    <h2>Para felicitar</h2>
+    <table>
+        <tbody>
+        {% for x in d.felicitar.mejoras %}<tr><td>{{ x.codigo }} {{ x.nombre }}</td><td class="n bueno">de {{ pct(x.antes) }} a {{ pct(x.ahora) }}</td></tr>{% endfor %}
+        {% for x in d.felicitar.arriba %}<tr><td>{{ x.codigo }} {{ x.nombre }}</td><td class="n bueno">{{ pct(x.ahora) }} de la meta</td></tr>{% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    <footer>Informe generado por Hilo en L&H Pulse con los datos cargados en el sistema. Las proyecciones son estimaciones al ritmo actual.</footer>
+</article>
+</body>
+</html>

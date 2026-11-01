@@ -1,0 +1,69 @@
+/* Hilo 3D · mascota del inicio de sesión de L&H Pulse */
+.hilo3d {
+  position: absolute;
+  z-index: 1;
+  width: 300px;
+  height: 280px;
+  pointer-events: none;
+  opacity: 0;
+  will-change: transform;
+  transition: opacity .9s cubic-bezier(.23, 1, .32, 1); /* la posición la mueve el JS cuadro a cuadro */
+}
+.hilo3d.visible { opacity: 1; }
+.hilo3d[hidden], .hilo3d-burbuja[hidden] { display: none; }
+.hilo3d canvas { display: block; width: 100%; height: 100%; }
+
+/* Zona para hacerle cosquillas (solo el cuerpo) */
+.hilo3d-toque {
+  position: absolute;
+  left: 80px;
+  top: 74px;
+  width: 96px;
+  height: 150px;
+  border-radius: 34px;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+/* Dormido: zetas que suben */
+.hilo3d.dormido::before, .hilo3d.dormido::after {
+  content: "z";
+  position: absolute;
+  left: 58%;
+  top: 30px;
+  color: #8B7D6B;
+  font: 700 18px/1 Inter, "Segoe UI", Arial, sans-serif;
+  opacity: 0;
+  animation: hiloZeta 2.6s ease-out infinite;
+  pointer-events: none;
+}
+.hilo3d.dormido::after { font-size: 13px; animation-delay: 1.3s; }
+@keyframes hiloZeta {
+  0% { opacity: 0; transform: translate(0, 10px) scale(.8); }
+  25% { opacity: .85; }
+  100% { opacity: 0; transform: translate(22px, -34px) scale(1.15); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hilo3d.dormido::before { animation: none; opacity: .7; }
+  .hilo3d.dormido::after { display: none; }
+}
+
+.hilo3d-burbuja {
+  position: absolute;
+  z-index: 2;
+  padding: 10px 14px;
+  border-radius: 16px 16px 16px 4px;
+  background: rgba(255, 255, 255, .97);
+  border: 1px solid rgba(197, 168, 128, .45);
+  box-shadow: 0 12px 28px rgba(45, 42, 38, .12);
+  color: #2D2A26;
+  font: 600 13px/1.35 Inter, "Segoe UI", Arial, sans-serif;
+  width: max-content;
+  max-width: 270px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(6px) scale(.96);
+  transform-origin: 0 100%;
+  transition: opacity .25s ease-out, transform .35s cubic-bezier(.23, 1, .32, 1);
+}
+.hilo3d-burbuja.visible { opacity: 1; transform: none; }

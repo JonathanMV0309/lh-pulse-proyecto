@@ -1,0 +1,107 @@
+/* Planilla de horas (formato Talento Humano) · usa los colores de «Horarios» cuando existen */
+.pl-planilla, .pl-tabs, .pl-modal {
+  --pl-azul: var(--schedule-primary, #2563eb); --pl-azul-o: var(--schedule-primary-dark, #1d4ed8); --pl-azul-s: var(--schedule-primary-soft, #eff6ff);
+  --pl-tinta: var(--schedule-text, #172033); --pl-gris: var(--schedule-muted, #6b7280); --pl-borde: var(--schedule-border, #e5e7eb);
+  --pl-card: var(--schedule-card, #fff); --pl-verde: var(--schedule-green, #16a34a); --pl-naranja: var(--schedule-orange, #ea8a17); --pl-rojo: var(--schedule-red, #dc2626);
+}
+.pl-tabs { display: inline-flex; gap: 4px; margin: 0 0 18px; padding: 4px; border-radius: 14px; background: var(--pl-card); border: 1px solid var(--pl-borde); box-shadow: 0 4px 14px rgba(15, 23, 42, .05); }
+.pl-tabs button { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 8px 16px; border: 0; border-radius: 10px; background: transparent; color: var(--pl-gris); font: 600 14px Inter, system-ui, sans-serif; cursor: pointer; transition: background-color .2s, color .2s; }
+.pl-tabs button.on { background: var(--pl-azul); color: #fff; }
+.pl-tabs button:focus-visible, .pl-btn:focus-visible { outline: 2px solid var(--pl-azul); outline-offset: 2px; }
+.pl-nuevo { padding: 1px 7px; border-radius: 999px; background: #fde68a; color: #78350f; font-size: 10.5px; font-weight: 800; }
+.pl-tabs button.on .pl-nuevo { background: rgba(255, 255, 255, .25); color: #fff; }
+
+.pl-planilla { display: grid; gap: 14px; color: var(--pl-tinta); }
+.pl-planilla[hidden] { display: none; }
+.pl-barra { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px; border-radius: 18px; background: var(--pl-card); border: 1px solid var(--pl-borde); }
+.pl-semana { display: flex; align-items: center; gap: 10px; }
+.pl-kicker { display: block; color: var(--pl-gris); font: 700 11px Inter, sans-serif; letter-spacing: .08em; text-transform: uppercase; }
+.pl-titulo { margin: 2px 0 0; font: 800 18px Inter, sans-serif; }
+.pl-acciones { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.pl-estado { color: var(--pl-gris); font-size: 13px; } .pl-estado.malo { color: var(--pl-rojo); font-weight: 600; }
+.pl-btn { display: inline-flex; align-items: center; gap: 6px; min-height: 38px; padding: 7px 14px; border-radius: 10px; border: 1px solid var(--pl-borde); background: #fff; color: var(--pl-tinta); font: 600 13px Inter, sans-serif; cursor: pointer; transition: background-color .2s, transform .15s; }
+.pl-btn:hover { background: #f8fafc; } .pl-btn:active { transform: scale(.97); }
+.pl-btn.primario { background: var(--pl-azul); border-color: var(--pl-azul); color: #fff; } .pl-btn.primario:hover { background: var(--pl-azul-o); }
+.pl-btn.icono { width: 38px; justify-content: center; padding: 0; }
+.pl-btn.chico { min-height: 32px; padding: 5px 10px; font-size: 12.5px; }
+
+.pl-horario { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 14px; background: var(--pl-azul-s); }
+.pl-horario .pl-kicker { margin-right: 4px; }
+.pl-chip { padding: 4px 10px; border-radius: 999px; background: #fff; border: 1px solid var(--pl-borde); font-size: 13px; } .pl-chip.malo { color: var(--pl-rojo); }
+.pl-horario small { color: var(--pl-gris); } .pl-horario .pl-btn { margin-left: auto; }
+
+.pl-tabla-caja { overflow-x: auto; border-radius: 18px; background: var(--pl-card); border: 1px solid var(--pl-borde); }
+.pl-tabla { width: 100%; min-width: 1180px; border-collapse: separate; border-spacing: 0; font-size: 13px; }
+.pl-tabla th { position: sticky; top: 0; z-index: 1; padding: 10px 6px; background: #f8fafc; border-bottom: 1px solid var(--pl-borde); text-align: center; font-weight: 700; vertical-align: top; }
+.pl-tabla th b { display: block; font-size: 13.5px; } .pl-tabla th small { display: block; color: var(--pl-gris); font-weight: 500; font-size: 11.5px; margin-top: 2px; }
+.pl-tabla th.festivo { background: #fef3c7; }
+.pl-tag { display: inline-block; margin: 3px 2px 0; padding: 1px 7px; border-radius: 999px; font-size: 10.5px; font-weight: 800; }
+.pl-tag.festivo { background: #f59e0b; color: #fff; } .pl-tag.quincena { background: #ede9fe; color: #5b21b6; }
+.pl-tabla td { padding: 8px 6px; border-bottom: 1px solid var(--pl-borde); vertical-align: top; }
+.pl-col-persona { position: sticky; left: 0; z-index: 2; width: 190px; min-width: 190px; background: var(--pl-card); text-align: left !important; border-right: 1px solid var(--pl-borde); }
+.pl-tabla th.pl-col-persona { z-index: 3; background: #f8fafc; }
+.pl-col-persona b { display: block; margin: 4px 0; font-size: 13.5px; }
+.pl-cargo, .pl-nov { width: 100%; padding: 3px 6px; border: 1px solid var(--pl-borde); border-radius: 8px; background: #fff; font: 600 11.5px Inter, sans-serif; color: var(--pl-gris); }
+.pl-cedula { width: 100%; padding: 3px 6px; border: 1px dashed var(--pl-borde); border-radius: 8px; font-size: 11.5px; }
+.pl-dia { min-width: 118px; text-align: center; transition: background-color .2s; }
+.pl-dia.sugerido { background: repeating-linear-gradient(135deg, #f8fafc 0 6px, #fff 6px 12px); }
+.pl-dia.novedad { background: #f1f5f9; } .pl-dia.error { background: #fef2f2; }
+.pl-horas { display: grid; gap: 3px; margin-top: 4px; }
+.pl-horas[hidden] { display: none; }
+.pl-horas select { width: 100%; padding: 3px 4px; border: 1px solid var(--pl-borde); border-radius: 7px; background: #fff; font: 600 12.5px Inter, sans-serif; text-align: center; }
+.pl-turno { display: block; margin-top: 4px; font-size: 10.5px; font-weight: 800; color: var(--pl-gris); text-transform: uppercase; letter-spacing: .04em; }
+.pl-turno:empty { display: none; }
+.pl-turno.abre { color: #15803d; } .pl-turno.cierra { color: #1d4ed8; } .pl-turno.todo { color: #7c3aed; }
+.pl-quien td { background: #fff; font-size: 11.5px; text-align: left; vertical-align: top; }
+.pl-quien td:first-child { position: sticky; left: 0; font-weight: 700; color: var(--pl-gris); }
+.pl-quien span { display: block; padding: 1px 0; } .pl-quien .abre { color: #15803d; } .pl-quien .cierra { color: #1d4ed8; } .pl-quien .descansa { color: var(--pl-gris); }
+.pl-quien b { color: var(--pl-rojo); }
+.pl-horas input { width: 100%; padding: 3px 4px; border: 1px solid var(--pl-borde); border-radius: 7px; font: 600 12.5px Inter, sans-serif; text-align: center; }
+.pl-horas select:focus, .pl-horas input:focus, .pl-nov:focus, .pl-cargo:focus, .pl-cedula:focus, .pl-obs:focus { outline: 2px solid var(--pl-azul); outline-offset: 0; border-color: transparent; }
+.pl-tht { display: block; margin-top: 4px; font-weight: 800; color: var(--pl-azul-o); }
+.pl-dia.novedad .pl-tht { color: var(--pl-gris); font-weight: 600; margin-top: 10px; } .pl-dia.error .pl-tht { color: var(--pl-rojo); }
+.pl-th { display: inline-block; margin-top: 3px; padding: 0 6px; border-radius: 999px; background: #fde2e1; color: #9f1d1d; font-size: 10px; font-weight: 800; }
+.pl-sug { display: inline-block; margin-top: 3px; padding: 0 6px; border-radius: 999px; background: #e0e7ff; color: #3730a3; font-size: 10px; font-weight: 700; }
+.pl-col-total { width: 90px; text-align: center; } .pl-total { font-size: 15px; } .pl-total.alto { color: var(--pl-rojo); }
+.pl-total.alto::after { content: " ⚠"; }
+.pl-col-obs { min-width: 200px; } .pl-obs { width: 100%; padding: 6px 8px; border: 1px solid var(--pl-borde); border-radius: 8px; font: 12.5px Inter, sans-serif; resize: vertical; }
+.pl-totales td { background: #f8fafc; font-weight: 700; text-align: center; color: var(--pl-gris); }
+.pl-totales td:first-child { position: sticky; left: 0; text-align: left; }
+
+.pl-pie { display: grid; grid-template-columns: 1.4fr 1fr; gap: 14px; }
+.pl-alertas, .pl-reglas { padding: 14px 18px; border-radius: 18px; background: var(--pl-card); border: 1px solid var(--pl-borde); font-size: 13.5px; }
+.pl-alertas ul, .pl-reglas ul { margin: 8px 0 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.pl-alertas li { display: flex; gap: 8px; } .pl-alertas li.alta i { color: var(--pl-rojo); } .pl-alertas li.media i { color: var(--pl-naranja); }
+.pl-reglas li { padding-left: 14px; position: relative; color: var(--pl-gris); } .pl-reglas li::before { content: "•"; position: absolute; left: 2px; }
+.pl-ok { margin: 8px 0 0; color: var(--pl-verde); font-weight: 600; } .pl-nota { margin: 8px 0 0; color: var(--pl-gris); font-size: 12.5px; }
+
+.pl-modal { position: fixed; inset: 0; z-index: 3000; display: grid; place-items: center; padding: 16px; background: rgba(15, 23, 42, .45); }
+.pl-caja { width: min(520px, 100%); padding: 18px 20px; border-radius: 18px; background: #fff; box-shadow: 0 30px 70px rgba(0, 0, 0, .3); }
+.pl-caja header { display: flex; align-items: center; } .pl-caja h3 { margin: 0; font: 800 18px Inter, sans-serif; }
+.pl-cerrar { margin-left: auto; width: 34px; height: 34px; border: 0; border-radius: 50%; background: #f1f5f9; cursor: pointer; }
+.pl-hfilas { display: grid; gap: 8px; margin-top: 10px; }
+.pl-hfila { display: grid; grid-template-columns: 80px 1fr auto 1fr 38px; align-items: center; gap: 6px; }
+.pl-hfila input { padding: 6px 8px; border: 1px solid var(--pl-borde); border-radius: 8px; }
+.pl-caja footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+
+.pl-almuerzo { grid-column: 1 / -1; display: flex; align-items: center; justify-content: center; gap: 5px; margin: 2px 0 0; font-size: 11px; font-weight: 600; color: var(--pl-gris); cursor: pointer; }
+.pl-almuerzo input { width: 14px; height: 14px; margin: 0; accent-color: var(--pl-azul); cursor: pointer; }
+.pl-dia.sin-almuerzo .pl-almuerzo { color: var(--pl-naranja); }
+.pl-quitar { display: inline-grid; place-items: center; width: 20px; height: 20px; margin-left: 2px; padding: 0; border: 0; border-radius: 50%; background: #f1f5f9; color: var(--pl-gris); vertical-align: middle; cursor: pointer; }
+.pl-quitar:hover { background: #fde2e1; color: var(--pl-rojo); }
+.pl-campos { display: grid; gap: 10px; margin-top: 10px; }
+.pl-campos label { display: grid; gap: 4px; font-size: 13px; font-weight: 600; }
+.pl-campos input, .pl-campos select { padding: 8px 10px; border: 1px solid var(--pl-borde); border-radius: 10px; font: 14px Inter, sans-serif; }
+.pl-error { margin: 8px 0 0; color: var(--pl-rojo); font-size: 13px; font-weight: 600; }
+.pl-error:empty { display: none; }
+
+.pl-mas td { padding: 8px 10px !important; background: var(--pl-card); }
+.pl-btn-mas { position: sticky; left: 10px; display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border: 1.5px dashed var(--pl-azul); border-radius: 12px; background: #eff6ff; color: var(--pl-azul-o); font: 700 13.5px Inter, sans-serif; cursor: pointer; transition: background .15s ease-out, transform .1s ease-out; }
+.pl-btn-mas small { font-weight: 500; color: var(--pl-gris); }
+.pl-btn-mas:hover { background: #dbeafe; } .pl-btn-mas:active { transform: scale(.97); }
+.pl-btn-mas:focus-visible { outline: 2px solid var(--pl-azul); outline-offset: 2px; }
+
+.pl-auto { margin-left: 4px; padding: 1px 8px; border-radius: 999px; background: #dcfce7; color: #166534; font-size: 10.5px; font-weight: 700; }
+
+@media (max-width: 900px) { .pl-pie { grid-template-columns: 1fr; } .pl-horario .pl-btn { margin-left: 0; } }
+@media (prefers-reduced-motion: reduce) { .pl-btn, .pl-dia, .pl-tabs button { transition: none; } }

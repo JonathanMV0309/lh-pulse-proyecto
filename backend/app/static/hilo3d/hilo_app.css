@@ -1,0 +1,301 @@
+/* Hilo en el dashboard de tienda · esquina inferior derecha, nunca tapa el contenido */
+.hilo-app {
+  --hilo-ease: cubic-bezier(.23, 1, .32, 1);
+  position: fixed;
+  right: 12px;
+  bottom: 4px;
+  z-index: 1030;
+  width: 176px;
+  height: 164px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity .6s var(--hilo-ease), transform .6s var(--hilo-ease);
+}
+.hilo-app.visible { opacity: 1; transform: none; }
+.hilo-app[hidden], .hilo-app-panel[hidden], .hilo-app-volver[hidden], .hilo-app-cuenta[hidden] { display: none; }
+.hilo-app canvas { display: block; width: 100%; height: 100%; }
+
+/* Zona que se puede tocar: solo el cuerpo de Hilo */
+.hilo-app-toque {
+  position: absolute;
+  left: 46px;
+  top: 30px;
+  width: 78px;
+  height: 112px;
+  padding: 0;
+  border: 0;
+  border-radius: 28px;
+  background: transparent;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.hilo-app-toque:focus-visible { outline: 2px solid #C5A880; outline-offset: 2px; }
+
+.hilo-app-cerrar {
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid rgba(197, 168, 128, .55);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .94);
+  color: #6B6259;
+  font: 600 15px/1 Inter, "Segoe UI", Arial, sans-serif;
+  cursor: pointer;
+  pointer-events: auto;
+  opacity: .35;
+  transition: opacity .2s ease-out;
+}
+.hilo-app:hover .hilo-app-cerrar, .hilo-app-cerrar:focus-visible { opacity: 1; }
+.hilo-app-cerrar:focus-visible { outline: 2px solid #C5A880; outline-offset: 2px; }
+
+.hilo-app-cuenta {
+  position: absolute;
+  top: 26px;
+  left: 40px;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 11px;
+  background: #A9472F;
+  color: #FFFDF8;
+  font: 700 12px/22px Inter, "Segoe UI", Arial, sans-serif;
+  text-align: center;
+  box-shadow: 0 0 0 2px #FFFDF8;
+  pointer-events: none;
+}
+
+/* Burbuja: a la izquierda de Hilo */
+.hilo-app-burbuja {
+  position: fixed;
+  right: 178px;
+  bottom: 96px;
+  z-index: 1031;
+  width: max-content;
+  max-width: 280px;
+  padding: 10px 14px;
+  border-radius: 16px 16px 4px 16px;
+  background: rgba(255, 255, 255, .97);
+  border: 1px solid rgba(197, 168, 128, .45);
+  box-shadow: 0 12px 28px rgba(45, 42, 38, .12);
+  color: #2D2A26;
+  font: 600 13px/1.4 Inter, "Segoe UI", Arial, sans-serif;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(6px) scale(.96);
+  transform-origin: 100% 100%;
+  transition: opacity .25s ease-out, transform .35s cubic-bezier(.23, 1, .32, 1);
+}
+.hilo-app-burbuja.visible { opacity: 1; transform: none; }
+
+/* Panel "Para revisar" */
+.hilo-app-panel {
+  position: fixed;
+  right: 178px;
+  bottom: 22px;
+  z-index: 1031;
+  width: 320px;
+  max-height: min(440px, 70vh);
+  overflow: auto;
+  padding: 14px 10px 10px;
+  border-radius: 16px;
+  background: #FFFDF8;
+  border: 1px solid rgba(197, 168, 128, .5);
+  box-shadow: 0 18px 40px rgba(45, 42, 38, .16);
+  color: #2D2A26;
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  opacity: 0;
+  transform: translateY(8px) scale(.97);
+  transform-origin: 100% 100%;
+  transition: opacity .22s ease-out, transform .3s cubic-bezier(.23, 1, .32, 1);
+}
+.hilo-app-panel.visible { opacity: 1; transform: none; }
+.hilo-app-panel-cab { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; padding: 0 6px 10px; }
+.hilo-app-panel-cab strong { display: block; font-size: 15px; font-weight: 700; }
+.hilo-app-panel-cab small { display: block; color: #6B6259; font-size: 12.5px; margin-top: 2px; }
+.hilo-app-panel-cerrar {
+  width: 28px; height: 28px; padding: 0; flex: none;
+  border: 0; border-radius: 50%;
+  background: transparent; color: #6B6259;
+  font: 600 18px/1 Inter, "Segoe UI", Arial, sans-serif; cursor: pointer;
+}
+.hilo-app-panel-cerrar:hover { background: #F3ECE0; }
+.hilo-app-lista { list-style: none; margin: 0; padding: 0; }
+.hilo-app-item {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; padding: 10px 8px;
+  border: 0; border-radius: 10px;
+  background: transparent; color: inherit; text-align: left; cursor: pointer;
+  transition: background-color .15s ease-out;
+}
+.hilo-app-item:hover { background: #F6EFE3; }
+.hilo-app-item:active { transform: scale(.98); }
+.hilo-app-item:focus-visible, .hilo-app-panel-cerrar:focus-visible { outline: 2px solid #C5A880; outline-offset: 1px; }
+.hilo-app-item .bi { color: #8B7D6B; font-size: 13px; flex: none; }
+.hilo-app-punto { width: 9px; height: 9px; border-radius: 50%; flex: none; background: #C5A880; }
+.hilo-app-punto[data-nivel="alto"] { background: #A9472F; }
+.hilo-app-punto[data-nivel="medio"] { background: #D08A2E; }
+.hilo-app-texto { flex: 1; min-width: 0; }
+.hilo-app-titulo { display: block; font-size: 13.5px; font-weight: 600; line-height: 1.35; }
+.hilo-app-texto small { display: block; color: #6B6259; font-size: 12px; margin-top: 1px; }
+
+/* Botón para volver a mostrarlo */
+.hilo-app-volver {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 1030;
+  padding: 8px 14px;
+  border: 1px solid rgba(197, 168, 128, .55);
+  border-radius: 999px;
+  background: #FFFDF8;
+  color: #2D2A26;
+  font: 600 12.5px/1 Inter, "Segoe UI", Arial, sans-serif;
+  box-shadow: 0 8px 20px rgba(45, 42, 38, .1);
+  cursor: pointer;
+}
+.hilo-app-volver:hover { background: #F6EFE3; }
+.hilo-app-volver:focus-visible { outline: 2px solid #C5A880; outline-offset: 2px; }
+
+/* Sección a la que lleva un aviso */
+.hilo-resalta { animation: hiloResalta 2.6s cubic-bezier(.23, 1, .32, 1); }
+@keyframes hiloResalta {
+  0% { box-shadow: 0 0 0 0 rgba(197, 168, 128, 0); }
+  12% { box-shadow: 0 0 0 4px rgba(197, 168, 128, .9); }
+  100% { box-shadow: 0 0 0 16px rgba(197, 168, 128, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hilo-app, .hilo-app-burbuja, .hilo-app-panel { transition: opacity .2s linear; transform: none; }
+  .hilo-resalta { animation: none; box-shadow: 0 0 0 3px rgba(197, 168, 128, .9); }
+}
+@media (max-width: 899px) {
+  .hilo-app, .hilo-app-burbuja, .hilo-app-panel, .hilo-app-volver { display: none !important; }
+}
+@media print {
+  .hilo-app, .hilo-app-burbuja, .hilo-app-panel, .hilo-app-volver { display: none !important; }
+}
+
+/* El número rojo también es botón */
+.hilo-app-cuenta { border: 0; cursor: pointer; pointer-events: auto; z-index: 1; }
+.hilo-app-cuenta:focus-visible { outline: 2px solid #C5A880; outline-offset: 2px; }
+
+/* Dormido: zetas que suben */
+.hilo-app.dormido::before, .hilo-app.dormido::after {
+  content: "z";
+  position: absolute;
+  left: 58%;
+  top: 22px;
+  color: #8B7D6B;
+  font: 700 15px/1 Inter, "Segoe UI", Arial, sans-serif;
+  opacity: 0;
+  animation: hiloAppZeta 2.6s ease-out infinite;
+  pointer-events: none;
+}
+.hilo-app.dormido::after { font-size: 11px; animation-delay: 1.3s; }
+@keyframes hiloAppZeta {
+  0% { opacity: 0; transform: translate(0, 8px) scale(.8); }
+  25% { opacity: .85; }
+  100% { opacity: 0; transform: translate(18px, -28px) scale(1.15); }
+}
+
+/* Botón "?" junto a cada indicador (solo cuando Hilo está visible) */
+.hilo-ayuda-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin: -4px 0 -4px 4px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #A08A6A;
+  font-size: 13px;
+  line-height: 1;
+  vertical-align: middle;
+  cursor: pointer;
+  opacity: .6;
+  transition: opacity .15s ease-out, background-color .15s ease-out;
+}
+body.hilo-ayuda-on .hilo-ayuda-btn { display: inline-flex; }
+.hilo-ayuda-btn:hover { opacity: 1; color: #2D2A26; background: rgba(197, 168, 128, .18); }
+.hilo-ayuda-btn:focus-visible { opacity: 1; outline: 2px solid #C5A880; outline-offset: 1px; }
+
+/* Tarjeta "Hilo te explica" (usa el estilo del panel) */
+.hilo-app-ayuda { width: 300px; padding: 14px 14px 12px; }
+.hilo-app-ayuda .hilo-app-panel-cab { padding: 0 0 8px; }
+.hilo-ayuda-que { margin: 0 0 10px; font-size: 13.5px; line-height: 1.5; color: #2D2A26; }
+.hilo-ayuda-tip {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #F6EFE3;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #4A4038;
+}
+.hilo-ayuda-tip .bi { color: #B98A3E; font-size: 15px; flex: none; margin-top: 1px; }
+.hilo-app-ayuda[hidden] { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hilo-app.dormido::before { animation: none; opacity: .7; }
+  .hilo-app.dormido::after { display: none; }
+}
+@media (max-width: 899px), print {
+  .hilo-ayuda-btn, .hilo-app-ayuda { display: none !important; }
+}
+
+/* Botón "Hoy" (meta de hoy por asesora) */
+.hilo-app-hoy {
+  position: absolute;
+  bottom: 10px;
+  left: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 9px;
+  border: 1px solid rgba(197, 168, 128, .6);
+  border-radius: 999px;
+  background: #FFFDF8;
+  color: #2D2A26;
+  font: 700 11.5px/1 Inter, "Segoe UI", Arial, sans-serif;
+  box-shadow: 0 4px 12px rgba(45, 42, 38, .1);
+  cursor: pointer;
+  pointer-events: auto;
+}
+.hilo-app-hoy:hover { background: #F6EFE3; }
+.hilo-app-hoy:focus-visible { outline: 2px solid #C5A880; outline-offset: 2px; }
+.hilo-app-hoy .bi { color: #B98A3E; }
+
+/* Panel "Meta de hoy" */
+.hilo-app-panel-hoy[hidden] { display: none; }
+.hilo-hoy-total {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+  margin: 0 6px 8px; padding: 10px 12px; border-radius: 10px; background: #F6EFE3;
+  font-size: 13px; color: #4A4038;
+}
+.hilo-hoy-total b { font-size: 16px; color: #2D2A26; font-variant-numeric: tabular-nums; }
+.hilo-hoy-fila { display: flex; align-items: center; gap: 10px; padding: 9px 8px; border-radius: 10px; }
+.hilo-hoy-fila + .hilo-hoy-fila { border-top: 1px solid #F1EBE0; }
+.hilo-hoy-valor { font-size: 14px; font-weight: 800; color: #2D2A26; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.hilo-app-punto[data-nivel="ok"] { background: #4E8F63; }
+
+/* Mensaje del administrador */
+.hilo-app-mensaje { width: 330px; padding: 16px 16px 14px; border-color: #C5A880; box-shadow: 0 20px 44px rgba(45, 42, 38, .2); }
+.hilo-app-mensaje.sin-hilo { right: 16px; bottom: 64px; }
+.hilo-app-mensaje .hilo-app-panel-cab { padding: 0 0 8px; }
+.hilo-mensaje-texto { margin: 0 0 14px; font-size: 14.5px; line-height: 1.5; color: #2D2A26; white-space: pre-wrap; overflow-wrap: anywhere; }
+.hilo-mensaje-ok {
+  width: 100%; padding: 10px 14px; border: 0; border-radius: 10px;
+  background: #2D2A26; color: #FFFDF8; font: 600 14px/1 Inter, "Segoe UI", Arial, sans-serif; cursor: pointer;
+  transition: background-color .15s ease-out;
+}
+.hilo-mensaje-ok:hover { background: #45403A; }
+.hilo-mensaje-ok:active { transform: scale(.98); }
+.hilo-mensaje-ok:focus-visible { outline: 2px solid #C5A880; outline-offset: 2px; }

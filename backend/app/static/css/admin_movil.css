@@ -1,0 +1,65 @@
+/* =========================================================
+   L&H PULSE - Dashboard del administrador en celular
+   Complementa tienda_movil.css (tablas en tarjetas) con los
+   ajustes propios del dashboard administrativo V2.
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    /* Las tablas ya no necesitan desplazarse hacia los lados */
+    .table-container:has(> .futuristic-table) {
+        overflow-x: visible !important;
+        max-height: none !important;
+    }
+    .futuristic-table { min-width: 0 !important; width: 100% !important; }
+    .futuristic-table tbody td { font-size: .85rem !important; }
+    .futuristic-table tbody td .rank { margin: 0; }
+    .futuristic-table tbody td .status { display: inline-block; margin-top: 2px; }
+
+    /* Indicadores principales y secundarios en dos columnas */
+    .kpi-grid,
+    .secondary-kpi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 10px !important;
+    }
+    .kpi-grid .kpi-card { padding: 14px !important; min-width: 0; }
+    .kpi-grid .kpi-card .kpi-top { gap: 8px; }
+    .kpi-grid .kpi-card .kpi-icon { width: 30px !important; height: 30px !important; font-size: 14px !important; flex: 0 0 30px; }
+    .kpi-grid .kpi-card .kpi-label { font-size: 10px !important; letter-spacing: .06em !important; line-height: 1.25; }
+    .kpi-grid .kpi-card .kpi-value { font-size: 19px !important; margin-top: 10px !important; word-break: break-word; }
+    .kpi-grid .kpi-card .kpi-description { font-size: 11px !important; }
+
+    .secondary-kpi { padding: 12px !important; gap: 10px !important; min-width: 0; }
+    .secondary-kpi .secondary-icon { display: none !important; }
+    .secondary-kpi span { font-size: 10px !important; letter-spacing: .05em !important; }
+    .secondary-kpi strong { font-size: 17px !important; word-break: break-word; }
+    .secondary-kpi small { font-size: 10.5px !important; }
+
+    /* Filtros de período a todo el ancho */
+    .period-form,
+    .period-form > *,
+    .period-form label,
+    .period-form .futuristic-select,
+    .period-form select {
+        width: 100% !important;
+        max-width: 100% !important;
+        text-align: left !important;
+        align-items: stretch !important;
+    }
+
+    /* Botón "Vista V2 · Ver clásica": más pequeño para no tapar contenido */
+    .v2-preview-ribbon {
+        padding: 8px 12px !important;
+        font-size: 10px !important;
+        right: 10px !important;
+        bottom: 10px !important;
+        opacity: .9;
+    }
+    .v2-preview-ribbon span { display: none; }
+    .v2-preview-ribbon::after { content: "Clásica"; font-weight: 800; letter-spacing: .06em; }
+}
+
+@media (max-width: 380px) {
+    .kpi-grid,
+    .secondary-kpi-grid { grid-template-columns: 1fr !important; }
+}

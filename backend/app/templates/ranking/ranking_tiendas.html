@@ -1,0 +1,660 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+
+<style>
+
+/* ==========================================================
+   PÁGINA
+========================================================== */
+
+.ranking-page {
+    padding-bottom: 50px;
+}
+
+/* ==========================================================
+   HERO
+========================================================== */
+
+.page-hero {
+    background:
+        linear-gradient(
+            135deg,
+            #FDFBF7,
+            #F5F0E8
+        );
+    border: 1px solid rgba(139, 125, 107, 0.2);
+    border-radius: 24px;
+    padding: 30px;
+    color: #2D2A26;
+    margin-bottom: 25px;
+    box-shadow:
+        0 15px 40px rgba(45, 42, 38, 0.06);
+}
+
+.page-hero small {
+    color: #8B7D6B;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.page-hero h1 {
+    font-weight: 700;
+    margin: 5px 0;
+    font-family: 'Montserrat', sans-serif;
+}
+
+/* ==========================================================
+   FILTROS
+========================================================== */
+
+.filter-card {
+    background: #FDFBF7;
+    border: 1px solid rgba(139, 125, 107, 0.15);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow:
+        0 8px 25px rgba(45, 42, 38, 0.06);
+    margin-bottom: 25px;
+}
+
+/* ==========================================================
+   CARD RANKING
+========================================================== */
+
+.ranking-card {
+    background: #FDFBF7;
+    border: 1px solid rgba(139, 125, 107, 0.15);
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow:
+        0 8px 30px rgba(45, 42, 38, 0.06);
+}
+
+/* ==========================================================
+   TABLA
+========================================================== */
+
+.ranking-table {
+    margin: 0;
+}
+
+.ranking-table thead {
+    background: #F5F0E8;
+    color: #2D2A26;
+}
+
+.ranking-table th {
+    border: 0;
+    padding: 16px;
+    font-size: .78rem;
+    letter-spacing: .7px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    color: #6B6259;
+}
+
+.ranking-table td {
+    padding: 16px;
+    vertical-align: middle;
+}
+
+/* ==========================================================
+   POSICIÓN
+========================================================== */
+
+.position {
+    width: 55px;
+    height: 38px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    background: #E8DFD0;
+    color: #2D2A26;
+}
+
+.position.top {
+    background:
+        linear-gradient(
+            135deg,
+            #C5A880,
+            #B8946E
+        );
+    color: white;
+}
+
+/* ==========================================================
+   TIENDA
+========================================================== */
+
+.store-name {
+    font-weight: 700;
+    color: #2D2A26;
+}
+
+.store-code {
+    font-size: .78rem;
+    color: #6B6259;
+}
+
+/* ==========================================================
+   PROGRESO
+========================================================== */
+
+.progress {
+    height: 8px;
+    border-radius: 20px;
+    background: #E8DFD0;
+}
+
+.progress-bar {
+    border-radius: 20px;
+    background:
+        linear-gradient(
+            90deg,
+            #C5A880,
+            #8B7D6B
+        );
+}
+
+/* ==========================================================
+   SIN RESULTADOS
+========================================================== */
+
+.empty-ranking {
+    text-align: center;
+    padding: 70px 20px;
+    color: #6B6259;
+}
+
+.empty-ranking i {
+    font-size: 50px;
+    color: #C5A880;
+}
+
+/* ==========================================================
+   BOTONES Y BADGES EN PALETA CÁLIDA
+========================================================== */
+
+.btn-primary {
+    background-color: #8B7D6B !important;
+    border-color: #8B7D6B !important;
+    color: white !important;
+}
+.btn-primary:hover {
+    background-color: #6B5D4F !important;
+    border-color: #6B5D4F !important;
+}
+.btn-outline-secondary {
+    color: #6B6259 !important;
+    border-color: #A89A87 !important;
+}
+.btn-outline-secondary:hover {
+    background-color: #F5F0E8 !important;
+    color: #2D2A26 !important;
+}
+
+.badge.bg-success {
+    background-color: #7A9E7E !important;
+}
+.badge.bg-warning {
+    background-color: #C5A880 !important;
+    color: #2D2A26 !important;
+}
+.badge.bg-info {
+    background-color: #A89A87 !important;
+    color: white !important;
+}
+.badge.bg-danger {
+    background-color: #C06B5E !important;
+}
+
+/* ==========================================================
+   RESPONSIVE
+========================================================== */
+
+@media (max-width: 768px) {
+
+    .page-hero {
+        padding: 24px;
+        border-radius: 18px;
+    }
+
+    .page-hero h1 {
+        font-size: 24px;
+    }
+
+    .filter-card {
+        padding: 16px;
+        border-radius: 16px;
+    }
+
+    .ranking-card {
+        border-radius: 16px;
+    }
+
+}
+
+</style>
+
+{% endblock %}
+
+
+{% block contenido %}
+
+<div class="ranking-page">
+
+    <!-- ======================================================
+         HERO
+    ======================================================= -->
+
+    <div class="page-hero">
+
+        <small>
+            COMPETENCIA
+        </small>
+
+        <h1>
+            <i class="bi bi-trophy-fill me-2"></i>
+            Ranking de tiendas
+        </h1>
+
+        <p class="mb-0 opacity-75">
+            Compara el desempeño de todas las tiendas.
+        </p>
+
+    </div>
+
+
+    <!-- ======================================================
+         FILTROS
+    ======================================================= -->
+
+    <div class="filter-card">
+
+        <form
+            method="GET"
+            action="{{ url_for('app_pages.ranking_tiendas') }}"
+        >
+
+            <div class="row g-3 align-items-end">
+
+                <!-- BUSCAR -->
+
+                <div class="col-lg-5">
+
+                    <label class="form-label fw-semibold">
+                        Buscar tienda
+                    </label>
+
+                    <div class="input-group">
+
+                        <span class="input-group-text">
+                            <i class="bi bi-search"></i>
+                        </span>
+
+                        <input
+                            type="text"
+                            name="buscar"
+                            value="{{ busqueda }}"
+                            class="form-control"
+                            placeholder="Nombre o código de tienda..."
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <!-- MES -->
+
+                <div class="col-md-3 col-lg-2">
+
+                    <label class="form-label fw-semibold">
+                        Mes
+                    </label>
+
+                    <select
+                        name="mes"
+                        class="form-select"
+                    >
+
+                        {% for m in range(1, 13) %}
+
+                            <option
+                                value="{{ m }}"
+                                {% if m == mes %}selected{% endif %}
+                            >
+
+                                {{
+                                    [
+                                        "Enero",
+                                        "Febrero",
+                                        "Marzo",
+                                        "Abril",
+                                        "Mayo",
+                                        "Junio",
+                                        "Julio",
+                                        "Agosto",
+                                        "Septiembre",
+                                        "Octubre",
+                                        "Noviembre",
+                                        "Diciembre"
+                                    ][m-1]
+                                }}
+
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <!-- AÑO -->
+
+                <div class="col-md-3 col-lg-2">
+
+                    <label class="form-label fw-semibold">
+                        Año
+                    </label>
+
+                    <select
+                        name="anio"
+                        class="form-select"
+                    >
+
+                        {% for y in [2024, 2025, 2026, 2027] %}
+
+                            <option
+                                value="{{ y }}"
+                                {% if y == anio %}selected{% endif %}
+                            >
+                                {{ y }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <!-- BOTONES -->
+
+                <div class="col-md-3 col-lg-3">
+
+                    <div class="d-flex gap-2">
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary flex-grow-1"
+                        >
+                            <i class="bi bi-filter me-1"></i>
+                            Filtrar
+                        </button>
+
+                        <a
+                            href="{{ url_for('app_pages.ranking_tiendas') }}"
+                            class="btn btn-outline-secondary"
+                            title="Limpiar filtros"
+                        >
+                            <i class="bi bi-arrow-counterclockwise"></i>
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- ======================================================
+         TABLA
+    ======================================================= -->
+
+    <div class="ranking-card">
+
+        {% if ranking %}
+
+            <div class="table-responsive">
+
+                <table
+                    class="table ranking-table table-hover"
+                >
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                POS.
+                            </th>
+
+                            <th>
+                                TIENDA
+                            </th>
+
+
+                            {% if not es_usuario_tienda %}
+
+                                <th class="text-end">
+                                    VENTAS
+                                </th>
+
+                            {% endif %}
+
+
+                            <th>
+                                CUMPLIMIENTO
+                            </th>
+
+                            <th class="text-center">
+                                ESTADO
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for item in ranking %}
+
+                            <tr>
+
+                                <td>
+
+                                    <span
+                                        class="
+                                            position
+                                            {% if item.posicion <= 3 %}
+                                                top
+                                            {% endif %}
+                                        "
+                                    >
+
+                                        {% if item.posicion == 1 %}
+
+                                            🥇
+
+                                        {% elif item.posicion == 2 %}
+
+                                            🥈
+
+                                        {% elif item.posicion == 3 %}
+
+                                            🥉
+
+                                        {% else %}
+
+                                            {{ item.posicion }}
+
+                                        {% endif %}
+
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+
+                                    <div class="store-name">
+                                        {{ item.nombre }}
+                                    </div>
+
+                                    <div class="store-code">
+                                        {{ item.codigo }}
+                                    </div>
+
+                                </td>
+
+
+                                {% if not es_usuario_tienda %}
+
+                                    <td class="text-end fw-bold">
+
+                                        $
+
+                                        {{
+                                            "{:,.0f}".format(
+                                                item.venta_actual or 0
+                                            )
+                                        }}
+
+                                    </td>
+
+                                {% endif %}
+
+
+                                <td style="min-width:220px;">
+
+                                    <div
+                                        class="
+                                            d-flex
+                                            justify-content-between
+                                            mb-1
+                                        "
+                                    >
+
+                                        <small class="fw-semibold">
+
+                                            {{
+                                                "%.1f"|format(
+                                                    (item.cumplimiento_pct or 0) * 100
+                                                )
+                                            }}%
+
+                                        </small>
+
+                                    </div>
+
+
+                                    <div class="progress">
+
+                                        <div
+                                            class="progress-bar"
+                                            role="progressbar"
+                                            style="
+                                                width:
+                                                {{
+                                                    [
+                                                        (item.cumplimiento_pct or 0) * 100,
+                                                        100
+                                                    ]|min
+                                                }}%;
+                                            "
+                                            aria-valuenow="{{
+                                                (item.cumplimiento_pct or 0) * 100
+                                            }}"
+                                            aria-valuemin="0"
+                                            aria-valuemax="100"
+                                        >
+                                        </div>
+
+                                    </div>
+
+                                </td>
+
+
+                                <td class="text-center">
+
+                                    {% if (item.cumplimiento_pct or 0) >= 1 %}
+
+                                        <span
+                                            class="badge bg-success"
+                                        >
+                                            META SUPERADA
+                                        </span>
+
+                                    {% elif (item.cumplimiento_pct or 0) >= 0.9 %}
+
+                                        <span
+                                            class="badge bg-warning text-dark"
+                                        >
+                                            CERCA
+                                        </span>
+
+                                    {% elif (item.cumplimiento_pct or 0) >= 0.8 %}
+
+                                        <span
+                                            class="badge bg-info"
+                                        >
+                                            EN PROGRESO
+                                        </span>
+
+                                    {% else %}
+
+                                        <span
+                                            class="badge bg-danger"
+                                        >
+                                            POR DEBAJO
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-ranking">
+
+                <i class="bi bi-shop"></i>
+
+                <h4 class="mt-3">
+                    No hay resultados
+                </h4>
+
+                <p>
+                    No encontramos tiendas para el período
+                    o búsqueda seleccionada.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

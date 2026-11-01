@@ -1,0 +1,479 @@
+:root {
+
+    --lh-sidebar-width: 260px;
+
+    --lh-blue-dark: #071a2f;
+    --lh-blue: #0b1f3a;
+    --lh-blue-light: #123c68;
+
+    --lh-cyan: #38bdf8;
+    --lh-cyan-soft: rgba(56, 189, 248, .12);
+
+    --lh-text: #e7f0f8;
+    --lh-muted: #91a4b8;
+
+}
+
+
+/* =====================================================
+   SIDEBAR
+===================================================== */
+
+.lh-sidebar {
+
+    position: fixed;
+
+    left: 0;
+    top: 0;
+    bottom: 0;
+
+    width: var(--lh-sidebar-width);
+
+    background:
+        radial-gradient(
+            circle at top right,
+            rgba(56, 189, 248, .12),
+            transparent 35%
+        ),
+        linear-gradient(
+            180deg,
+            #071a2f 0%,
+            #091d34 100%
+        );
+
+    color: var(--lh-text);
+
+    z-index: 1050;
+
+    display: flex;
+    flex-direction: column;
+
+    border-right: 1px solid rgba(255,255,255,.06);
+
+    box-shadow:
+        10px 0 40px rgba(0,0,0,.18);
+
+}
+
+
+/* =====================================================
+   LOGO
+===================================================== */
+
+.lh-logo {
+
+    padding: 25px 20px;
+
+    border-bottom:
+        1px solid rgba(255,255,255,.06);
+
+}
+
+
+.lh-logo a {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    text-decoration: none;
+
+    color: white;
+
+}
+
+
+.lh-logo-mark {
+
+    width: 43px;
+    height: 43px;
+
+    border-radius: 13px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #38bdf8,
+            #2563eb
+        );
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 1px;
+
+    color: white;
+
+    font-weight: 800;
+
+    font-size: 11px;
+
+    box-shadow:
+        0 8px 25px rgba(37,99,235,.35);
+
+}
+
+
+.lh-logo strong {
+
+    display: block;
+
+    font-size: 15px;
+
+    letter-spacing: .8px;
+
+}
+
+
+.lh-logo small {
+
+    display: block;
+
+    margin-top: 2px;
+
+    font-size: 8px;
+
+    color: var(--lh-muted);
+
+    letter-spacing: 1.3px;
+
+}
+
+
+/* =====================================================
+   MENU
+===================================================== */
+
+.lh-menu {
+
+    padding: 20px 12px;
+
+    flex: 1;
+
+}
+
+
+.lh-menu-item {
+
+    width: 100%;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 12px 14px;
+
+    margin-bottom: 5px;
+
+    border: 0;
+
+    border-radius: 13px;
+
+    background: transparent;
+
+    color: #b8c7d8;
+
+    text-decoration: none;
+
+    font-size: 14px;
+
+    font-weight: 500;
+
+    transition:
+        background .2s ease,
+        color .2s ease,
+        transform .2s ease;
+
+}
+
+
+.lh-menu-item:hover {
+
+    color: white;
+
+    background:
+        rgba(255,255,255,.06);
+
+    transform: translateX(2px);
+
+}
+
+
+.lh-menu-icon {
+
+    width: 34px;
+    height: 34px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    background:
+        rgba(255,255,255,.045);
+
+    color: #8ca6bd;
+
+}
+
+
+.lh-menu-item:hover .lh-menu-icon {
+
+    color: var(--lh-cyan);
+
+    background:
+        var(--lh-cyan-soft);
+
+}
+
+
+.lh-menu-button {
+
+    cursor: pointer;
+
+    text-align: left;
+
+}
+
+
+.lh-chevron {
+
+    margin-left: auto;
+
+    font-size: 11px;
+
+    transition: transform .2s ease;
+
+}
+
+
+.lh-menu-button[aria-expanded="true"] .lh-chevron {
+
+    transform: rotate(180deg);
+
+}
+
+
+/* =====================================================
+   SUBMENU
+===================================================== */
+
+.lh-submenu {
+
+    margin:
+
+        0 0 8px 47px;
+
+    border-left:
+        1px solid rgba(56,189,248,.18);
+
+}
+
+
+.lh-submenu a {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    color: #8298ad;
+
+    text-decoration: none;
+
+    padding: 9px 12px;
+
+    font-size: 13px;
+
+    border-radius: 9px;
+
+    transition: .2s ease;
+
+}
+
+
+.lh-submenu a:hover {
+
+    color: white;
+
+    background:
+        rgba(56,189,248,.08);
+
+}
+
+
+.lh-submenu a i {
+
+    color: var(--lh-cyan);
+
+}
+
+
+/* =====================================================
+   PARTE INFERIOR
+===================================================== */
+
+.lh-sidebar-bottom {
+
+    padding: 15px;
+
+    border-top:
+        1px solid rgba(255,255,255,.06);
+
+}
+
+
+.lh-user {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 10px;
+
+    margin-bottom: 8px;
+
+}
+
+
+.lh-user-avatar {
+
+    width: 38px;
+    height: 38px;
+
+    border-radius: 50%;
+
+    background:
+        linear-gradient(
+            135deg,
+            #38bdf8,
+            #2563eb
+        );
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    color: white;
+
+}
+
+
+.lh-user-info {
+
+    min-width: 0;
+
+}
+
+
+.lh-user-info strong {
+
+    display: block;
+
+    color: white;
+
+    font-size: 12px;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+}
+
+
+.lh-user-info small {
+
+    color: var(--lh-muted);
+
+    font-size: 10px;
+
+}
+
+
+.lh-logout {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 11px 12px;
+
+    color: #8fa2b5;
+
+    text-decoration: none;
+
+    border-radius: 10px;
+
+    font-size: 13px;
+
+}
+
+
+.lh-logout:hover {
+
+    color: #f87171;
+
+    background:
+        rgba(248,113,113,.07);
+
+}
+
+
+/* =====================================================
+   CONTENIDO
+===================================================== */
+
+.lh-main {
+
+    margin-left:
+        var(--lh-sidebar-width);
+
+    min-height: 100vh;
+
+    padding: 30px;
+
+    background:
+        #f4f7fb;
+
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 991px) {
+
+    .lh-sidebar {
+
+        transform:
+            translateX(-100%);
+
+    }
+
+
+    .lh-main {
+
+        margin-left: 0;
+
+        padding: 20px;
+
+    }
+
+}
