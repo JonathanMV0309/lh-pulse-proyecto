@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block contenido %}
+{% include "metas_tienda/_estilos.html" %}
+<style>
+  .mt-barra { display:flex; flex-wrap:wrap; gap:10px 14px; align-items:flex-end; padding:12px 14px; border-radius:16px; background:var(--card); border:1px solid var(--line); margin-bottom:14px; }
+  .mt-barra .mt-campo select, .mt-barra .mt-campo input { min-width:120px; padding:7px 10px; font-size:14px; }
+  .mt-kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:10px; margin-bottom:14px; }
+  .mt-kpi { padding:12px 16px; border-radius:14px; background:var(--card); border:1px solid var(--line); }
+  .mt-kpi span { display:block; color:var(--mu); font:700 11px Inter,sans-serif; letter-spacing:.06em; text-transform:uppercase; }
+  .mt-kpi b { display:block; font:800 22px Inter,sans-serif; font-variant-numeric:tabular-nums; }
+  .mt-kpi small { color:var(--mu); font-size:12.5px; }
+  .mt-caja { overflow-x:auto; border-radius:16px; background:var(--card); border:1px solid var(--line); }
+  .mt-tabla { width:100%; border-collapse:collapse; font-size:14px; }
+  .mt-tabla th { padding:10px; background:var(--cream); color:var(--mu); font:700 11px Inter,sans-serif; letter-spacing:.05em; text-transform:uppercase; text-align:left; white-space:nowrap; }
+  .mt-tabla td { padding:10px; border-top:1px solid var(--line); vertical-align:middle; }
+  .mt-tabla td.num, .mt-tabla th.num { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .mt-tabla td small { display:block; color:var(--mu); font-size:12px; }
+  .mt-barrita { width:110px; height:8px; border-radius:999px; background:#EDE5D8; overflow:hidden; display:inline-block; vertical-align:middle; margin-right:8px; }
+  .mt-barrita i { display:block; height:100%; border-radius:999px; }
+  .mt-chip { display:inline-flex; align-items:center; gap:5px; padding:2px 9px; border-radius:999px; font-size:12px; font-weight:800; white-space:nowrap; }
+  .mt-chip::before { content:""; width:8px; height:8px; border-radius:50%; background:currentColor; }
+  .mt-chip.verde { background:var(--ok-s); color:var(--ok); } .mt-chip.amarillo { background:var(--am-s); color:var(--am); }
+  .mt-chip.rojo { background:var(--bad-s); color:var(--bad); } .mt-chip.gris { background:var(--cream); color:var(--mu); }
+  .mt-acc { white-space:nowrap; text-align:right; }
+  .mt-acc a, .mt-acc button { display:inline-flex; align-items:center; gap:4px; padding:5px 9px; border-radius:8px; border:0; background:transparent; color:var(--ink); font:700 13px Inter,sans-serif; text-decoration:none; cursor:pointer; }
+  .mt-acc a:hover, .mt-acc button:hover { background:var(--cream); color:var(--ink); }
+  .mt-modal { position:fixed; inset:0; z-index:3000; display:grid; place-items:center; padding:16px; background:rgba(29,25,21,.45); }
+  .mt-modal[hidden] { display:none; }
+  .mt-ventana { width:min(520px,100%); max-height:80vh; overflow:auto; padding:18px 20px; border-radius:18px; background:#fff; box-shadow:0 30px 70px rgba(0,0,0,.3); }
+  .mt-ventana h2 { margin:0 0 4px; font:800 18px Inter,sans-serif; }
+  .mt-linea { padding:8px 0; border-bottom:1px solid var(--line); font-size:14px; } .mt-linea small { display:block; color:var(--mu); }
+</style>
+
+<div class="container-fluid mt-4 px-4 mt">
+  <div class="mt-cab">
+    <div>
+      <div class="mt-kicker">HU-05 · HU-07</div>
+      <h1>Metas de las tiendas</h1>
+      <p>La meta del mes de cada tienda, lo que lleva vendido y cómo va. Las que van más atrasadas salen primero.</p>
+    </div>
+    <a class="mt-btn dark" href="{{ url_for('metas_paginas.nueva') }}"><i class="bi bi-plus-lg" aria-hidden="true"></i> Nueva meta</a>
+  </div>
+
+  <div class="mt-aviso" id="mtAviso" role="status" aria-live="polite" hidden></div>
+
+  <form class="mt-barra" id="mtFiltros">
+    <div class="mt-campo"><label for="mtMes">Mes</label>
+      <select id="mtMes">{% for n in ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'] %}<option value="{{ loop.index }}">{{ n }}</option>{% endfor %}</select></div>
+    <div class="mt-campo"><label for="mtAnio">Año</label><input id="mtAnio" type="number" min="2020" max="2100" step="1" inputmode="numeric"></div>
+    <div class="mt-campo"><label for="mtBuscar">Buscar tienda</label><input id="mtBuscar" type="search" placeholder="Código, nombre o ciudad"></div>
+    <button class="mt-btn" type="submit"><i class="bi bi-arrow-repeat" aria-hidden="true"></i> Consultar</button>
+    <small id="mtSemaforo" style="color:var(--mu);margin-left:auto"></small>
+  </form>
+
+  <div class="mt-kpis" id="mtKpis"></div>
+  <div class="mt-caja"><table class="mt-tabla">
+    <thead><tr><th>Tienda</th><th class="num">Meta del mes</th><th class="num">Meta al corte</th><th class="num">Venta</th><th>Cumplimiento</th><th>Estado</th><th class="mt-acc"><span class="visually-hidden">Acciones</span></th></tr></thead>
+    <tbody id="mtCuerpo"><tr><td colspan="7"><div class="mt-cargando"><span class="spinner-border spinner-border-sm"></span> Consultando la API…</div></td></tr></tbody>
+  </table></div>
+</div>
+
+<div class="mt-modal" id="mtHistorial" hidden>
+  <div class="mt-ventana" role="dialog" aria-modal="true" aria-labelledby="mtHistTit">
+    <h2 id="mtHistTit">Historial de la meta</h2>
+    <div id="mtHistCuerpo"></div>
+    <div style="text-align:right;margin-top:12px"><button type="button" class="mt-btn" data-cerrar>Cerrar</button></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var PESOS = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 });
+  var MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  var ESTADO = { verde: 'Va bien', amarillo: 'Atento', rojo: 'Atrasada', gris: 'Sin meta' };
+  var COLOR = { verde: '#1F5E3F', amarillo: '#C9A227', rojo: '#9F1D1D', gris: '#B9AE9F' };
+  var filas = [];
+  var params = new URLSearchParams(location.search), hoy = new Date();
+  var selMes = document.getElementById('mtMes'), inAnio = document.getElementById('mtAnio'), inBuscar = document.getElementById('mtBuscar');
+  selMes.value = params.get('mes') || hoy.getMonth() + 1;
+  inAnio.value = params.get('anio') || hoy.getFullYear();
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function aviso(tipo, texto) { var a = document.getElementById('mtAviso'); a.className = 'mt-aviso ' + tipo; a.textContent = texto; a.hidden = !texto; }
+  function plata(v) { return v == null ? '—' : PESOS.format(v); }
+
+  // Mensaje que deja el formulario al volver (crear / ajustar / eliminar)
+  try { var m = sessionStorage.getItem('mtMensaje'); if (m) { aviso('ok', m); sessionStorage.removeItem('mtMensaje'); } } catch (e) {}
+
+  function pedir(url, opciones) {
+    return fetch(url, Object.assign({ credentials: 'same-origin', headers: { 'Accept': 'application/json' } }, opciones || {}))
+      .then(function (r) { return r.json().catch(function () { return { ok: false, error: 'El servidor respondió algo inesperado (' + r.status + ').' }; }); });
+  }
+
+  function consultar() {
+    var anio = inAnio.value, mes = selMes.value;
+    history.replaceState(null, '', '?anio=' + encodeURIComponent(anio) + '&mes=' + encodeURIComponent(mes));
+    document.getElementById('mtCuerpo').innerHTML = '<tr><td colspan="7"><div class="mt-cargando"><span class="spinner-border spinner-border-sm"></span> Consultando la API…</div></td></tr>';
+    pedir('/api/v1/metas?anio=' + encodeURIComponent(anio) + '&mes=' + encodeURIComponent(mes)).then(function (j) {
+      if (!j.ok) { filas = []; pintar(); aviso('error', j.error); return; }
+      filas = j.tiendas;
+      document.getElementById('mtSemaforo').textContent = 'Semáforo: ' + j.semaforo;
+      pintar();
+    }).catch(function () { aviso('error', 'No hubo conexión con la API. Revisa que el servidor esté encendido.'); });
+  }
+
+  function pintar() {
+    var q = inBuscar.value.trim().toLowerCase();
+    var vis = filas.filter(function (f) { return !q || (f.tienda_codigo + ' ' + f.tienda_nombre + ' ' + f.ciudad).toLowerCase().indexOf(q) >= 0; });
+    var cuenta = { verde: 0, amarillo: 0, rojo: 0, gris: 0 }, meta = 0, venta = 0;
+    filas.forEach(function (f) { cuenta[f.semaforo]++; if (f.meta) { meta += f.meta; venta += f.venta; } });
+    document.getElementById('mtKpis').innerHTML = [
+      ['Tiendas con meta', filas.length - cuenta.gris, 'de ' + filas.length + ' activas'],
+      ['Van bien', cuenta.verde, 'cumplen la meta al corte'],
+      ['Atentas', cuenta.amarillo, 'entre 90 % y 99 %'],
+      ['Atrasadas', cuenta.rojo, 'menos del 90 %'],
+      ['Meta total del mes', PESOS.format(meta), 'vendido ' + PESOS.format(venta)]
+    ].map(function (k) { return '<div class="mt-kpi"><span>' + k[0] + '</span><b>' + esc(k[1]) + '</b><small>' + esc(k[2]) + '</small></div>'; }).join('');
+    var cuerpo = document.getElementById('mtCuerpo');
+    if (!vis.length) { cuerpo.innerHTML = '<tr><td colspan="7" class="mt-cargando">' + (filas.length ? 'Ninguna tienda coincide con la búsqueda.' : 'No hay tiendas para mostrar.') + '</td></tr>'; return; }
+    cuerpo.innerHTML = vis.map(function (f) {
+      var pct = f.cumplimiento_pct, ancho = pct == null ? 0 : Math.min(pct, 120) / 1.2;
+      var acciones = f.meta_id
+        ? '<a href="/metas-tienda/' + f.meta_id + '/editar"><i class="bi bi-pencil" aria-hidden="true"></i> Ajustar</a><button type="button" data-hist="' + f.meta_id + '" data-tienda="' + esc(f.tienda_codigo) + '"><i class="bi bi-clock-history" aria-hidden="true"></i> Historial</button>'
+        : '<a href="/metas-tienda/nueva?tienda=' + f.tienda_id + '&anio=' + f.anio + '&mes=' + f.mes + '"><i class="bi bi-plus-lg" aria-hidden="true"></i> Poner meta</a>';
+      return '<tr><td><b>' + esc(f.tienda_codigo) + ' · ' + esc(f.tienda_nombre) + '</b><small>' + esc(f.ciudad) + (f.dia_corte ? ' · ventas al día ' + f.dia_corte : ' · sin informe de ventas este mes') + '</small></td>' +
+        '<td class="num">' + plata(f.meta) + '</td><td class="num">' + plata(f.meta_al_corte) + '</td><td class="num">' + plata(f.venta) + '</td>' +
+        '<td style="white-space:nowrap">' + (pct == null ? '—' : '<span class="mt-barrita" aria-hidden="true"><i style="width:' + ancho + '%;background:' + COLOR[f.semaforo] + '"></i></span><b>' + pct.toLocaleString('es-CO') + ' %</b>') + '</td>' +
+        '<td><span class="mt-chip ' + f.semaforo + '">' + ESTADO[f.semaforo] + '</span></td><td class="mt-acc">' + acciones + '</td></tr>';
+    }).join('');
+  }
+
+  var modal = document.getElementById('mtHistorial');
+  document.getElementById('mtCuerpo').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-hist]'); if (!b) return;
+    document.getElementById('mtHistTit').textContent = 'Historial de la meta de ' + b.dataset.tienda;
+    document.getElementById('mtHistCuerpo').innerHTML = '<div class="mt-cargando"><span class="spinner-border spinner-border-sm"></span> Cargando…</div>';
+    modal.hidden = false; modal.querySelector('[data-cerrar]').focus();
+    pedir('/api/v1/metas/' + b.dataset.hist + '/historial').then(function (j) {
+      if (!j.ok) { document.getElementById('mtHistCuerpo').textContent = j.error; return; }
+      document.getElementById('mtHistCuerpo').innerHTML = j.historial.length ? j.historial.map(function (h) {
+        var cambio = h.accion === 'creada' ? 'Creada con ' + plata(h.valor_nuevo) : h.accion === 'ajustada' ? 'De ' + plata(h.valor_anterior) + ' a ' + plata(h.valor_nuevo) : 'Eliminada (era ' + plata(h.valor_anterior) + ')';
+        return '<div class="mt-linea"><b>' + esc(cambio) + '</b><small>' + esc(h.usuario) + ' · ' + esc((h.fecha || '').replace('T', ' ')) + '</small></div>';
+      }).join('') : '<p>Sin cambios registrados.</p>';
+    });
+  });
+  modal.addEventListener('click', function (e) { if (e.target === modal || e.target.closest('[data-cerrar]')) modal.hidden = true; });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') modal.hidden = true; });
+  document.getElementById('mtFiltros').addEventListener('submit', function (e) { e.preventDefault(); aviso('', ''); consultar(); });
+  inBuscar.addEventListener('input', pintar);
+  consultar();
+})();
+</script>
+{% endblock %}

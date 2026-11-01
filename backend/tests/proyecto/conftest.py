@@ -36,10 +36,12 @@ def configuracion_limpia(monkeypatch):
 @pytest.fixture
 def app():
     from app.metas.api import api_metas_bp
+    from app.metas.paginas import metas_paginas_bp
     aplicacion = Flask(__name__, template_folder=str(ROOT / "app" / "templates"))
     aplicacion.config.update(TESTING=True, SECRET_KEY="clave-solo-para-pruebas", SQLALCHEMY_DATABASE_URI="sqlite://")
     db.init_app(aplicacion)
     aplicacion.register_blueprint(api_metas_bp)
+    aplicacion.register_blueprint(metas_paginas_bp)
     with aplicacion.app_context():
         db.create_all()
         admin, tienda = Role(id=1, nombre="Administrador"), Role(id=2, nombre="TIENDA")
