@@ -30,3 +30,6 @@ from .daily_sales import DailySales
 from .daily_store_sales import DailyStoreSales
 from .checklist import ChecklistVisita
 from .trafico_horario import TraficoCarga, TraficoHorario
+
+# Metas mensuales de tienda (Sprint 2)
+from app.models.meta_tienda import MetaTienda, MetaTiendaHistorial

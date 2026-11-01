@@ -27,6 +27,7 @@ TIENDAS = [
 def sembrar():
     from app.extensions import db
     from app.models import Compliance, Role, Store, User
+    from app.models.meta_tienda import MetaTienda, MetaTiendaHistorial
 
     db.create_all()
     if Store.query.first():
@@ -49,7 +50,7 @@ def sembrar():
     db.session.flush()
     db.session.add(User(nombre="Administración Ejemplo", correo=correo, password=generate_password_hash(clave), role_id=admin.id))
 
-    # Ventas del mes actual (informes al día de corte de hoy)
+    # Ventas del mes actual (informes al día de corte de hoy) y metas para 8 de las 10 tiendas
     hoy = date.today()
     dias = calendar.monthrange(hoy.year, hoy.month)[1]
     corte = max(1, hoy.day - 1)
@@ -62,5 +63,12 @@ def sembrar():
                                   venta_anterior=venta * 0.9, incremento=0.11, cuota_total=meta,
                                   cumplimiento_pct=venta / meta, facturas=int(venta / 95_000),
                                   es_cierre=False, activo=True, fecha_carga=datetime.utcnow()))
+        if s.codigo not in ("S-09", "S-10"):
+            m = MetaTienda(store_id=s.id, anio=hoy.year, mes=hoy.month, valor=meta, nota="Meta inicial de ejemplo",
+                           actualizado_por="Semilla")
+            db.session.add(m)
+            db.session.flush()
+            db.session.add(MetaTiendaHistorial(meta_id=m.id, store_id=s.id, anio=hoy.year, mes=hoy.month, accion="creada",
+                                               valor_nuevo=meta, usuario="Semilla"))
     db.session.commit()
-    click.echo(f"Listo: {len(tiendas)} tiendas de ejemplo, ventas de {hoy.month:02d}/{hoy.year}. Admin: {correo}")
+    click.echo(f"Listo: {len(tiendas)} tiendas de ejemplo, ventas de {hoy.month:02d}/{hoy.year} y metas. Admin: {correo}")
