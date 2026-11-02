@@ -36,6 +36,7 @@ from app.routes.retos import retos_bp
 from app.routes.planilla import planilla_bp
 from app.routes.novedades import novedades_bp
 from app.routes.historico import historico_bp
+from app.cli_semilla import sembrar
 from app.services.trafico_import_service import importar_trafico, importar_cuenta_personas
 
 # ==========================
@@ -89,6 +90,7 @@ def create_app():
     # Registro de accesos: crea su tabla si aún no existe (no toca las demás)
     crear_tabla_si_falta(app)
     crear_tablas_mensajes_hilo(app)
+    app.cli.add_command(sembrar)
     app.cli.add_command(importar_trafico)
     app.cli.add_command(importar_cuenta_personas)
 
