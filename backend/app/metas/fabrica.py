@@ -32,8 +32,10 @@ class FabricaSQLAlchemy(FabricaDAO):
     """Familia que trabaja contra la base de datos PostgreSQL del proyecto."""
 
     def __init__(self):
+        from app.metas.decoradores import TiendaDAOConCache
         from app.metas.dao.sqlalchemy_dao import TiendaDAOSQLAlchemy
-        self._tiendas = TiendaDAOSQLAlchemy()
+        # Las tiendas cambian poco: se leen con caché (DECORATOR) y se comparte entre peticiones
+        self._tiendas = TiendaDAOConCache(TiendaDAOSQLAlchemy(), ConfiguracionMetas().cache_tiendas_segundos)
 
     def crear_tienda_dao(self):
         return self._tiendas
