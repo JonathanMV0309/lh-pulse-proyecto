@@ -698,7 +698,10 @@
     'retos.pagina': 'Retos de la semana',
     'planilla.pagina': 'Planilla de horas de las tiendas',
     'novedades.pagina': 'Novedades del personal' if not es_tienda else 'Novedades de mi equipo',
-    'historico.pagina': 'Histórico de cumplimientos'
+    'historico.pagina': 'Histórico de cumplimientos',
+    'metas_paginas.consulta': 'Metas de las tiendas',
+    'metas_paginas.nueva': 'Nueva meta de tienda',
+    'metas_paginas.editar': 'Ajustar meta de tienda'
 } %}
 
 {# Estos helpers solo generan enlaces: no cambian rutas ni permisos. #}
@@ -812,6 +815,9 @@
 
                     {% if es_admin and not sin_administracion %}
                         {{ enlace('admin_goals.admin_metas', 'Metas y vendedores', 'bi-bullseye') }}
+                    {% endif %}
+                    {% if es_admin %}
+                        {{ enlace('metas_paginas.consulta', 'Metas de las tiendas', 'bi-flag') }}
                     {% endif %}
                     {% if ve_planillas %}
                         {{ enlace('planilla.pagina', 'Horarios de las tiendas', 'bi-clock-history') }}

@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block contenido %}
+{% include "metas_tienda/_estilos.html" %}
+<style>
+  .mt-form { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px 18px; max-width:820px; }
+  .mt-form .ancho { grid-column:1 / -1; }
+  .mt-pie { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:6px; }
+  .mt-pie .mt-btn.peligro { margin-left:auto; }
+</style>
+
+<div class="container-fluid mt-4 px-4 mt">
+  <div class="mt-cab">
+    <div>
+      <div class="mt-kicker">HU-06</div>
+      <h1>{{ 'Ajustar meta' if meta_id else 'Nueva meta de tienda' }}</h1>
+      <p>{{ 'Cambia el valor de la meta o la nota. La tienda y el mes no cambian: si son otros, crea una meta nueva.' if meta_id else 'Elige la tienda y el mes, y escribe la meta de venta en pesos. Cada tienda tiene una sola meta por mes.' }}</p>
+    </div>
+    <a class="mt-btn" href="{{ url_for('metas_paginas.consulta') }}"><i class="bi bi-arrow-left" aria-hidden="true"></i> Volver a las metas</a>
+  </div>
+
+  <div class="mt-aviso" id="mtAviso" role="alert" hidden></div>
+
+  <form class="mt-panel" id="mtForm" novalidate>
+    <div class="mt-form">
+      <div class="mt-campo ancho"><label for="tienda_id">Tienda</label>
+        <select id="tienda_id" name="tienda_id" aria-describedby="err_tienda_id" required><option value="">Cargando tiendas…</option></select>
+        <span class="mt-err" id="err_tienda_id"></span></div>
+      <div class="mt-campo"><label for="mes">Mes</label>
+        <select id="mes" name="mes" aria-describedby="err_mes">{% for n in ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'] %}<option value="{{ loop.index }}">{{ n }}</option>{% endfor %}</select>
+        <span class="mt-err" id="err_mes"></span></div>
+      <div class="mt-campo"><label for="anio">Año</label>
+        <input id="anio" name="anio" type="number" min="2020" max="2100" step="1" inputmode="numeric" aria-describedby="err_anio">
+        <span class="mt-err" id="err_anio"></span></div>
+      <div class="mt-campo"><label for="valor">Meta de venta (pesos)</label>
+        <input id="valor" name="valor" type="text" inputmode="numeric" autocomplete="off" placeholder="Ej: 45.000.000" aria-describedby="ayuda_valor err_valor">
+        <small id="ayuda_valor">Sin decimales. Los puntos se ponen solos.</small>
+        <span class="mt-err" id="err_valor"></span></div>
+      <div class="mt-campo ancho"><label for="nota">Nota (opcional)</label>
+        <textarea id="nota" name="nota" rows="2" maxlength="255" placeholder="Por qué se pone o se ajusta esta meta"></textarea></div>
+    </div>
+    <div class="mt-pie">
+      <button class="mt-btn dark" type="submit" id="mtGuardar"><i class="bi bi-check2" aria-hidden="true"></i> {{ 'Guardar ajuste' if meta_id else 'Crear meta' }}</button>
+      <a class="mt-btn" href="{{ url_for('metas_paginas.consulta') }}">Cancelar</a>
+      {% if meta_id %}<button class="mt-btn peligro" type="button" id="mtEliminar"><i class="bi bi-trash" aria-hidden="true"></i> Eliminar meta</button>{% endif %}
+    </div>
+  </form>
+</div>
+
+<script>
+(function () {
+  var META_ID = {{ meta_id|tojson }};
+  var form = document.getElementById('mtForm'), guardar = document.getElementById('mtGuardar');
+  var campos = { tienda_id: document.getElementById('tienda_id'), mes: document.getElementById('mes'), anio: document.getElementById('anio'),
+                 valor: document.getElementById('valor'), nota: document.getElementById('nota') };
+  var params = new URLSearchParams(location.search), hoy = new Date();
+  campos.mes.value = params.get('mes') || hoy.getMonth() + 1;
+  campos.anio.value = params.get('anio') || hoy.getFullYear();
+
+  function aviso(tipo, texto) { var a = document.getElementById('mtAviso'); a.className = 'mt-aviso ' + tipo; a.textContent = texto; a.hidden = !texto; }
+  function limpiarErrores() { Object.keys(campos).forEach(function (k) { campos[k].removeAttribute('aria-invalid'); var e = document.getElementById('err_' + k); if (e) e.textContent = ''; }); }
+  function errorEn(campo, texto) {
+    if (campo && campos[campo]) { campos[campo].setAttribute('aria-invalid', 'true'); var e = document.getElementById('err_' + campo); if (e) e.textContent = texto; campos[campo].focus(); }
+  }
+  function pedir(url, opciones) {
+    return fetch(url, Object.assign({ credentials: 'same-origin', headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' } }, opciones || {}))
+      .then(function (r) { return r.json().catch(function () { return { ok: false, error: 'El servidor respondió algo inesperado (' + r.status + ').' }; }); });
+  }
+  function soloDigitos(v) { return String(v || '').replace(/\D/g, ''); }
+  campos.valor.addEventListener('input', function () {
+    var d = soloDigitos(campos.valor.value);
+    campos.valor.value = d ? Number(d).toLocaleString('es-CO') : '';
+  });
+
+  // Tiendas desde la API
+  pedir('/api/v1/tiendas').then(function (j) {
+    if (!j.ok) { aviso('error', j.error); return; }
+    campos.tienda_id.innerHTML = '<option value="">Elige una tienda</option>' + j.tiendas.map(function (t) {
+      return '<option value="' + t.id + '">' + t.codigo + ' · ' + t.nombre.replace(/</g, '&lt;') + (t.ciudad ? ' (' + t.ciudad.replace(/</g, '&lt;') + ')' : '') + '</option>';
+    }).join('');
+    if (params.get('tienda')) campos.tienda_id.value = params.get('tienda');
+    if (META_ID) cargarMeta();
+  }).catch(function () { aviso('error', 'No hubo conexión con la API.'); });
+
+  function cargarMeta() {
+    pedir('/api/v1/metas/' + META_ID).then(function (j) {
+      if (!j.ok) { aviso('error', j.error); guardar.disabled = true; return; }
+      var m = j.meta;
+      campos.tienda_id.value = m.tienda_id; campos.mes.value = m.mes; campos.anio.value = m.anio;
+      campos.valor.value = Math.round(m.valor).toLocaleString('es-CO'); campos.nota.value = m.nota || '';
+      ['tienda_id', 'mes', 'anio'].forEach(function (k) { campos[k].disabled = true; });
+      aviso('info', 'Última modificación: ' + (m.actualizado_por || '—') + ' · ' + (m.actualizado_en || '').replace('T', ' '));
+    });
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault(); limpiarErrores(); aviso('', '');
+    var cuerpo = { valor: soloDigitos(campos.valor.value) ? Number(soloDigitos(campos.valor.value)) : null, nota: campos.nota.value };
+    if (!META_ID) { cuerpo.tienda_id = campos.tienda_id.value || null; cuerpo.mes = campos.mes.value; cuerpo.anio = campos.anio.value; }
+    var antes = guardar.innerHTML; guardar.disabled = true; guardar.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Guardando…';
+    pedir(META_ID ? '/api/v1/metas/' + META_ID : '/api/v1/metas', { method: META_ID ? 'PUT' : 'POST', body: JSON.stringify(cuerpo) })
+      .then(function (j) {
+        if (!j.ok) { aviso('error', j.error); errorEn(j.campo, j.error); return; }
+        try { sessionStorage.setItem('mtMensaje', j.mensaje); } catch (err) {}
+        location.href = '/metas-tienda/?anio=' + j.meta.anio + '&mes=' + j.meta.mes;
+      })
+      .catch(function () { aviso('error', 'No hubo conexión con la API. No se guardó nada.'); })
+      .finally(function () { guardar.disabled = false; guardar.innerHTML = antes; });
+  });
+
+  var eliminar = document.getElementById('mtEliminar');
+  if (eliminar) eliminar.addEventListener('click', function () {
+    if (!confirm('¿Eliminar esta meta? El historial se conserva.')) return;
+    eliminar.disabled = true;
+    pedir('/api/v1/metas/' + META_ID, { method: 'DELETE' }).then(function (j) {
+      if (!j.ok) { aviso('error', j.error); eliminar.disabled = false; return; }
+      try { sessionStorage.setItem('mtMensaje', j.mensaje); } catch (err) {}
+      location.href = '/metas-tienda/?anio=' + campos.anio.value + '&mes=' + campos.mes.value;
+    });
+  });
+})();
+</script>
+{% endblock %}

@@ -37,6 +37,7 @@ from app.routes.planilla import planilla_bp
 from app.routes.novedades import novedades_bp
 from app.routes.historico import historico_bp
 from app.metas.api import api_metas_bp
+from app.metas.paginas import metas_paginas_bp
 from app.cli_semilla import sembrar
 from app.services.trafico_import_service import importar_trafico, importar_cuenta_personas
 
@@ -88,6 +89,7 @@ def create_app():
     app.register_blueprint(novedades_bp)
     app.register_blueprint(historico_bp)
     app.register_blueprint(api_metas_bp)
+    app.register_blueprint(metas_paginas_bp)
 
     # Registro de accesos: crea su tabla si aún no existe (no toca las demás)
     crear_tabla_si_falta(app)
